@@ -151,7 +151,8 @@ public:
 	void USBD_GetDescriptor(usbRequest req);
 	void USBD_StdDevReq (usbRequest req);
 	void USB_EP0StartXfer(bool is_in, uint8_t epnum, uint32_t xfer_len);
-	void USB_EPSetStall(uint8_t epnum);
+//	void USB_EPSetStall(uint8_t epnum);
+	void USBD_CtlError();
 	bool USB_ReadInterrupts(uint32_t interrupt);
 	void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len);
 	uint32_t USBD_GetString(uint8_t *desc, uint8_t *unicode);

@@ -157,7 +157,9 @@ void USB::USBInterruptHandler() {
 					req.Index        = SWAPBYTE      (pdata +  4);
 					req.Length       = SWAPBYTE      (pdata +  6);
 
-/*					reqEvents[reqEventNo++] = usbEventNo - 1;
+					/*
+					// Test logging code
+					reqEvents[reqEventNo++] = usbEventNo - 1;
 					reqEvents[reqEventNo++] = (uint32_t)(req.mRequest << 24) | (uint32_t)(req.Request << 16) | req.Value;
 					reqEvents[reqEventNo++] = (uint32_t)(req.Index << 16) | req.Length;
 					reqEventNo++;*/
@@ -183,10 +185,6 @@ void USB::USBInterruptHandler() {
 								USB_EP0StartXfer(DIR_IN, 0, outBuffSize);
 							}
 						}
-						break;
-
-					case USB_REQ_RECIPIENT_ENDPOINT:
-						//USBD_StdEPReq(pdev, req);
 						break;
 
 					default:
@@ -223,7 +221,7 @@ void USB::USBInterruptHandler() {
 
 		// process each endpoint in turn incrementing the epnum and checking the interrupts (ep_intr) if that endpoint fired
 		epnum = 0;
-		while (ep_intr != 0U) {
+		while (ep_intr != 0) {
 			if ((ep_intr & 1) != 0) { // In ITR [initially true]
 
 				epint = USBx_INEP((uint32_t)epnum)->DIEPINT & (USBx_DEVICE->DIEPMSK | (((USBx_DEVICE->DIEPEMPMSK >> (epnum & EP_ADDR_MSK)) & 0x1U) << 7));
@@ -243,7 +241,7 @@ void USB::USBInterruptHandler() {
 								USB_EP0StartXfer(DIR_IN, 0, outBuffSize);
 							} else {
 
-								USB_EPSetStall(epnum);
+								//USB_EPSetStall(epnum);
 
 								ep0_state = USBD_EP0_STATUS_OUT;
 
@@ -253,7 +251,7 @@ void USB::USBInterruptHandler() {
 								USB_EP0StartXfer(DIR_OUT, 0, ep0_maxPacket);
 							}
 						} else if ((ep0_state == USBD_EP0_STATUS_IN) || (ep0_state == USBD_EP0_IDLE)) {		// second time around
-							USB_EPSetStall(epnum);
+							//USB_EPSetStall(epnum);
 						}
 					} else {
 						hid_state = CUSTOM_HID_IDLE;
@@ -507,25 +505,20 @@ void USB::USB_ReadPacket(uint32_t *dest, uint16_t len)
 
 	for (uint32_t i = 0; i < count32b; i++)
 	{
-		*pDest = USBx_DFIFO(0U);
+		*pDest = USBx_DFIFO(0);
 		pDest++;
 	}
-
-	//return ((void *)pDest);
 }
 
 void USB::USB_WritePacket(uint8_t *src, uint32_t ch_ep_num, uint16_t len)
 {
 	uint32_t *pSrc = (uint32_t *)src;
-	uint32_t count32b, i;
+	uint32_t count32b = ((uint32_t)len + 3U) / 4U;
 
-	count32b = ((uint32_t)len + 3U) / 4U;
-	for (i = 0; i < count32b; i++) {
+	for (uint32_t i = 0; i < count32b; i++) {
 		USBx_DFIFO(ch_ep_num) = *pSrc;
 		pSrc++;
 	}
-
-
 }
 
 // Descriptors in usbd_desc.c
@@ -552,21 +545,19 @@ void USB::USBD_GetDescriptor(usbRequest req)
 		break;
 
 	case USB_DESC_TYPE_STRING:
+
 		switch ((uint8_t)(req.Value)) {
 		case USBD_IDX_LANGID_STR:
 			outBuff = USBD_LangIDDesc;
 			outBuffSize = sizeof(USBD_LangIDDesc);
-			//pbuf = pdev->pDesc->GetLangIDStrDescriptor(pdev->dev_speed, &len);
 			break;
 		case USBD_IDX_MFC_STR:
 			outBuffSize = USBD_GetString((uint8_t *)USBD_MANUFACTURER_STRING, USBD_StrDesc);
 			outBuff = USBD_StrDesc;
-			//pbuf = pdev->pDesc->GetManufacturerStrDescriptor(pdev->dev_speed, &len);
 			break;
 		case USBD_IDX_PRODUCT_STR:
 			outBuffSize = USBD_GetString((uint8_t *)USBD_PRODUCT_STRING_FS, USBD_StrDesc);
 			outBuff = USBD_StrDesc;
-			//pbuf = pdev->pDesc->GetProductStrDescriptor(pdev->dev_speed, &len);
 			break;
 		case USBD_IDX_SERIAL_STR:
 			// STM32 unique device ID (96 bit number starting at UID_BASE)
@@ -582,42 +573,15 @@ void USB::USBD_GetDescriptor(usbRequest req)
 			outBuff = USBD_StringSerial;
 			outBuffSize = sizeof(USBD_StringSerial);
 			break;
-		case USBD_IDX_CONFIG_STR:
-			//pbuf = pdev->pDesc->GetConfigurationStrDescriptor(pdev->dev_speed, &len);
-			break;
-		case USBD_IDX_INTERFACE_STR:
-			//pbuf = pdev->pDesc->GetInterfaceStrDescriptor(pdev->dev_speed, &len);
-			break;
+
 		default:
-
-			USBx_INEP(0)->DIEPCTL |= USB_OTG_DIEPCTL_STALL;
-
-			USBx_OUTEP(0U)->DOEPTSIZ = 0U;
-			USBx_OUTEP(0U)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_PKTCNT & (1U << 19));
-			USBx_OUTEP(0U)->DOEPTSIZ |= (3U * 8U);
-			USBx_OUTEP(0U)->DOEPTSIZ |=  USB_OTG_DOEPTSIZ_STUPCNT;
-
-			USBx_OUTEP(0)->DOEPCTL |= USB_OTG_DOEPCTL_STALL;
+			USBD_CtlError();
 			return;
 		}
 		break;
-		case USB_DESC_TYPE_DEVICE_QUALIFIER:
-			//USBD_CtlError(pdev , req);
-			USBx_INEP(0)->DIEPCTL |= USB_OTG_DIEPCTL_STALL;
 
-			USBx_OUTEP(0U)->DOEPTSIZ = 0U;
-			USBx_OUTEP(0U)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_PKTCNT & (1U << 19));
-			USBx_OUTEP(0U)->DOEPTSIZ |= (3U * 8U);
-			USBx_OUTEP(0U)->DOEPTSIZ |=  USB_OTG_DOEPTSIZ_STUPCNT;
-
-			USBx_OUTEP(0)->DOEPCTL |= USB_OTG_DOEPCTL_STALL;
-
-			return;
-		case USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION:
-			//USBD_CtlError(pdev , req);
-			return;
 		default:
-			//USBD_CtlError(pdev , req);
+			USBD_CtlError();
 			return;
 	}
 
@@ -647,10 +611,10 @@ uint32_t USB::USBD_GetString(uint8_t *desc, uint8_t *unicode)
 	return idx;
 }
 
-void USB::IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len) {
+void USB::IntToUnicode(uint32_t value, uint8_t *pbuf, uint8_t len) {
 
 	for (uint8_t idx = 0; idx < len; idx++) {
-		if (((value >> 28)) < 0xA) {
+		if ((value >> 28) < 0xA) {
 			pbuf[2 * idx] = (value >> 28) + '0';
 		} else {
 			pbuf[2 * idx] = (value >> 28) + 'A' - 10;
@@ -664,7 +628,6 @@ void USB::IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len) {
 
 void USB::USBD_StdDevReq(usbRequest req)
 {
-
 	uint8_t dev_addr;
 	switch (req.mRequest & USB_REQ_TYPE_MASK)
 	{
@@ -682,7 +645,6 @@ void USB::USBD_StdDevReq(usbRequest req)
 			break;
 
 		case USB_REQ_SET_ADDRESS:
-			//USBD_SetAddress (pdev, req)
 			dev_addr = (uint8_t)(req.Value) & 0x7FU;
 			USBx_DEVICE->DCFG &= ~(USB_OTG_DCFG_DAD);
 			USBx_DEVICE->DCFG |= ((uint32_t)dev_addr << 4) & USB_OTG_DCFG_DAD;
@@ -692,8 +654,6 @@ void USB::USBD_StdDevReq(usbRequest req)
 			break;
 
 		case USB_REQ_SET_CONFIGURATION:
-			//USBD_SetConfig (pdev, req);
-
 			if (dev_state == USBD_STATE_ADDRESSED) {
 				dev_state = USBD_STATE_CONFIGURED;
 
@@ -707,6 +667,7 @@ void USB::USBD_StdDevReq(usbRequest req)
 			}
 			break;
 
+/*
 		case USB_REQ_GET_CONFIGURATION:
 			// USBD_GetConfig (pdev, req);
 			break;
@@ -722,15 +683,16 @@ void USB::USBD_StdDevReq(usbRequest req)
 		case USB_REQ_CLEAR_FEATURE:
 			//USBD_ClrFeature (pdev, req);
 			break;
+*/
 
 		default:
-			//USBD_CtlError(pdev, req);
+			USBD_CtlError();
 			break;
 		}
 		break;
 
 		default:
-			//USBD_CtlError(pdev, req);
+			USBD_CtlError();
 			break;
 	}
 
@@ -785,7 +747,18 @@ void USB::USB_EP0StartXfer(bool is_in, uint8_t epnum, uint32_t xfer_len)
 
 }
 
-void USB::USB_EPSetStall(uint8_t epnum) {
+void USB::USBD_CtlError() {
+	USBx_INEP(0)->DIEPCTL |= USB_OTG_DIEPCTL_STALL;
+
+/*			USBx_OUTEP(0U)->DOEPTSIZ = 0U;
+	USBx_OUTEP(0U)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_PKTCNT & (1U << 19));
+	USBx_OUTEP(0U)->DOEPTSIZ |= (3U * 8U);
+	USBx_OUTEP(0U)->DOEPTSIZ |=  USB_OTG_DOEPTSIZ_STUPCNT;*/
+
+	USBx_OUTEP(0)->DOEPCTL |= USB_OTG_DOEPCTL_STALL;
+}
+
+/*void USB::USB_EPSetStall(uint8_t epnum) {
 	if (((USBx_INEP(epnum)->DIEPCTL & USB_OTG_DIEPCTL_EPENA) == 0U) && (epnum != 0U)) {	//
 		USBx_INEP(epnum)->DIEPCTL &= ~(USB_OTG_DIEPCTL_EPDIS);
 	}
@@ -793,11 +766,13 @@ void USB::USB_EPSetStall(uint8_t epnum) {
 
 	// FIXME - cleared in USB_EP0StartXfer?
 	//USB_EP0_OutStart
+
 	USBx_OUTEP(0U)->DOEPTSIZ = 0U;			// USB_EP0_OutStart - set STUPCNT=3; PKTCNT=1; XFRSIZ=0x18
 	USBx_OUTEP(0U)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_PKTCNT & (1U << 19));
 	USBx_OUTEP(0U)->DOEPTSIZ |= (3U * 8U);
 	USBx_OUTEP(0U)->DOEPTSIZ |=  USB_OTG_DOEPTSIZ_STUPCNT;
-}
+
+}*/
 
 bool USB::USB_ReadInterrupts(uint32_t interrupt){
 
