@@ -1,6 +1,7 @@
 #include "initialisation.h"
 #include "USB.h"
-
+#include <list>
+#include <algorithm>
 
 USB usb;
 uint32_t usbEvents[200];
@@ -11,6 +12,7 @@ uint8_t midiEventRead = 0;
 uint8_t midiEventWrite = 0;
 uint8_t eventOcc = 0;
 uint16_t noteOn = 0;
+std::list<uint8_t> midiNotes;
 
 bool noteDown = false;
 
@@ -29,6 +31,7 @@ int main(void)
 	usb.InitUSB();
 	InitDAC();
 	InitBtnLED();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
+
 
 	DAC->DHR12R1 = 2000;
 	while (1)
@@ -50,19 +53,26 @@ int main(void)
 		// Get next MIDI event
 		if (midiEventWrite != midiEventRead) {
 
-			// Count note on less note off events to establish whether to output gate
+			// Note On
 			if (midiArray[midiEventRead].msg == 9) {
-				noteOn++;
+				// Delete note if already playing and add to latest position in list
+				midiNotes.remove(midiArray[midiEventRead].db1);
+				midiNotes.push_back(midiArray[midiEventRead].db1);
+			}
 
-				// Output pitch to DAC Lowest note is C1 (36 or 0x24), highest is C7 (108 or 0x6C)
-				uint16_t dacOut = 4095 * (float)(std::min(std::max((int)midiArray[midiEventRead].db1, 36), 108) - 36) / 72;
+			// Note Off
+			if (midiArray[midiEventRead].msg == 8) {
+				midiNotes.remove(midiArray[midiEventRead].db1);
+			}
+
+			// Set pitch
+			if (midiNotes.size() > 0) {
+				uint16_t dacOut = 4095 * (float)(std::min(std::max((int)midiNotes.back(), 36), 108) - 36) / 72;
 				DAC->DHR12R1 = dacOut;
 			}
 
-			if (midiArray[midiEventRead].msg == 8 && noteOn > 0) 	noteOn--;
-
 			// light up LED (PB14) and transmit gate (PA3)
-			if (noteOn > 0) {
+			if (midiNotes.size() > 0) {
 				GPIOB->BSRR |= GPIO_BSRR_BS_14;
 				GPIOA->BSRR |= GPIO_BSRR_BS_3;
 			}

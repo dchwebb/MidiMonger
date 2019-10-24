@@ -82,7 +82,7 @@
 								<option id="com.atollic.truestudio.gpp.optimization.fno_rtti.546123370" name="Disable RTTI" superClass="com.atollic.truestudio.gpp.optimization.fno_rtti" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.atollic.truestudio.gpp.optimization.fno_exceptions.40628002" name="Disable exception handling" superClass="com.atollic.truestudio.gpp.optimization.fno_exceptions" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.atollic.truestudio.gpp.cppstandard.1524917192" name="C++ standard" superClass="com.atollic.truestudio.gpp.cppstandard" useByScannerDiscovery="false" value="com.atollic.truestudio.gpp.cppstandard.gnupp14" valueType="enumerated"/>
-								<option id="com.atollic.truestudio.gpp.misc.otherflags.372033171" name="Other options" superClass="com.atollic.truestudio.gpp.misc.otherflags" useByScannerDiscovery="false" value="-Wno-unused-variable" valueType="string"/>
+								<option id="com.atollic.truestudio.gpp.misc.otherflags.372033171" name="Other options" superClass="com.atollic.truestudio.gpp.misc.otherflags" useByScannerDiscovery="false" value="-Wno-unused-variable -Wunused-but-set-variable" valueType="string"/>
 								<inputType id="com.atollic.truestudio.gpp.input.118620650" superClass="com.atollic.truestudio.gpp.input"/>
 							</tool>
 							<tool id="com.atollic.truestudio.exe.debug.toolchain.ldcc.71395296" name="C++ Linker" superClass="com.atollic.truestudio.exe.debug.toolchain.ldcc">
