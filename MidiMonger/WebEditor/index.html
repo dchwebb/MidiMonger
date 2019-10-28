@@ -1,12 +1,89 @@
-<html><head>
+<html>
+<head>
+<!--<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">-->
+<meta name="description" content="Mountjoy Modular MIDI editor">
+<title>Mountjoy Modular MIDI editor</title>
 
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<meta name="description" content="Mountjoy Modular MIDI editor"><title>Mountjoy Modular MIDI editor</title>
-
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport"
+	content="user-scalable=no,initial-scale = 1.0,maximum-scale = 1.0">
+<link rel="stylesheet" type="text/css" href="fonts/stylesheet.css">
+<link rel="stylesheet" type="text/css"
+	href="css/topcoat-desktop-dark.css">
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<link rel="stylesheet" type="text/css" href="css/brackets.css">
+<link rel="stylesheet" type="text/css" href="css/dropdown.css">
 <script type="text/javascript" src="MIDI.js"></script>
+
+
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns: 200px 200px 200px 200px;
+  padding: 10px;
+}
+.grid-container2 {
+  display: grid;
+  grid-template-columns: auto auto;
+  padding: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.8);
+}
+.grid-span {
+  grid-column: 1 / 3;
+  margin: auto;
+}
+</style>
 </head>
-<body>
-<input id="note" type="button" value="Play Note" onclick="sendMiddleC();" />
-<input id="sysex" type="button" value="Send Sysex" onclick="sendSysEx();" />
+
+<body class="dark">
+	<!--<button class="topcoat-button-bar__button--large" onclick="sendMiddleC();">Play Note</button>
+	<button class="topcoat-button-bar__button--large" onclick="sendSysEx();">Send Data</button>-->
+
+	<p>Connection Status:
+	<div id="connectionStatus">Unconnected</div>
+	</p>
+	
+	<div class="grid-container" width=500px>
+		<div class="grid-container2">
+			<div style = "padding: 5px;">Note</div>
+			<div><select id="gNote1" class="docNav" onchange="updateGate(1);"></select></div>
+			<div style = "padding: 5px;">Channel</div>
+			<div><select id="gChannel1" class="docNav" onchange="updateGate(1);"></select>
+			</div>
+			<div class="grid-span">
+			<button class="topcoat-button-bar__button--large" onclick="sendNote(gNote1.value, gChannel1.value);">Test</button>
+			</div>
+
+		</div>
+		<div class="grid-item">
+			<h3 class="topcoat-list__header">Category</h3>
+			<ul class="topcoat-list">
+				<li class="topcoat-list__item">Item 1</li>
+				<li class="topcoat-list__item">Item 2</li>
+				<li class="topcoat-list__item">Item 3</li>
+			</ul>
+
+		</div>
+		<div class="grid-item">
+			<h3 class="topcoat-list__header">Category</h3>
+			<ul class="topcoat-list">
+				<li class="topcoat-list__item">Item 1</li>
+				<li class="topcoat-list__item">Item 2</li>
+				<li class="topcoat-list__item">Item 3</li>
+			</ul>
+
+		</div>
+
+		<div class="grid-item">
+			<h3 class="topcoat-list__header">Category</h3>
+			<ul class="topcoat-list">
+				<li class="topcoat-list__item">Item 1</li>
+				<li class="topcoat-list__item">Item 2</li>
+				<li class="topcoat-list__item">Item 3</li>
+			</ul>
+
+		</div>
+	</div>
 </body>
 </html>

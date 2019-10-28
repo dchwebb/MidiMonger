@@ -37,3 +37,4 @@
 *.su
 *.launch
 /Debug/
+*.sch-bak

@@ -1,9 +1,14 @@
 #pragma once
 
 #include "initialisation.h"
+#include <functional>
+//#include "MidiHandler.h"
+
+//union MidiData;
 
 extern uint32_t usbEvents[200], reqEvents[100];
 extern uint8_t usbEventNo, eventOcc, reqEventNo, midiEventNo, midiEventRead, midiEventWrite;
+//extern MidiData midiArray[MIDIBUFFERSIZE];
 
 // USB Definitions
 #define USBx_PCGCCTL    *(__IO uint32_t *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_PCGCCTL_BASE)
@@ -122,17 +127,7 @@ struct usbRequest {
 	uint16_t Length;
 };
 
-union MidiData {
-	uint32_t data;
-	struct {
-		uint8_t dummy;
-		uint8_t chn : 4;
-		uint8_t msg : 4;
-		uint8_t db1;
-		uint8_t db2;
-	};
-};
-extern MidiData midiArray[MIDIBUFFERSIZE];
+
 
 
 typedef enum {
@@ -157,6 +152,8 @@ public:
 	void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len);
 	uint32_t USBD_GetString(uint8_t *desc, uint8_t *unicode);
 	void SendReport(uint8_t *report, uint16_t len);
+
+	std::function<void(uint32_t)> dataHandler;	// Declare data handler to store incoming data
 
 	usbRequest req;
 	uint8_t ep0_maxPacket = 0x40;
