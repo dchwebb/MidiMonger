@@ -78,19 +78,11 @@ void InitSysTick()
 	SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;			// Enable SysTick
 }
 
-void InitLCDHardware(void) {
+void InitSPIDAC(void) {
 	//	Enable GPIO and SPI clocks
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;			// reset and clock control - advanced high performance bus - GPIO port A
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;			// reset and clock control - advanced high performance bus - GPIO port B
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;			// reset and clock control - advanced high performance bus - GPIO port C
 	RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
-
-	// Init DC (Data/Command) pin PC13
-	GPIOC->MODER |= GPIO_MODER_MODER13_0;			// 00: Input (reset state)	01: General purpose output mode	10: Alternate function mode	11: Analog mode
-	GPIOC->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR13_0;		// Medium  - 00: Low speed; 01: Medium speed; 10: High speed; 11: Very high speed
-
-	// Init RESET pin PC14
-	GPIOC->MODER |= GPIO_MODER_MODER14_0;			// 00: Input (reset state)	01: General purpose output mode	10: Alternate function mode	11: Analog mode
-	//GPIOC->PUPDR |= GPIO_PUPDR_PUPDR14_0;			// Pull up - 00: No pull-up, pull-down; 01 Pull-up; 10 Pull-down; 11 Reserved
 
 	// PB5: SPI_MOSI [alternate function AF6]
 	GPIOB->MODER |= GPIO_MODER_MODER5_1;			// 00: Input (reset state)	01: General purpose output mode	10: Alternate function mode	11: Analog mode
@@ -98,28 +90,35 @@ void InitLCDHardware(void) {
 	GPIOB->AFR[0] |= 0b0110 << 20;					// 0b0110 = Alternate Function 6 (SPI3); 20 is position of Pin 5
 
 	// PB3 SPI_SCK [alternate function AF6]
+	GPIOB->MODER &= ~GPIO_MODER_MODER3;				// Reset value of PB3 is 0b10
 	GPIOB->MODER |= GPIO_MODER_MODER3_1;			// 00: Input (reset state)	01: General purpose output mode	10: Alternate function mode	11: Analog mode
 	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;		// V High  - 00: Low speed; 01: Medium speed; 10: High speed; 11: Very high speed
 	GPIOB->AFR[0] |= 0b0110 << 12;					// 0b0110 = Alternate Function 6 (SPI3); 12 is position of Pin 3
 
+	// PA15 SPI_NSS
+	GPIOA->MODER |= GPIO_MODER_MODER15_1;			// 00: Input (reset state)	01: General purpose output mode	10: Alternate function mode	11: Analog mode
+	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR15;		// V High  - 00: Low speed; 01: Medium speed; 10: High speed; 11: Very high speed
+	GPIOA->AFR[1] |= 0b0110 << 28;					// 0b0110 = Alternate Function 6 (SPI3); 28 is position of Pin 15
+
 	// Configure SPI
-	SPI3->CR1 |= SPI_CR1_SSM;						// Software slave management: When SSM bit is set, NSS pin input is replaced with the value from the SSI bit
-	SPI3->CR1 |= SPI_CR1_SSI;						// Internal slave select
 	SPI3->CR1 |= SPI_CR1_BR_0;						// Baud rate control prescaler: 0b001: fPCLK/4; 0b100: fPCLK/32
 	SPI3->CR1 |= SPI_CR1_MSTR;						// Master selection
+	SPI3->CR2 |= SPI_CR2_SSOE;						// Uses hardware slave select - NSS line is pulled low when SPI enabled
 
-	SPI3->CR1 |= SPI_CR1_SPE;						// Enable SPI
 
-	// Configure DMA
-	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
+	/*
+	// PA15 - manual NSS
+	GPIOA->MODER &= ~GPIO_MODER_MODER15;
+	GPIOA->MODER |= GPIO_MODER_MODER15_0;			// 00: Input (reset state)	01: General purpose output mode	10: Alternate function mode	11: Analog mode
+	GPIOA->PUPDR &= ~GPIO_PUPDR_PUPD15;
 
-	// Initialise TX stream - Stream 5 = SPI3_TX; Channel 0; Manual p207
-	DMA1_Stream5->CR &= ~DMA_SxCR_CHSEL;			// 0 is DMA_Channel_0
-	DMA1_Stream5->CR |= DMA_SxCR_MSIZE_0;			// Memory size: 8 bit; 01 = 16 bit; 10 = 32 bit
-	DMA1_Stream5->CR |= DMA_SxCR_PSIZE_0;			// Peripheral size: 8 bit; 01 = 16 bit; 10 = 32 bit
-	DMA1_Stream5->CR |= DMA_SxCR_DIR_0;				// data transfer direction: 00: peripheral-to-memory; 01: memory-to-peripheral; 10: memory-to-memory
-	DMA1_Stream5->CR |= DMA_SxCR_PL_1;				// Set to high priority
-	DMA1_Stream5->PAR = (uint32_t) &(SPI3->DR);		// Configure the peripheral data register address
+
+	SPI3->CR1 |= SPI_CR1_SSM;						// Software slave management: When SSM bit is set, NSS pin input is replaced with the value from the SSI bit
+	SPI3->CR1 |= SPI_CR1_SSI;						// Internal slave select
+	SPI3->CR1 |= SPI_CR1_SPE;
+
+	GPIOA->BSRR |= GPIO_BSRR_BS_15;
+*/
 }
 
 
