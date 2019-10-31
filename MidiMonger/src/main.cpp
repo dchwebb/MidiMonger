@@ -44,8 +44,20 @@ int main(void)
 	dacHandler.sendData({0, 7, 1});		// activate internal voltage reference
 
 	for (int x = 0; x < 10; ++x);
-	dacHandler.sendData({0, 7, 0});		// deactivate internal voltage reference
+	//dacHandler.sendData({0, 7, 0});		// deactivate internal voltage reference
 
+	for (int x = 0; x < 10; ++x);
+
+	DacData sendVoltage;
+	sendVoltage.addr = 0;				// DAC A
+	sendVoltage.cmd = 0b011;			// Write to and update DAC channel n
+	sendVoltage.data = 6000;
+	dacHandler.sendData(sendVoltage);		// deactivate internal voltage reference
+
+	for (int x = 0; x < 10; ++x);
+
+	sendVoltage.da[1] = 0xAA;
+	dacHandler.sendData(sendVoltage);		// deactivate internal voltage reference
 
 
 	while (1)
