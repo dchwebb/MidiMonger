@@ -11,7 +11,6 @@ void SystemClock_Config(void);
 void InitBtnLED(void);
 
 void InitSysTick();
-void InitSPIDAC(void);
 void InitSampleAcquisition();
 void InitCoverageTimer();
 void InitDebounceTimer();

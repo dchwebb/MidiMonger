@@ -32,7 +32,7 @@ int main(void)
 	SystemCoreClockUpdate();				// Update SystemCoreClock (system clock frequency) derived from settings of oscillators, prescalers and PLL
 	//usb.InitUSB();
 	InitDAC();
-	InitSPIDAC();
+	dacHandler.initDAC();
 	InitBtnLED();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
 
 	// Bind the usb.dataHandler function to the midiHandler's event handler
@@ -41,24 +41,14 @@ int main(void)
 	// Initialise internal DAC
 	DAC->DHR12R1 = 2000;
 
-	dacHandler.sendData({0, 7, 1});		// activate internal voltage reference
 
-	for (int x = 0; x < 10; ++x);
-	//dacHandler.sendData({0, 7, 0});		// deactivate internal voltage reference
 
-	for (int x = 0; x < 10; ++x);
-
-	DacData sendVoltage;
-	sendVoltage.addr = 0;				// DAC A
-	sendVoltage.cmd = 0b011;			// Write to and update DAC channel n
-	sendVoltage.data = 6000;
-	dacHandler.sendData(sendVoltage);		// deactivate internal voltage reference
-
-	for (int x = 0; x < 10; ++x);
-
-	sendVoltage.da[1] = 0xAA;
-	dacHandler.sendData(sendVoltage);		// deactivate internal voltage reference
-
+	while (1) {
+		for (uint16_t d = 0; d < 0xFFFF; ++d) {
+			dacHandler.sendData(WriteChannel, ChannelA, d);
+		}
+	}
+	dacHandler.sendData(WriteChannel, ChannelB, 0xFEDC);
 
 	while (1)
 	{
