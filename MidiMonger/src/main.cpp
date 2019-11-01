@@ -30,18 +30,19 @@ int main(void)
 	SystemInit();							// Activates floating point coprocessor and resets clock
 	SystemClock_Config();					// Configure the clock and PLL - NB Currently done in SystemInit but will need updating for production board
 	SystemCoreClockUpdate();				// Update SystemCoreClock (system clock frequency) derived from settings of oscillators, prescalers and PLL
-	//usb.InitUSB();
+	usb.InitUSB();
 	InitDAC();
 	dacHandler.initDAC();
 	InitBtnLED();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
 
 	// Bind the usb.dataHandler function to the midiHandler's event handler
-	//usb.dataHandler = std::bind(&MidiHandler::eventHandler, midiHandler, std::placeholders::_1);
+	usb.dataHandler = std::bind(&MidiHandler::eventHandler, midiHandler, std::placeholders::_1);
 
 	// Initialise internal DAC
 	DAC->DHR12R1 = 2000;
 
 
+/*
 
 	while (1) {
 		for (uint16_t d = 0; d < 0xFFFF; ++d) {
@@ -49,6 +50,7 @@ int main(void)
 		}
 	}
 	dacHandler.sendData(WriteChannel, ChannelB, 0xFEDC);
+*/
 
 	while (1)
 	{

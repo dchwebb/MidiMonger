@@ -55,6 +55,10 @@ void MidiHandler::eventHandler(uint32_t data)
 	if (midiNotes.size() > 0) {
 		uint16_t dacOut = 4095 * (float)(std::min(std::max((int)midiNotes.back(), 24), 96) - 24) / 72;		// limit C1 to C7
 		DAC->DHR12R1 = dacOut;
+
+		// Using external DAC
+		uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((int)midiNotes.back(), 24), 96) - 24) / 72;		// limit C1 to C7
+		dacHandler.sendData(WriteChannel, ChannelA, dacOutput);
 	}
 
 	// light up LED (PB14) and transmit gate (PA3)

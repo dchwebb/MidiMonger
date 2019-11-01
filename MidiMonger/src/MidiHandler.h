@@ -2,11 +2,13 @@
 
 #include "initialisation.h"
 #include "USB.h"
+#include "DACHandler.h"
 #include <list>
 #include <algorithm>
 
 //class USB;
 extern USB usb;
+extern DACHandler dacHandler;
 
 union MidiData {
 	MidiData(uint32_t d) : data(d) {};
