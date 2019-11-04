@@ -26,17 +26,36 @@ void MidiHandler::eventHandler(uint32_t data)
 	midiArray[midiEventRead] = midiEvent;
 	midiEventRead = midiEventRead == MIDIBUFFERSIZE ? 0 : midiEventRead + 1;
 
-	// Request for information from editor
+	// Editor communication
 	if (midiEvent.db0 == 0xF2) {
-		MidiData tx;
-		tx.Code = 0x03;
-		tx.db0 = 0xF2;
-		tx.configType = gateOutputs[midiEvent.db1 - 1].type == gateType::specificNote ? 1 : 0;
-		tx.configChannel = gateOutputs[midiEvent.db1 - 1].channel;
-		tx.configValue = gateOutputs[midiEvent.db1 - 1].note;
+		// Request for information from editor. Format is: Code = 0x03; db0 = 0xF2; db1 = 0xnn (output number)
+		if (midiEvent.db0 == 0xF2 && midiEvent.configType == 0) {
+			MidiData tx;
+			tx.Code = 0x03;
+			tx.db0 = 0xF2;
+			tx.configType = (uint8_t)gateOutputs[midiEvent.db1 - 1].type;
+			tx.cfgChannelOrOutput = gateOutputs[midiEvent.db1 - 1].channel;
+			tx.configValue = gateOutputs[midiEvent.db1 - 1].note;
 
-		usb.SendReport((uint8_t*) &tx, 4);
+			usb.SendReport((uint8_t*) &tx, 4);
+		} else {
+			// configuration changed by editor
+			switch ((configSetting)midiEvent.configType) {
+			case configSetting::type :
+				gateOutputs[midiEvent.cfgChannelOrOutput - 1].type = (gateType)midiEvent.configValue;
+				break;
+			case configSetting::specificNote :
+				gateOutputs[midiEvent.cfgChannelOrOutput - 1].note = midiEvent.configValue;
+				break;
+			case configSetting::channel :
+				gateOutputs[midiEvent.cfgChannelOrOutput - 1].channel = midiEvent.configValue;
+				break;
+			case configSetting::controller :
+				cvOutputs[midiEvent.cfgChannelOrOutput - 1].controller = midiEvent.configValue;
+				break;
+			}
 
+		}
 	}
 
 	// Note On
@@ -59,6 +78,7 @@ void MidiHandler::eventHandler(uint32_t data)
 		// Using external DAC
 		uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((int)midiNotes.back(), 24), 96) - 24) / 72;		// limit C1 to C7
 		dacHandler.sendData(WriteChannel, ChannelA, dacOutput);
+		dacHandler.sendData(WriteChannel, ChannelB, dacOutput);
 	}
 
 	// light up LED (PB14) and transmit gate (PA3)

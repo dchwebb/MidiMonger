@@ -27,13 +27,15 @@ union MidiData {
 	struct {
 		uint8_t Code;
 		uint8_t db0;
-		uint8_t configChannel : 4;		// holds channel of config data being transferred
-		uint8_t configType : 4;			// holds type of config data being transferred
+		uint8_t cfgChannelOrOutput : 4;		// holds channel of config data being transferred.	Byte position: ----dddd
+		uint8_t configType : 4;			// holds type of config data being transferred.		Byte position: dddd----
 		uint8_t configValue;			// value of note number or controller configured
 	};
 };
 
-enum class gateType {specificNote, channelNote, clock};
+enum class configSetting { type = 1, specificNote = 2, channel = 3, controller = 4 };
+
+enum class gateType {specificNote = 1, channelNote = 2, clock = 3};
 
 struct Gate {
 	gateType type;
