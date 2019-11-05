@@ -33,28 +33,48 @@ void MidiHandler::eventHandler(uint32_t data)
 			MidiData tx;
 			tx.Code = 0x03;
 			tx.db0 = 0xF2;
-			tx.configType = (uint8_t)gateOutputs[midiEvent.db1 - 1].type;
-			tx.cfgChannelOrOutput = gateOutputs[midiEvent.db1 - 1].channel;
-			tx.configValue = gateOutputs[midiEvent.db1 - 1].note;
+			if (midiEvent.db1 < 9) {
+				// Gate outputs (1 - 8)
+				tx.configType = (uint8_t)gateOutputs[midiEvent.db1 - 1].type;
+				tx.cfgChannelOrOutput = gateOutputs[midiEvent.db1 - 1].channel;
+				tx.configValue = gateOutputs[midiEvent.db1 - 1].note;
+			} else {
+				// CV outputs (9 - 12)
+				tx.configType = (uint8_t)cvOutputs[midiEvent.db1 - 9].type;
+				tx.cfgChannelOrOutput = cvOutputs[midiEvent.db1 - 9].channel;
+				tx.configValue = cvOutputs[midiEvent.db1 - 9].controller;
+			}
 
 			usb.SendReport((uint8_t*) &tx, 4);
 		} else {
-			// configuration changed by editor
-			switch ((configSetting)midiEvent.configType) {
-			case configSetting::type :
-				gateOutputs[midiEvent.cfgChannelOrOutput - 1].type = (gateType)midiEvent.configValue;
-				break;
-			case configSetting::specificNote :
-				gateOutputs[midiEvent.cfgChannelOrOutput - 1].note = midiEvent.configValue;
-				break;
-			case configSetting::channel :
-				gateOutputs[midiEvent.cfgChannelOrOutput - 1].channel = midiEvent.configValue;
-				break;
-			case configSetting::controller :
-				cvOutputs[midiEvent.cfgChannelOrOutput - 1].controller = midiEvent.configValue;
-				break;
+			// configuration changed by editor format is ttttoooo vvvvvvvv where t is type of setting, o is output number (1-8 = gate, 9 - 12 = cv) and v is setting value
+			if (midiEvent.cfgChannelOrOutput < 9) {
+				// Gate configuration
+				switch ((configSetting)midiEvent.configType) {
+				case configSetting::type :
+					gateOutputs[midiEvent.cfgChannelOrOutput - 1].type = (gateType)midiEvent.configValue;
+					break;
+				case configSetting::specificNote :
+					gateOutputs[midiEvent.cfgChannelOrOutput - 1].note = midiEvent.configValue;
+					break;
+				case configSetting::channel :
+					gateOutputs[midiEvent.cfgChannelOrOutput - 1].channel = midiEvent.configValue;
+					break;
+				}
+			} else {
+				// CV Configuration
+				switch ((configSetting)midiEvent.configType) {
+				case configSetting::type :
+					cvOutputs[midiEvent.cfgChannelOrOutput - 9].type = (cvType)midiEvent.configValue;
+					break;
+				case configSetting::channel :
+					cvOutputs[midiEvent.cfgChannelOrOutput - 9].channel = midiEvent.configValue;
+					break;
+				case configSetting::controller :
+					cvOutputs[midiEvent.cfgChannelOrOutput - 9].controller = midiEvent.configValue;
+					break;
+				}
 			}
-
 		}
 	}
 

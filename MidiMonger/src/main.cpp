@@ -36,7 +36,7 @@ int main(void)
 	InitBtnLED();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
 
 	// Bind the usb.dataHandler function to the midiHandler's event handler
-	usb.dataHandler = std::bind(&MidiHandler::eventHandler, midiHandler, std::placeholders::_1);
+	usb.dataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1);
 
 	// Initialise internal DAC
 	DAC->DHR12R1 = 2000;

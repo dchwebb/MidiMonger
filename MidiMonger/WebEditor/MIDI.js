@@ -9,9 +9,53 @@ var output = null;
 var requestNo = 1;			// stores number of control awaiting configuration information
 
 var cfgEnum = { type: 1, specificNote: 2, channel: 3, controller: 4 };
+var gateEnum = { specificNote: 1, channelNote: 2, clock: 3 };
+var cvEnum = { channel: 1, controller: 2, pitchbend: 3 };
+var controlEnum = { gate: 1, cv: 2};
 
 window.onload = afterLoad;
 function afterLoad() {
+
+	for (var c = 1; c < 5; c++) {
+		// Generate html for gate configuration controls
+		var html = [
+			'<div style = "padding: 5px;">Type</div>', 
+			'<div><select id="cType' + c + '" class="docNav" onchange="updateCV(' + c + ', cfgEnum.type);"></select></div>',
+			'<div class="controllerControl" style = "padding: 5px;">Controller</div>', 
+			'<div class="controllerControl"><select id="cController' + c + '" class="docNav" onchange="updateCV(' + c + ', cfgEnum.controller);"></select></div>', 
+			'<div class="channelControl" style = "padding: 5px;">Channel</div>', 
+			'<div class="channelControl"><select id="cChannel' + c + '" class="docNav" onchange="updateCV(' + c + ', cfgEnum.channel);"></select></div>', 
+			'<div class="grid-span">', 
+			'	<button class="topcoat-button-bar__button--large" onclick="sendNote(cNote' + c + '.value, cChannel' + c + '.value);">Test</button>', 
+			'</div>' 
+			].join("\n");
+		document.getElementById("cvCtl" + c).innerHTML = html;
+
+		// populate type pickers
+		var typeNames = ["Channel pitch", "Controller", "Pitchbend"]
+		for(var i = 0; i < 3; i++) {
+			var el = document.createElement("option");
+			el.textContent = typeNames[i];
+			el.value = i + 1;
+			document.getElementById("cType" + c).appendChild(el);
+		}
+
+		// populate controller picker
+		for(var i = 0; i < 128; i++) {
+			var el = document.createElement("option");
+			el.textContent = i;
+			el.value = i;
+			document.getElementById("cController" + c).appendChild(el);
+		}
+
+		// populate channel pickers
+		for(var i = 1; i < 17; i++) {
+			var el = document.createElement("option");
+			el.textContent = i;
+			el.value = i;
+			document.getElementById("cChannel" + c).appendChild(el);
+		}
+	}
 
 	for (var g = 1; g < 9; g++) {
 
@@ -26,11 +70,11 @@ function afterLoad() {
 			'<div class="grid-span">', 
 			'	<button class="topcoat-button-bar__button--large" onclick="sendNote(gNote' + g + '.value, gChannel' + g + '.value);">Test</button>', 
 			'</div>' 
-		].join("\n");
-		document.getElementById("gridCtl" + g).innerHTML = html;
+			].join("\n");
+		document.getElementById("gateCtl" + g).innerHTML = html;
 
 		// populate type pickers
-		var typeNames = ["Specific Note", "Channel", "Clock"]
+		var typeNames = ["Specific Note", "Channel gate", "Clock"]
 		for(var i = 0; i < 3; i++) {
 			var el = document.createElement("option");
 			el.textContent = typeNames[i];
@@ -49,9 +93,9 @@ function afterLoad() {
 		}
 
 		// populate channel pickers
-		for(var i = 0; i < 16; i++) {
+		for(var i = 1; i < 17; i++) {
 			var el = document.createElement("option");
-			el.textContent = i + 1;
+			el.textContent = i;
 			el.value = i;
 			document.getElementById("gChannel" + g).appendChild(el);
 		}
@@ -62,7 +106,7 @@ function afterLoad() {
 }
 
 
-// Check which MIDI interface is MIDI Monger and if found start requesting configuration from interface
+//Check which MIDI interface is MIDI Monger and if found start requesting configuration from interface
 function onMIDISuccess(midiAccess) {
 	midi = midiAccess;		// store in the global variable
 
@@ -82,7 +126,7 @@ function onMIDISuccess(midiAccess) {
 
 	// Update UI to show connection status
 	if (checkConnection()) {
-		getGate(1);			// get configuration for first port
+		getOutputConfig(1);			// get configuration for first port
 	}
 }
 
@@ -90,20 +134,30 @@ function onMIDIFailure() {
 	console.log('Could not access your MIDI devices.');
 }
 
-// Recieve MIDI message - mainly used to process configuration information returned from module
+
+//Receive MIDI message - mainly used to process configuration information returned from module
 function getMIDIMessage(midiMessage) {
 	console.log(midiMessage);
 
 	if (midiMessage.data[0] == 0xF2) {
 		var type = (midiMessage.data[1] & 0xF0) >> 4;
-		document.getElementById("gType" + requestNo).value = type;
-		document.getElementById("gChannel" + requestNo).value = (midiMessage.data[1] & 0xF) - 1;
-		document.getElementById("gNote" + requestNo).value = midiMessage.data[2];
-		updateDisplay(requestNo);
+		if (requestNo < 9) {
+			document.getElementById("gType" + requestNo).value = type;
+			document.getElementById("gChannel" + requestNo).value = (midiMessage.data[1] & 0xF);
+			document.getElementById("gNote" + requestNo).value = midiMessage.data[2];
 
-		if (requestNo < 8) {
+			updateDisplay(controlEnum.gate, requestNo);
+		} else {
+			document.getElementById("cType" + (requestNo - 8)).value = type;
+			document.getElementById("cChannel" + (requestNo - 8)).value = (midiMessage.data[1] & 0xF);
+			document.getElementById("cController" + (requestNo - 8)).value = midiMessage.data[2];
+
+			updateDisplay(controlEnum.cv, requestNo - 8);
+		}
+
+		if (requestNo < 12) {
 			requestNo++;
-			getGate(requestNo);
+			getOutputConfig(requestNo);
 		}
 	}
 }
@@ -112,21 +166,21 @@ function getMIDIMessage(midiMessage) {
 // Sends MIDI note to requested channel
 function sendNote(noteValue, channel) {
 	if (checkConnection()) {
-		output.send( [0x90 + parseInt(channel), noteValue, 0x7f]);
+		output.send( [0x90 + parseInt(channel - 1), noteValue, 0x7f]);
 		output.send([0x80, noteValue, 0x40], window.performance.now() + 1000.0);	// note off delay: now + 1000ms
 	}
 }
 
 
-// Request configuration for gate (uses MIDI song position mechanism)
-function getGate(gateNo) {
-	var message = [0xF2, parseInt(gateNo), 0x00];
+// Request configuration for output (uses MIDI song position mechanism)
+function getOutputConfig(outputNo) {
+	var message = [0xF2, parseInt(outputNo), 0x00];
 	output.send(message);
 }
 
 // Send out a configuration change to a specific gate
 function updateGate(gateNo, cfgType) {
-	updateDisplay(gateNo);
+	updateDisplay(controlEnum.gate, gateNo);
 
 	switch (cfgType) {
 	case cfgEnum.type :
@@ -141,10 +195,6 @@ function updateGate(gateNo, cfgType) {
 		var gChannel = document.getElementById("gChannel" + gateNo);
 		var cfgValue = gChannel.options[gChannel.selectedIndex].value;
 		break;
-	case cfgEnum.controller :
-		var gController = document.getElementById("gController" + gateNo);
-		var cfgValue = gController.options[gController.selectedIndex].value;
-		break;
 	}
 	// to send config message use format: ggggtttt vvvvvvvv where g is the gate number and t is the type of setting to pass
 	var message = [0xF2, (cfgType << 4) + gateNo, parseInt(cfgValue)];		// Use MIDI song position to send patch data
@@ -152,7 +202,30 @@ function updateGate(gateNo, cfgType) {
 }
 
 
-// Test the MIDI connection is active and update UI accordingly
+// Send out a configuration change to a specific cv output
+function updateCV(cvNo, cfgType) {
+	updateDisplay(controlEnum.cv, cvNo);
+
+	switch (cfgType) {
+	case cfgEnum.type :
+		var cType = document.getElementById("cType" + cvNo);
+		var cfgValue = cType.options[cType.selectedIndex].value;
+		break;
+	case cfgEnum.channel :
+		var cChannel = document.getElementById("cChannel" + cvNo);
+		var cfgValue = cChannel.options[cChannel.selectedIndex].value;
+		break;
+	case cfgEnum.controller :
+		var cController = document.getElementById("cController" + cvNo);
+		var cfgValue = cController.options[cController.selectedIndex].value;
+		break;
+	}
+	// to send config message use format: ttttoooo vvvvvvvv where o is the output number and t is the type of setting to pass
+	var message = [0xF2, (cfgType << 4) + (cvNo + 8), parseInt(cfgValue)];		// Use MIDI song position to send patch data
+	output.send(message);
+}
+
+//Test the MIDI connection is active and update UI accordingly
 function checkConnection() {
 	var status = document.getElementById("connectionStatus");
 	if (!output || output.state == "disconnected") {
@@ -167,21 +240,32 @@ function checkConnection() {
 }
 
 
-var gateEnum = { specificNote: 1, channelNote: 2, clock: 3 };
+
 
 // Updates configuration blocks to show/hide irrelevant settings
-function updateDisplay(gateNo) {
-	// specific note picker
-	var gateShow =  document.getElementById("gType" + gateNo).value == gateEnum.specificNote ? "block" : "none";
-	var gateControls = document.getElementById("gridCtl" + gateNo).getElementsByClassName("gateControl");
-	for (var i = 0; i < gateControls.length; i++) {
-		gateControls[i].style.display = gateShow;
-	}
+function updateDisplay(controlType, ctlNo) {
+	if (controlType == controlEnum.gate) {
 
-	// channel picker
-	var channelShow =  document.getElementById("gType" + gateNo).value != gateEnum.clock ? "block" : "none";
-	var channelControls = document.getElementById("gridCtl" + gateNo).getElementsByClassName("channelControl");
-	for (var i = 0; i < gateControls.length; i++) {
-		channelControls[i].style.display = channelShow;
+		// specific note picker
+		var gateShow =  document.getElementById("gType" + ctlNo).value == gateEnum.specificNote ? "block" : "none";
+		var gateControls = document.getElementById("gateCtl" + ctlNo).getElementsByClassName("gateControl");
+		for (var i = 0; i < gateControls.length; i++) {
+			gateControls[i].style.display = gateShow;
+		}
+
+		// channel picker
+		var channelShow =  document.getElementById("gType" + ctlNo).value != gateEnum.clock ? "block" : "none";
+		var channelControls = document.getElementById("gateCtl" + ctlNo).getElementsByClassName("channelControl");
+		for (var i = 0; i < gateControls.length; i++) {
+			channelControls[i].style.display = channelShow;
+		}
+	} else {
+		// controller picker
+		var controllerShow =  document.getElementById("cType" + ctlNo).value == cvEnum.controller ? "block" : "none";
+		var controllerControls = document.getElementById("cvCtl" + ctlNo).getElementsByClassName("controllerControl");
+		for (var i = 0; i < controllerControls.length; i++) {
+			controllerControls[i].style.display = controllerShow;
+		}
+
 	}
 }

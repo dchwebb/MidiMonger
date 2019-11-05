@@ -43,7 +43,7 @@ struct Gate {
 	uint8_t note;
 };
 
-enum class cvType {channelPitch, controller, pitchBend};
+enum class cvType {channelPitch = 1, controller = 2, pitchBend = 3};
 
 struct CV {
 	cvType type;
@@ -87,7 +87,7 @@ public:
 	};
 
 	CV cvOutputs[4] = {
-			{cvType::channelPitch, 1},
+			{cvType::controller, 5, 16},
 			{cvType::channelPitch, 2},
 			{cvType::channelPitch, 3},
 			{cvType::channelPitch, 4}
