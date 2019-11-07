@@ -26,7 +26,7 @@ function afterLoad() {
 			'<div class="channelControl" style = "padding: 5px;">Channel</div>', 
 			'<div class="channelControl"><select id="cChannel' + c + '" class="docNav" onchange="updateCV(' + c + ', cfgEnum.channel);"></select></div>', 
 			'<div class="grid-span">', 
-			'	<button class="topcoat-button-bar__button--large" onclick="sendNote(cNote' + c + '.value, cChannel' + c + '.value);">Test</button>', 
+			'	<button class="topcoat-button-bar__button--large" onclick="testOutput(controlEnum.cv, ' + c + ');">Test</button>', 
 			'</div>' 
 			].join("\n");
 		document.getElementById("cvCtl" + c).innerHTML = html;
@@ -171,6 +171,27 @@ function sendNote(noteValue, channel) {
 	}
 }
 
+// Sends an appropriate MIDI signal to test output
+function testOutput(outputType, outputNo) {
+	if (outputType == controlEnum.cv) {
+		var ctlType = parseInt(document.getElementById("cType" + outputNo).value);
+		switch (ctlType) {
+		case cvEnum.channel:
+			var channel = document.getElementById("cChannel" + outputNo).value
+			// send out C1 to C7
+			var interval = 5000.0;		// interval between each note
+			for (var o = 0; o < 7; o++) {
+				output.send([0x90 + parseInt(channel - 1), 24 + (o * 12), 0x7f], window.performance.now() + (o * interval));		// send each note on command after each interval
+				output.send([0x80 + parseInt(channel - 1), 24 + (o * 12), 0x40], window.performance.now() + (o * interval) + (interval - 50));	// send off notes 50sm before next note
+			}
+			break;
+		case cvEnum.controller:
+			break;
+		case cvEnum.pitchbend:
+			break;
+		}
+	}
+}
 
 // Request configuration for output (uses MIDI song position mechanism)
 function getOutputConfig(outputNo) {

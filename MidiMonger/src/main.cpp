@@ -12,7 +12,7 @@ uint8_t midiEventRead = 0;
 uint8_t midiEventWrite = 0;
 uint8_t eventOcc = 0;
 uint16_t noteOn = 0;
-
+volatile uint32_t SysTickVal;
 
 bool noteDown = false;
 
@@ -28,10 +28,11 @@ extern uint32_t SystemCoreClock;
 int main(void)
 {
 	SystemInit();							// Activates floating point coprocessor and resets clock
-	SystemClock_Config();					// Configure the clock and PLL - NB Currently done in SystemInit but will need updating for production board
+	SystemClock_Config();					// Configure the clock and PLL
 	SystemCoreClockUpdate();				// Update SystemCoreClock (system clock frequency) derived from settings of oscillators, prescalers and PLL
 	usb.InitUSB();
-	InitDAC();
+	InitSysTick();
+	//InitDAC();
 	dacHandler.initDAC();
 	InitBtnLED();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
 
@@ -39,18 +40,18 @@ int main(void)
 	usb.dataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1);
 
 	// Initialise internal DAC
-	DAC->DHR12R1 = 2000;
-
+	//DAC->DHR12R1 = 2000;
 
 /*
 
 	while (1) {
 		for (uint16_t d = 0; d < 0xFFFF; ++d) {
-			dacHandler.sendData(WriteChannel, ChannelA, d);
+			dacHandler.sendData(WriteChannel | ChannelA, d);
+			dacHandler.sendData(WriteChannel | ChannelD, 0xFFFF - d);
 		}
 	}
-	dacHandler.sendData(WriteChannel, ChannelB, 0xFEDC);
 */
+
 
 	while (1)
 	{

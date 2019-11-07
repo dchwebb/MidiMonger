@@ -63,10 +63,9 @@ void InitBtnLED()
 
 void InitSysTick()
 {
-
 	// Register macros found in core_cm4.h
 	SysTick->CTRL = 0;									// Disable SysTick
-	SysTick->LOAD = 0xFFFF - 1;							// Set reload register to maximum 2^24
+	SysTick->LOAD = 0xFFFF - 1;							// Set reload register to maximum 2^24 - each tick is around 400us
 
 	// Set priority of Systick interrupt to least urgency (ie largest priority value)
 	NVIC_SetPriority (SysTick_IRQn, (1 << __NVIC_PRIO_BITS) - 1);

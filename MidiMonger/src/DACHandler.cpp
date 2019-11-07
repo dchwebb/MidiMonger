@@ -1,6 +1,29 @@
 #include <DACHandler.h>
 
+void DACHandler::sendData(uint8_t cmd, uint16_t data) {
+#if hardwareNSS
+	SPI3->CR1 |= SPI_CR1_SPE;						// Enable SPI
+#else
+	GPIOA->BSRR |= GPIO_BSRR_BR_15;
+#endif
+	SPI3->DR = cmd;		// Send cmd data [X X C C C A A A]
+	while ((SPI3->SR & SPI_SR_TXE) == 0);
 
+	SPI3->DR = (uint8_t)(data >> 8);				// Send data high byte
+	while ((SPI3->SR & SPI_SR_TXE) == 0);
+
+	SPI3->DR = (uint8_t)(data & 0xFF);				// Send data low byte
+	while ((SPI3->SR & SPI_SR_TXE) == 0);
+#if hardwareNSS
+	SPI3->CR1 &= ~SPI_CR1_SPE;						// Disable SPI
+	for (int x = 0; x < 10; ++x);
+#else
+	while(((SPI3->SR & SPI_SR_TXE) == 0) | ((SPI3->SR & SPI_SR_BSY) == SPI_SR_BSY) );
+	GPIOA->BSRR |= GPIO_BSRR_BS_15;
+#endif
+}
+
+/* for use with AD5644
 inline void DACHandler::sendData(DacCommand cmd, DacAddress addr, uint16_t data) {
 #if hardwareNSS
 	SPI3->CR1 |= SPI_CR1_SPE;						// Enable SPI
@@ -23,6 +46,7 @@ inline void DACHandler::sendData(DacCommand cmd, DacAddress addr, uint16_t data)
 	GPIOA->BSRR |= GPIO_BSRR_BS_15;
 #endif
 }
+*/
 
 void DACHandler::initDAC() {
 	//	Enable GPIO and SPI clocks
@@ -67,6 +91,16 @@ void DACHandler::initDAC() {
 	GPIOA->BSRR |= GPIO_BSRR_BS_15;
 #endif
 
+#ifdef MAX5134
+	// calibrate linearity: To guarantee DAC linearity, wait until the supplies have settled. Set the LIN bit in the DAC linearity register; wait 10ms, and clear the LIN bit.
+	sendData(Linearity, (1 << 9));
+	uint32_t start = SysTickVal;		// each tick is around 400us: 25 x 400us = 10ms
+	while (SysTickVal < start + 25);
+	sendData(Linearity, 0);
+
+
+#else
 	sendData(Reset, ChannelA, 1);			// reset DAC
 	sendData(InternalRef, ChannelA, 1);		// turn on the internal voltage reference
+#endif
 }
