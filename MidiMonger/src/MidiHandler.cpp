@@ -78,6 +78,16 @@ void MidiHandler::eventHandler(uint32_t data)
 		}
 	}
 
+	// Controller
+	if (midiEvent.msg == 0xB) {
+		for (auto cv : cvOutputs) {
+			if (cv.type == cvType::controller && cv.channel == midiEvent.chn + 1 && cv.controller == midiEvent.db1) {
+				uint16_t dacOutput = 0xFFFF * (float)midiEvent.db2 / 128;		// controller values are from 0 to 127
+				dacHandler.sendData(WriteChannel | ChannelA, dacOutput);
+			}
+		}
+	}
+
 	// Note On
 	if (midiEvent.msg == 9) {
 		// Delete note if already playing and add to latest position in list

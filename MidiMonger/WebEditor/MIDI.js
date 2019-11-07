@@ -177,15 +177,21 @@ function testOutput(outputType, outputNo) {
 		var ctlType = parseInt(document.getElementById("cType" + outputNo).value);
 		switch (ctlType) {
 		case cvEnum.channel:
-			var channel = document.getElementById("cChannel" + outputNo).value
+			var channel = document.getElementById("cChannel" + outputNo).value;
 			// send out C1 to C7
-			var interval = 5000.0;		// interval between each note
+			var interval = 500.0;		// interval between each note
 			for (var o = 0; o < 7; o++) {
 				output.send([0x90 + parseInt(channel - 1), 24 + (o * 12), 0x7f], window.performance.now() + (o * interval));		// send each note on command after each interval
-				output.send([0x80 + parseInt(channel - 1), 24 + (o * 12), 0x40], window.performance.now() + (o * interval) + (interval - 50));	// send off notes 50sm before next note
+				output.send([0x80 + parseInt(channel - 1), 24 + (o * 12), 0x40], window.performance.now() + (o * interval) + (interval - 50));	// send off notes 50ms before next note
 			}
 			break;
 		case cvEnum.controller:
+			var channel = document.getElementById("cChannel" + outputNo).value;
+			var controller = document.getElementById("cController" + outputNo).value;
+			for (var o = 0; o < 128; o++) {
+				output.send([0xB0 + parseInt(channel - 1), controller, o], window.performance.now() + (o * 5));
+			}
+
 			break;
 		case cvEnum.pitchbend:
 			break;
