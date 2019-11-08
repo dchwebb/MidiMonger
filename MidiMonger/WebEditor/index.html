@@ -37,8 +37,15 @@
 </head>
 
 <body class="dark">
-	<!--<button class="topcoat-button-bar__button--large" onclick="sendMiddleC();">Play Note</button>
-	<button class="topcoat-button-bar__button--large" onclick="sendSysEx();">Send Data</button>-->
+	<button class="topcoat-button-bar__button--large" onclick="noteOn(48, 1);">C On</button>
+	<button class="topcoat-button-bar__button--large" onclick="noteOff(48, 1);">C Off</button>
+	<button class="topcoat-button-bar__button--large" onclick="noteOn(52, 1);">E On</button>
+	<button class="topcoat-button-bar__button--large" onclick="noteOff(52, 1);">E Off</button>
+	<button class="topcoat-button-bar__button--large" onclick="noteOn(55, 1);">G On</button>
+	<button class="topcoat-button-bar__button--large" onclick="noteOff(55, 1);">G Off</button>
+	<button class="topcoat-button-bar__button--large" onclick="noteOn(59, 1);">B On</button>
+	<button class="topcoat-button-bar__button--large" onclick="noteOff(59, 1);">B Off</button>
+	
 	<div style="display: grid;  grid-template-columns: 150px 100px;  padding: 10px;">
 	<div>Connection Status:</div>
 	<div id="connectionStatus" style="color: #d6756a;">Unconnected</div>

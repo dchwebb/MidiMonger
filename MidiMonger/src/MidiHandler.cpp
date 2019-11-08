@@ -3,28 +3,48 @@
 extern MidiData midiArray[MIDIBUFFERSIZE];
 
 MidiHandler::MidiHandler() {
-
+	setConfig();
 }
+
+void MidiHandler::setConfig() {
+	// Calculate number of voices available for each channel
+	uint8_t voices = 0;
+	for (uint8_t c = 0; c < 16; ++c) {
+		voices = 0;
+		for (uint8_t v = 0; v < 4; ++v) {
+			if (cvOutputs[v].channel == c + 1 && cvOutputs[v].type == cvType::channelPitch) {
+				voices++;
+			}
+		}
+		channelNotes[c].voiceCount = voices;
+/*		if (voices > 0) {
+			switch (c) {
+			case 0:
+				channelNotes[c].dacChannel = ChannelA;
+				break;
+			case 1:
+				channelNotes[c].dacChannel = ChannelB;
+				break;
+			case 2:
+				channelNotes[c].dacChannel = ChannelC;
+				break;
+			case 3:
+				channelNotes[c].dacChannel = ChannelD;
+				break;
+			}
+		}*/
+	}
+	return;
+}
+
 void MidiHandler::eventHandler(uint32_t data)
 {
-	/*
-	Message Type	MS Nybble	LS Nybble		Bytes		Data Byte 1			Data Byte 2
-	-----------------------------------------------------------------------------------------
-	Note Off		0x8			Channel			2			Note Number			Velocity
-	Note On			0x9			Channel			2			Note Number			Velocity
-	Poly Pressure	0xA			Channel			2			Note Number			Pressure
-	Control Change	0xB			Channel			2			Controller 			Value
-	Program Change	0xC			Channel			1			Program Number		-none-
-	Ch. Pressure	0xD			Channel			1			Pressure			-none-
-	Pitch Bend		0xE			Channel			2			Bend LSB (7-bit)	Bend MSB (7-bits)
-	System			0xF			further spec	variable	variable			variable
-	*/
 
 	MidiData midiEvent = MidiData(data);
 
 	// Store Midi events to array for debugging
-	midiArray[midiEventRead] = midiEvent;
-	midiEventRead = midiEventRead == MIDIBUFFERSIZE ? 0 : midiEventRead + 1;
+	/*midiArray[midiEventRead] = midiEvent;
+	midiEventRead = midiEventRead == MIDIBUFFERSIZE - 1 ? 0 : midiEventRead + 1;*/
 
 	// Editor communication
 	if (midiEvent.db0 == 0xF2) {
@@ -60,6 +80,8 @@ void MidiHandler::eventHandler(uint32_t data)
 				case configSetting::channel :
 					gateOutputs[midiEvent.cfgChannelOrOutput - 1].channel = midiEvent.configValue;
 					break;
+				default :
+					break;
 				}
 			} else {
 				// CV Configuration
@@ -72,6 +94,8 @@ void MidiHandler::eventHandler(uint32_t data)
 					break;
 				case configSetting::controller :
 					cvOutputs[midiEvent.cfgChannelOrOutput - 9].controller = midiEvent.configValue;
+					break;
+				default :
 					break;
 				}
 			}
@@ -88,6 +112,78 @@ void MidiHandler::eventHandler(uint32_t data)
 		}
 	}
 
+	/*
+	Message Type	MS Nybble	LS Nybble		Bytes		Data Byte 1			Data Byte 2
+	-----------------------------------------------------------------------------------------
+	Note Off		0x8			Channel			2			Note Number			Velocity
+	Note On			0x9			Channel			2			Note Number			Velocity
+	Poly Pressure	0xA			Channel			2			Note Number			Pressure
+	Control Change	0xB			Channel			2			Controller 			Value
+	Program Change	0xC			Channel			1			Program Number		-none-
+	Ch. Pressure	0xD			Channel			1			Pressure			-none-
+	Pitch Bend		0xE			Channel			2			Bend LSB (7-bit)	Bend MSB (7-bits)
+	System			0xF			further spec	variable	variable			variable
+	*/
+
+	//	Note on/note off
+	if (midiEvent.msg == 9 || midiEvent.msg == 8) {
+		// locate output that will process the request
+		for (auto gate : gateOutputs) {
+			if (gate.channel == midiEvent.chn + 1 && (gate.type == gateType::channelNote || (gate.type == gateType::specificNote && gate.note == midiEvent.db1))) {
+
+				// Delete note if already playing and add to latest position in list
+				activeNote& noteList = channelNotes[gate.channel - 1].activeNotes;
+				noteList.remove(midiEvent.db1);
+				noteList.push_back(midiEvent.db1);
+
+				// work back through the active note list checking which voice to assign note to
+				bool notePlaying;
+				uint8_t noteToAssign = 0;			// stores note not currently assigned to a voice for allocation later
+				auto currNote = noteList.cend();
+				for (int8_t n = std::min((uint8_t)noteList.size(), channelNotes[gate.channel - 1].voiceCount); n > 0; n--) {
+					currNote--;
+
+					// check if any voice is currently playing note
+					notePlaying = false;
+					for (uint8_t c = 0; c < 4; ++c) {
+						if (cvOutputs[c].currentNote == *currNote) {
+							cvOutputs[c].nextNote = cvOutputs[c].currentNote;
+							notePlaying = true;
+							break;
+						}
+					}
+
+					// if no voice is currently playing note it will be assigned after all playing notes are identified
+					if (!notePlaying) {
+						noteToAssign = *currNote;
+					}
+				}
+
+				if (noteToAssign > 0) {
+					for (uint8_t c = 0; c < 4; ++c) {
+						if (cvOutputs[c].nextNote == 0) {
+							cvOutputs[c].nextNote = noteToAssign;
+							break;
+						}
+					}
+				}
+
+				// loop through all channels in group and update notes as required
+				for (uint8_t c = 0; c < 4; ++c) {
+					if (cvOutputs[c].nextNote != cvOutputs[c].currentNote) {
+						// Mute
+						if (cvOutputs[c].nextNote == 0) {
+
+						}
+						cvOutputs[c].nextNote = noteToAssign;
+						break;
+					}
+				}
+
+			}
+		}
+
+	}
 	// Note On
 	if (midiEvent.msg == 9) {
 		// Delete note if already playing and add to latest position in list

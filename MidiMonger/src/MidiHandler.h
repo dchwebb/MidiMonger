@@ -4,6 +4,7 @@
 #include "USB.h"
 #include "DACHandler.h"
 #include <list>
+#include <vector>
 #include <algorithm>
 
 //class USB;
@@ -48,8 +49,19 @@ enum class cvType {channelPitch = 1, controller = 2, pitchBend = 3};
 struct CV {
 	cvType type;
 	uint8_t channel;
+	DacAddress dacChannel;
 	uint8_t controller;
+	uint8_t currentNote;
+	uint8_t nextNote;
 };
+
+typedef std::list<uint8_t> activeNote;
+
+struct channelNote {
+	activeNote activeNotes;
+	uint8_t voiceCount;
+};
+
 
 
 
@@ -57,6 +69,7 @@ class MidiHandler {
 public:
 	MidiHandler();
 	void eventHandler(uint32_t data);
+	void setConfig();
 
 	// configure gates to default values for GM drum sounds
 	/*
@@ -87,13 +100,14 @@ public:
 	};
 
 	CV cvOutputs[4] = {
-			{cvType::controller, 5, 16},
-			{cvType::channelPitch, 2},
-			{cvType::channelPitch, 3},
-			{cvType::channelPitch, 4}
+			{cvType::channelPitch, 1, ChannelA},
+			{cvType::channelPitch, 1, ChannelB},
+			{cvType::channelPitch, 1, ChannelC},
+			{cvType::channelPitch, 4, ChannelD}
 	};
 	std::list<uint8_t> midiNotes;		// list holds all MIDI notes currently sounding
-
+	//std::vector< channelNote > channelNotes[16];
+	channelNote channelNotes[16];
 };
 
 

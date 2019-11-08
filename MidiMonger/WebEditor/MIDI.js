@@ -12,6 +12,7 @@ var cfgEnum = { type: 1, specificNote: 2, channel: 3, controller: 4 };
 var gateEnum = { specificNote: 1, channelNote: 2, clock: 3 };
 var cvEnum = { channel: 1, controller: 2, pitchbend: 3 };
 var controlEnum = { gate: 1, cv: 2};
+var recCount = 0;
 
 window.onload = afterLoad;
 function afterLoad() {
@@ -158,7 +159,12 @@ function getMIDIMessage(midiMessage) {
 		if (requestNo < 12) {
 			requestNo++;
 			getOutputConfig(requestNo);
+			
+		} else {
+			//requestNo = 1;
+			//getOutputConfig(requestNo);
 		}
+		recCount++;
 	}
 }
 
@@ -167,9 +173,23 @@ function getMIDIMessage(midiMessage) {
 function sendNote(noteValue, channel) {
 	if (checkConnection()) {
 		output.send( [0x90 + parseInt(channel - 1), noteValue, 0x7f]);
-		output.send([0x80, noteValue, 0x40], window.performance.now() + 1000.0);	// note off delay: now + 1000ms
+		output.send([0x80 + parseInt(channel - 1), noteValue, 0x40], window.performance.now() + 1000.0);	// note off delay: now + 1000ms
 	}
 }
+
+// MIDI Note on
+function noteOn(noteValue, channel) {
+	if (checkConnection()) {
+		output.send( [0x90 + parseInt(channel - 1), noteValue, 0x7f]);
+	}
+}
+// MIDI note off
+function noteOff(noteValue, channel) {
+	if (checkConnection()) {
+		output.send([0x80 + parseInt(channel - 1), noteValue, 0x40]);
+	}
+}
+
 
 // Sends an appropriate MIDI signal to test output
 function testOutput(outputType, outputNo) {
