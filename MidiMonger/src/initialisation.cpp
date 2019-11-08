@@ -43,7 +43,7 @@ void SystemClock_Config(void) {
 
 }
 
-void InitBtnLED()
+void InitIO()
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;			// reset and clock control - advanced high performance bus - GPIO port B
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;			// reset and clock control - advanced high performance bus - GPIO port C
@@ -57,8 +57,15 @@ void InitBtnLED()
 	// PB14 is LD3 Red
 	GPIOB->MODER |= GPIO_MODER_MODER14_0;			// Set to output
 
-	// PA3 for gate output
+	// PA3 for gate 7 output
 	GPIOA->MODER |= GPIO_MODER_MODER3_0;			// Set to output
+
+	// PC0 for gate 6 output
+	GPIOC->MODER |= GPIO_MODER_MODER0_0;			// Set to output
+
+	// PC3 for gate 5 output
+	GPIOC->MODER |= GPIO_MODER_MODER3_0;			// Set to output
+
 }
 
 void InitSysTick()

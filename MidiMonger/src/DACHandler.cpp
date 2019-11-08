@@ -92,6 +92,8 @@ void DACHandler::initDAC() {
 #endif
 
 #ifdef MAX5134
+	sendData(Clear, 0);		// Clear/reset DAC
+
 	// calibrate linearity: To guarantee DAC linearity, wait until the supplies have settled. Set the LIN bit in the DAC linearity register; wait 10ms, and clear the LIN bit.
 	sendData(Linearity, (1 << 9));
 	uint32_t start = SysTickVal;		// each tick is around 400us: 25 x 400us = 10ms

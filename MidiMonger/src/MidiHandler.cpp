@@ -17,22 +17,6 @@ void MidiHandler::setConfig() {
 			}
 		}
 		channelNotes[c].voiceCount = voices;
-/*		if (voices > 0) {
-			switch (c) {
-			case 0:
-				channelNotes[c].dacChannel = ChannelA;
-				break;
-			case 1:
-				channelNotes[c].dacChannel = ChannelB;
-				break;
-			case 2:
-				channelNotes[c].dacChannel = ChannelC;
-				break;
-			case 3:
-				channelNotes[c].dacChannel = ChannelD;
-				break;
-			}
-		}*/
 	}
 	return;
 }
@@ -175,8 +159,8 @@ void MidiHandler::eventHandler(uint32_t data)
 						if (cvOutputs[c].nextNote == 0) {
 
 						}
-						cvOutputs[c].nextNote = noteToAssign;
-						break;
+						cvOutputs[c].currentNote = cvOutputs[c].nextNote;
+						cvOutputs[c].nextNote = 0;
 					}
 				}
 
@@ -204,8 +188,13 @@ void MidiHandler::eventHandler(uint32_t data)
 		// Using external DAC
 		uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((int)midiNotes.back(), 24), 96) - 24) / 72;		// limit C1 to C7
 #ifdef MAX5134
-		dacHandler.sendData(WriteChannel | ChannelA, dacOutput);
-		dacHandler.sendData(WriteChannel | ChannelB, dacOutput);
+		//dacHandler.sendData(WriteChannel | ChannelA, dacOutput);
+
+		//dacHandler.sendData(WriteChannel | ChannelB, dacOutput);
+
+		//dacHandler.sendData(WriteChannel | ChannelC, dacOutput);
+		dacHandler.sendData(WriteChannel | ChannelD, dacOutput);
+
 #else
 		dacHandler.sendData(WriteChannel, ChannelA, dacOutput);
 		dacHandler.sendData(WriteChannel, ChannelB, dacOutput);
@@ -215,11 +204,17 @@ void MidiHandler::eventHandler(uint32_t data)
 	// light up LED (PB14) and transmit gate (PA3)
 	if (midiNotes.size() > 0) {
 		GPIOB->BSRR |= GPIO_BSRR_BS_14;
-		GPIOA->BSRR |= GPIO_BSRR_BS_3;
+
+		//GPIOA->BSRR |= GPIO_BSRR_BS_3;		// Gate 7
+		//GPIOC->BSRR |= GPIO_BSRR_BS_0;		// Gate 6
+		GPIOC->BSRR |= GPIO_BSRR_BS_3;		// Gate 5
 	}
 	else {
 		GPIOB->BSRR |= GPIO_BSRR_BR_14;
-		GPIOA->BSRR |= GPIO_BSRR_BR_3;
+
+		//GPIOA->BSRR |= GPIO_BSRR_BR_3;		// Gate 7
+		//GPIOC->BSRR |= GPIO_BSRR_BR_0;		// Gate 6
+		GPIOC->BSRR |= GPIO_BSRR_BR_3;		// Gate 5
 	}
 
 }

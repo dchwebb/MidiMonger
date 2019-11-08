@@ -966,7 +966,6 @@ NoConn ~ 1850 4450
 NoConn ~ 1850 4550
 NoConn ~ 1850 4650
 NoConn ~ 1850 4850
-NoConn ~ 1850 3650
 NoConn ~ 3250 5150
 NoConn ~ 3250 4850
 NoConn ~ 3250 4750
@@ -1081,7 +1080,7 @@ Wire Wire Line
 	6700 1150 6350 1150
 Connection ~ 6350 1150
 Text GLabel 9350 3800 2    50   Input ~ 0
-GATE1
+GATE5
 $Comp
 L thonkiconn:AudioJack2_Ground_Switch J4
 U 1 1 5DC12CA0
@@ -1119,8 +1118,8 @@ Text GLabel 3400 4250 2    50   Input ~ 0
 DAC_MOSI
 Text GLabel 3400 4050 2    50   Input ~ 0
 DAC_SCK
-Text GLabel 3400 2350 2    50   Input ~ 0
-GATE1
+Text GLabel 1650 3950 0    50   Input ~ 0
+GATE5
 Wire Wire Line
 	3250 2350 3400 2350
 Text GLabel 3400 2450 2    50   Input ~ 0
@@ -1673,7 +1672,7 @@ Wire Wire Line
 Wire Wire Line
 	9350 3800 9250 3800
 Text GLabel 8350 3700 0    50   Input ~ 0
-GATE1_OUT
+GATE5_OUT
 Wire Wire Line
 	8350 3700 8450 3700
 Text GLabel 1500 8150 0    50   Input ~ 0
@@ -1989,4 +1988,26 @@ Wire Wire Line
 Wire Wire Line
 	7850 4950 8450 4950
 Connection ~ 7850 4950
+Text GLabel 9350 3600 2    50   Input ~ 0
+GATE6
+Text GLabel 9350 3400 2    50   Input ~ 0
+GATE7
+Wire Wire Line
+	9250 3400 9350 3400
+Wire Wire Line
+	9250 3600 9350 3600
+Text GLabel 8350 3500 0    50   Input ~ 0
+GATE6_OUT
+Text GLabel 8350 3300 0    50   Input ~ 0
+GATE7_OUT
+Wire Wire Line
+	8350 3300 8450 3300
+Wire Wire Line
+	8350 3500 8450 3500
+Text GLabel 1650 3650 0    50   Input ~ 0
+GATE6
+Wire Wire Line
+	1650 3650 1850 3650
+Text GLabel 3400 2350 2    50   Input ~ 0
+GATE7
 $EndSCHEMATC
