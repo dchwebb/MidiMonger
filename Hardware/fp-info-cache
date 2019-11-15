@@ -1,4 +1,4 @@
-351428542783499
+353003820217107
 Battery_Holders
 Bulgin_BX0036_1xC
 
@@ -19793,8 +19793,8 @@ MIDI_DIN
 MIDI_DIN, standard DIN connector, 5 pins, midi
 MIDI_DIN DIN 5-pins connector midi
 0
-5
-5
+6
+6
 Custom_Footprints
 MountingHole_6.1mm
 Mounting Hole 6mm, no annular
@@ -19865,6 +19865,13 @@ mounting hole 6mm no annular
 0
 0
 0
+Custom_Footprints
+USB_B_Wurth
+USB B female connector, straight, rugged
+USB_B_MUSB_Straight female connector straight rugged MUSB D511
+0
+6
+5
 Diodes_SMD
 D_0603
 
