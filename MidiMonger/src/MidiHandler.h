@@ -11,6 +11,8 @@
 extern USB usb;
 extern DACHandler dacHandler;
 
+#define MIDIQUEUESIZE 20
+
 union MidiData {
 	MidiData(uint32_t d) : data(d) {};
 	MidiData()  {};
@@ -34,6 +36,8 @@ union MidiData {
 	};
 };
 
+enum MIDIType {Unknown = 0, NoteOn = 0x9, NoteOff = 0x8, PolyPressure = 0xA, ControlChange = 0xB, ProgramChange = 0xC, ChannelPressure = 0xD, PitchBend = 0xE, System = 0xF };
+
 enum class configSetting { type = 1, specificNote = 2, channel = 3, controller = 4 };
 
 enum class gateType {specificNote = 1, channelNote = 2, clock = 3};
@@ -50,6 +54,8 @@ struct CV {
 	cvType type;
 	uint8_t channel;
 	DacAddress dacChannel;
+	GPIO_TypeDef* gpioPort;
+	uint8_t gpioPin;
 	uint8_t controller;
 	uint8_t currentNote;
 	uint8_t nextNote;
@@ -70,6 +76,7 @@ public:
 	MidiHandler();
 	void eventHandler(uint32_t data);
 	void setConfig();
+	void serialHandler();
 
 	// configure gates to default values for GM drum sounds
 	/*
@@ -94,20 +101,32 @@ public:
 			{gateType::specificNote, 10, 42},
 			{gateType::specificNote, 10, 46},
 			{gateType::channelNote, 1},
-			{gateType::channelNote, 2},
-			{gateType::channelNote, 3},
+			{gateType::channelNote, 1},
+			{gateType::channelNote, 1},
 			{gateType::channelNote, 4}
 	};
 
 	CV cvOutputs[4] = {
-			{cvType::channelPitch, 1, ChannelA},
-			{cvType::channelPitch, 1, ChannelB},
-			{cvType::channelPitch, 1, ChannelC},
+			{cvType::channelPitch, 1, ChannelA, GPIOC, 3},
+			{cvType::channelPitch, 1, ChannelB, GPIOC, 0},
+			{cvType::channelPitch, 1, ChannelC, GPIOA, 3},
 			{cvType::channelPitch, 4, ChannelD}
 	};
 	std::list<uint8_t> midiNotes;		// list holds all MIDI notes currently sounding
 	//std::vector< channelNote > channelNotes[16];
 	channelNote channelNotes[16];
+
+	uint8_t Queue[MIDIQUEUESIZE];				// hold incoming serial MIDI bytes
+	uint8_t QueueRead = 0;
+	uint8_t QueueWrite = 0;
+	uint8_t QueueSize = 0;
+
+private:
+	void QueueInc();
+
+	uint64_t Timer;
+	uint64_t Clock;
+	uint8_t ClockCount = 0;
 };
 
 

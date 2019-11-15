@@ -21,6 +21,61 @@ void MidiHandler::setConfig() {
 	return;
 }
 
+void MidiHandler::serialHandler() {
+	if (QueueSize > 0) {
+		//bool edited = false;
+		volatile uint8_t val1, val2;
+
+		MIDIType type = static_cast<MIDIType>(Queue[QueueRead] >> 4);
+		uint8_t channel = Queue[QueueRead] & 0x0F;
+
+		//NoteOn = 0x9, NoteOff = 0x8, PolyPressure = 0xA, ControlChange = 0xB, ProgramChange = 0xC, ChannelPressure = 0xD, PitchBend = 0xE, System = 0xF
+		while ((QueueSize > 2 && (type == NoteOn || type == NoteOff || type == PolyPressure ||  type == ControlChange ||  type == PitchBend)) ||
+				(QueueSize > 1 && (type == ProgramChange || type == ChannelPressure))) {
+
+			MidiData event;
+			event.chn = channel;
+			event.msg = (uint8_t)type;
+
+			QueueInc();
+			event.db1 = Queue[QueueRead];
+			QueueInc();
+			if (type == ProgramChange || type == ChannelPressure) {
+				event.db2 = 0;
+			} else {
+				event.db2 = Queue[QueueRead];
+				QueueInc();
+			}
+
+			eventHandler(event.data);
+
+			type = static_cast<MIDIType>(Queue[QueueRead] >> 4);
+			channel = Queue[QueueRead] & 0x0F;
+		}
+
+		// Clock
+		if (QueueSize > 0 && Queue[QueueRead] == 0xF8) {
+			ClockCount++;
+			// MIDI clock triggers at 24 pulses per quarter note
+			if (ClockCount == 6) {
+				Clock = SysTickVal;
+				ClockCount = 0;
+			}
+			QueueInc();
+		}
+
+		//	handle unknown data in queue
+		if (QueueSize > 2 && type != 0x9 && type != 0x8 && type != 0xD && type != 0xE) {
+			QueueInc();
+		}
+	}
+}
+
+inline void MidiHandler::QueueInc() {
+	QueueSize--;
+	QueueRead = (QueueRead + 1) % MIDIQUEUESIZE;
+}
+
 void MidiHandler::eventHandler(uint32_t data)
 {
 
@@ -118,7 +173,8 @@ void MidiHandler::eventHandler(uint32_t data)
 				// Delete note if already playing and add to latest position in list
 				activeNote& noteList = channelNotes[gate.channel - 1].activeNotes;
 				noteList.remove(midiEvent.db1);
-				noteList.push_back(midiEvent.db1);
+				if (midiEvent.msg == 9)
+					noteList.push_back(midiEvent.db1);
 
 				// work back through the active note list checking which voice to assign note to
 				bool notePlaying;
@@ -157,17 +213,23 @@ void MidiHandler::eventHandler(uint32_t data)
 					if (cvOutputs[c].nextNote != cvOutputs[c].currentNote) {
 						// Mute
 						if (cvOutputs[c].nextNote == 0) {
-
+							cvOutputs[c].gpioPort->BSRR |= (1 << (16 + cvOutputs[c].gpioPin));			// Gate Off
+						} else {
+							uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((int)cvOutputs[c].nextNote, 24), 96) - 24) / 72;		// limit C1 to C7
+							dacHandler.sendData(WriteChannel | cvOutputs[c].dacChannel, dacOutput);		// Send pitch to DAC
+							cvOutputs[c].gpioPort->BSRR |= (1 << cvOutputs[c].gpioPin);					// Gate on
 						}
-						cvOutputs[c].currentNote = cvOutputs[c].nextNote;
-						cvOutputs[c].nextNote = 0;
+
 					}
+					cvOutputs[c].currentNote = cvOutputs[c].nextNote;
+					cvOutputs[c].nextNote = 0;
 				}
 
 			}
 		}
 
 	}
+	/*
 	// Note On
 	if (midiEvent.msg == 9) {
 		// Delete note if already playing and add to latest position in list
@@ -188,12 +250,10 @@ void MidiHandler::eventHandler(uint32_t data)
 		// Using external DAC
 		uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((int)midiNotes.back(), 24), 96) - 24) / 72;		// limit C1 to C7
 #ifdef MAX5134
-		//dacHandler.sendData(WriteChannel | ChannelA, dacOutput);
-
+		//dacHandler.sendData(WriteChannel | cvOutputs[1].dacChannel, dacOutput);
 		//dacHandler.sendData(WriteChannel | ChannelB, dacOutput);
-
 		//dacHandler.sendData(WriteChannel | ChannelC, dacOutput);
-		dacHandler.sendData(WriteChannel | ChannelD, dacOutput);
+		//dacHandler.sendData(WriteChannel | ChannelD, dacOutput);
 
 #else
 		dacHandler.sendData(WriteChannel, ChannelA, dacOutput);
@@ -205,17 +265,21 @@ void MidiHandler::eventHandler(uint32_t data)
 	if (midiNotes.size() > 0) {
 		GPIOB->BSRR |= GPIO_BSRR_BS_14;
 
-		//GPIOA->BSRR |= GPIO_BSRR_BS_3;		// Gate 7
+		//cvOutputs[0].gpioPort->BSRR |= (1 << cvOutputs[1].gpioPin);
+		//GPIOC->BSRR |= GPIO_BSRR_BS_3;		// Gate 5
 		//GPIOC->BSRR |= GPIO_BSRR_BS_0;		// Gate 6
-		GPIOC->BSRR |= GPIO_BSRR_BS_3;		// Gate 5
+		//GPIOA->BSRR |= GPIO_BSRR_BS_3;		// Gate 7
+
+
 	}
 	else {
 		GPIOB->BSRR |= GPIO_BSRR_BR_14;
 
+		//cvOutputs[0].gpioPort->BSRR |= (1 << (16 + cvOutputs[1].gpioPin));
 		//GPIOA->BSRR |= GPIO_BSRR_BR_3;		// Gate 7
 		//GPIOC->BSRR |= GPIO_BSRR_BR_0;		// Gate 6
-		GPIOC->BSRR |= GPIO_BSRR_BR_3;		// Gate 5
-	}
+		//GPIOC->BSRR |= GPIO_BSRR_BR_3;		// Gate 5
+	}*/
 
 }
 

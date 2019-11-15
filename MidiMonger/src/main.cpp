@@ -16,13 +16,13 @@ volatile uint32_t SysTickVal;
 
 bool noteDown = false;
 
-extern "C" {
-#include "interrupts.h"
-}
-
 MidiData midiArray[MIDIBUFFERSIZE];
 MidiHandler midiHandler;
 DACHandler dacHandler;
+
+extern "C" {
+#include "interrupts.h"
+}
 
 extern uint32_t SystemCoreClock;
 int main(void)
@@ -35,6 +35,7 @@ int main(void)
 	//InitDAC();
 	dacHandler.initDAC();
 	InitIO();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
+	InitUART();
 
 	// Bind the usb.dataHandler function to the midiHandler's event handler
 	usb.dataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1);
@@ -55,6 +56,7 @@ int main(void)
 
 	while (1)
 	{
+		//midiHandler.serialHandler();
 
 		// Code to output midi note
 		uint8_t noteOn[4];

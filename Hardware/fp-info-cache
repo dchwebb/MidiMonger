@@ -1,4 +1,4 @@
-348126903485742
+351428542783499
 Battery_Holders
 Bulgin_BX0036_1xC
 
@@ -19726,6 +19726,13 @@ mounting hole 7mm
 0
 0
 Custom_Footprints
+Cliff_3.5mm_Stereo_Jack
+
+
+0
+4
+3
+Custom_Footprints
 Connector_27x2.54mm
 http://www.farnell.com/datasheets/1520732.pdf
 connector multicomp MC9A MC9A12
@@ -19781,6 +19788,13 @@ ILI9341 LCD SPI
 0
 24
 24
+Custom_Footprints
+MIDI_DIN
+MIDI_DIN, standard DIN connector, 5 pins, midi
+MIDI_DIN DIN 5-pins connector midi
+0
+5
+5
 Custom_Footprints
 MountingHole_6.1mm
 Mounting Hole 6mm, no annular

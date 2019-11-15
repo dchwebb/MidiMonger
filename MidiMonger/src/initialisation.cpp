@@ -26,8 +26,8 @@ void SystemClock_Config(void) {
 #endif
 
     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;			// HCLK = SYSCLK / 1
-	RCC->CFGR |= RCC_CFGR_PPRE2_DIV2;			// PCLK2 = HCLK / 2
-	RCC->CFGR |= RCC_CFGR_PPRE1_DIV4;			// PCLK1 = HCLK / 4
+	RCC->CFGR |= RCC_CFGR_PPRE2_DIV2;			// PCLK2 = HCLK / 2 (APB2)
+	RCC->CFGR |= RCC_CFGR_PPRE1_DIV4;			// PCLK1 = HCLK / 4 (APB1)
 	RCC->CR |= RCC_CR_PLLON;					// Enable the main PLL
 	while((RCC->CR & RCC_CR_PLLRDY) == 0);		// Wait till the main PLL is ready
 
