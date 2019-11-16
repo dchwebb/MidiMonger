@@ -299,7 +299,7 @@ $EndComp
 Wire Wire Line
 	5050 1700 5050 1750
 Text GLabel 4900 1000 0    50   Input ~ 0
-DAC_A
+DAC_1
 $Comp
 L Device:C C14
 U 1 1 5C7EBE36
@@ -1294,7 +1294,7 @@ $EndComp
 Wire Wire Line
 	5050 2950 5050 3000
 Text GLabel 4900 2250 0    50   Input ~ 0
-DAC_B
+DAC_2
 Wire Wire Line
 	5050 2450 5050 2650
 Wire Wire Line
@@ -1357,7 +1357,7 @@ $EndComp
 Wire Wire Line
 	5050 4250 5050 4300
 Text GLabel 4900 3550 0    50   Input ~ 0
-DAC_C
+DAC_3
 Wire Wire Line
 	5050 3750 5050 3950
 Wire Wire Line
@@ -1495,7 +1495,7 @@ $EndComp
 Wire Wire Line
 	5050 5500 5050 5550
 Text GLabel 4900 4800 0    50   Input ~ 0
-DAC_D
+DAC_4
 Wire Wire Line
 	5050 5000 5050 5200
 Wire Wire Line
@@ -1578,13 +1578,13 @@ F 3 "" H 7700 3500 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Text GLabel 7700 3100 0    50   Input ~ 0
-DAC_A
+DAC_1
 Text GLabel 8700 3100 2    50   Input ~ 0
-DAC_B
+DAC_2
 Text GLabel 8700 3400 2    50   Input ~ 0
-DAC_C
+DAC_3
 Text GLabel 7700 3400 0    50   Input ~ 0
-DAC_D
+DAC_4
 Text GLabel 7700 3600 0    50   Input ~ 0
 DAC_MOSI
 Text GLabel 8700 3500 2    50   Input ~ 0
@@ -1890,7 +1890,7 @@ F 3 "~" H 8700 7350 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Text GLabel 10700 6150 0    50   Input ~ 0
-LED_CV1
+CV1_LED
 Wire Wire Line
 	10700 6150 10750 6150
 $Comp
@@ -1905,7 +1905,7 @@ F 3 "~" H 10900 6150 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Text GLabel 10700 6550 0    50   Input ~ 0
-LED_CV2
+CV2_LED
 Wire Wire Line
 	10700 6550 10750 6550
 $Comp
@@ -1933,7 +1933,7 @@ $EndComp
 Wire Wire Line
 	10700 7350 10750 7350
 Text GLabel 10700 7350 0    50   Input ~ 0
-LED_CV4
+CV4_LED
 $Comp
 L Device:R R17
 U 1 1 5E2B27CA
@@ -1948,15 +1948,7 @@ $EndComp
 Wire Wire Line
 	10700 6950 10750 6950
 Text GLabel 10700 6950 0    50   Input ~ 0
-LED_CV3
-Text GLabel 3400 4850 2    50   Input ~ 0
-LED_CV1
-Text GLabel 3400 5050 2    50   Input ~ 0
-LED_CV2
-Text GLabel 3400 3850 2    50   Input ~ 0
-LED_CV4
-Text GLabel 1650 4550 0    50   Input ~ 0
-LED_CV3
+CV3_LED
 Wire Wire Line
 	1650 4550 1850 4550
 NoConn ~ 3250 3050
@@ -2068,13 +2060,13 @@ Wire Wire Line
 Text GLabel 1700 6600 2    50   Input ~ 0
 RESET_SWITCH
 Text GLabel 6050 1100 2    50   Input ~ 0
-CVA_OUT
+CV1_OUT
 Text GLabel 6050 2350 2    50   Input ~ 0
-CVB_OUT
+CV2_OUT
 Text GLabel 6050 3650 2    50   Input ~ 0
-CVC_OUT
+CV3_OUT
 Text GLabel 6000 4900 2    50   Input ~ 0
-CVD_OUT
+CV4_OUT
 Wire Wire Line
 	6050 1100 5850 1100
 Connection ~ 5850 1100
@@ -2088,18 +2080,18 @@ Wire Wire Line
 	6000 4900 5850 4900
 Connection ~ 5850 4900
 Text GLabel 3050 7150 2    50   Input ~ 0
-CVA_OUT
+CV1_OUT
 Text GLabel 3050 7250 2    50   Input ~ 0
-CVB_OUT
+CV2_OUT
 Text GLabel 3050 7350 2    50   Input ~ 0
-CVC_OUT
+CV3_OUT
 Text GLabel 3050 7450 2    50   Input ~ 0
-CVD_OUT
+CV4_OUT
 $Comp
-L power:GND #PWR?
+L power:GND #PWR0102
 U 1 1 5E745851
 P 1700 7900
-F 0 "#PWR?" H 1700 7650 50  0001 C CNN
+F 0 "#PWR0102" H 1700 7650 50  0001 C CNN
 F 1 "GND" V 1700 7700 50  0000 C CNN
 F 2 "" H 1700 7900 50  0001 C CNN
 F 3 "" H 1700 7900 50  0001 C CNN
@@ -2129,14 +2121,22 @@ F 3 "~" H 2850 7050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L power:GND #PWR?
+L power:GND #PWR0103
 U 1 1 5E983194
 P 3050 7850
-F 0 "#PWR?" H 3050 7600 50  0001 C CNN
+F 0 "#PWR0103" H 3050 7600 50  0001 C CNN
 F 1 "GND" V 3050 7650 50  0000 C CNN
 F 2 "" H 3050 7850 50  0001 C CNN
 F 3 "" H 3050 7850 50  0001 C CNN
 	1    3050 7850
 	0    -1   -1   0   
 $EndComp
+Text GLabel 3400 4850 2    50   Input ~ 0
+CV1_LED
+Text GLabel 3400 5050 2    50   Input ~ 0
+CV2_LED
+Text GLabel 3400 3850 2    50   Input ~ 0
+CV4_LED
+Text GLabel 1650 4550 0    50   Input ~ 0
+CV3_LED
 $EndSCHEMATC
