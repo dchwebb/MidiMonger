@@ -332,12 +332,12 @@ Wire Wire Line
 $Comp
 L power:+3.3VA #PWR050
 U 1 1 5C8021B0
-P 12600 3350
-F 0 "#PWR050" H 12600 3200 50  0001 C CNN
-F 1 "+3.3VA" H 12500 3500 50  0000 L CNN
-F 2 "" H 12600 3350 50  0001 C CNN
-F 3 "" H 12600 3350 50  0001 C CNN
-	1    12600 3350
+P 12150 3350
+F 0 "#PWR050" H 12150 3200 50  0001 C CNN
+F 1 "+3.3VA" H 12050 3500 50  0000 L CNN
+F 2 "" H 12150 3350 50  0001 C CNN
+F 3 "" H 12150 3350 50  0001 C CNN
+	1    12150 3350
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -576,9 +576,9 @@ Wire Wire Line
 	2550 1800 2550 1100
 Connection ~ 2550 1100
 Wire Wire Line
-	12600 3350 12600 3450
+	12150 3350 12150 3450
 Wire Wire Line
-	12600 3450 12300 3450
+	12150 3450 12000 3450
 NoConn ~ 1850 2250
 $Comp
 L power:+12V #PWR047
@@ -808,31 +808,15 @@ Wire Wire Line
 $Comp
 L Device:C C16
 U 1 1 5D642227
-P 12300 3600
-F 0 "C16" H 12450 3600 50  0000 C CNN
-F 1 "100nF" H 12500 3500 50  0000 C CNN
-F 2 "Capacitors_SMD:C_0805_HandSoldering" H 12338 3450 50  0001 C CNN
-F 3 "~" H 12300 3600 50  0001 C CNN
-	1    12300 3600
+P 12000 3600
+F 0 "C16" H 12150 3600 50  0000 C CNN
+F 1 "100nF" H 12200 3500 50  0000 C CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 12038 3450 50  0001 C CNN
+F 3 "~" H 12000 3600 50  0001 C CNN
+	1    12000 3600
 	1    0    0    -1  
 $EndComp
-Connection ~ 12300 3450
-$Comp
-L Device:CP C15
-U 1 1 5D6522B4
-P 11900 3600
-F 0 "C15" H 12100 3600 50  0000 C CNN
-F 1 "1uF" H 12100 3500 50  0000 C CNN
-F 2 "Capacitors_SMD:CP_Elec_4x5.7" H 11938 3450 50  0001 C CNN
-F 3 "~" H 11900 3600 50  0001 C CNN
-	1    11900 3600
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	11850 3450 11900 3450
-Connection ~ 11900 3450
-Wire Wire Line
-	11900 3450 12300 3450
+Connection ~ 12000 3450
 Wire Wire Line
 	10950 3750 10950 3800
 Wire Wire Line
@@ -840,16 +824,9 @@ Wire Wire Line
 Wire Wire Line
 	10950 3800 11400 3800
 Connection ~ 10950 3800
-Wire Wire Line
-	11400 3800 11900 3800
-Wire Wire Line
-	11900 3800 11900 3750
 Connection ~ 11400 3800
 Wire Wire Line
-	11900 3800 12300 3800
-Wire Wire Line
-	12300 3800 12300 3750
-Connection ~ 11900 3800
+	12000 3800 12000 3750
 $Comp
 L power:GND #PWR038
 U 1 1 5D6A179B
@@ -920,7 +897,7 @@ NoConn ~ 1850 4850
 NoConn ~ 3250 5150
 NoConn ~ 3250 4750
 NoConn ~ 3250 4650
-NoConn ~ 3250 4550
+NoConn ~ 3250 4850
 NoConn ~ 3250 3950
 NoConn ~ 3250 4150
 NoConn ~ 3250 2850
@@ -930,7 +907,7 @@ NoConn ~ 2350 1850
 NoConn ~ 3250 3750
 NoConn ~ 1850 5150
 Wire Wire Line
-	3250 3850 3400 3850
+	1850 4950 1700 4950
 Wire Wire Line
 	1850 4750 1650 4750
 $Comp
@@ -1123,11 +1100,11 @@ F 3 "" H 8700 1150 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	4900 1000 5200 1000
-Text GLabel 3050 7550 2    50   Input ~ 0
+Text GLabel 2250 6900 2    50   Input ~ 0
 USB_VBUS
-Text GLabel 3050 7650 2    50   Input ~ 0
+Text GLabel 2250 7100 2    50   Input ~ 0
 USB_DP
-Text GLabel 3050 7750 2    50   Input ~ 0
+Text GLabel 2250 7000 2    50   Input ~ 0
 USB_DM
 Text GLabel 3400 2950 2    50   Input ~ 0
 USB_VBUS
@@ -1147,7 +1124,7 @@ U 1 1 5DBF2765
 P 7900 4950
 F 0 "D3" V 7900 4700 50  0000 L CNN
 F 1 "1N4148W" V 8000 4550 50  0000 L CNN
-F 2 "Diode_SMD:D_SOD-123" H 7900 4775 50  0001 C CNN
+F 2 "Diodes_SMD:D_SOD-123" H 7900 4775 50  0001 C CNN
 F 3 "https://www.vishay.com/docs/85748/1n4148w.pdf" H 7900 4950 50  0001 C CNN
 	1    7900 4950
 	0    1    1    0   
@@ -1955,31 +1932,28 @@ NoConn ~ 3250 3050
 NoConn ~ 3250 4350
 NoConn ~ 3250 4450
 NoConn ~ 3250 4950
-NoConn ~ 1850 4950
 NoConn ~ 1850 5050
 NoConn ~ 1850 3650
 NoConn ~ 3250 2450
-NoConn ~ 3250 3350
-NoConn ~ 3250 3450
 Wire Wire Line
-	3250 4850 3400 4850
+	3250 4550 3400 4550
 Wire Wire Line
 	3400 5050 3250 5050
-Text GLabel 1700 7000 2    50   Input ~ 0
+Text GLabel 2250 6700 2    50   Input ~ 0
 GATE5_OUT
-Text GLabel 1700 6900 2    50   Input ~ 0
+Text GLabel 2250 8050 2    50   Input ~ 0
 GATE6_OUT
-Text GLabel 1700 6800 2    50   Input ~ 0
+Text GLabel 2250 6800 2    50   Input ~ 0
 GATE7_OUT
-Text GLabel 1700 6700 2    50   Input ~ 0
+Text GLabel 2250 8150 2    50   Input ~ 0
 GATE8_OUT
-Text GLabel 1700 7100 2    50   Input ~ 0
+Text GLabel 1000 7850 2    50   Input ~ 0
 GATE1_OUT
-Text GLabel 1700 7200 2    50   Input ~ 0
+Text GLabel 1000 8050 2    50   Input ~ 0
 GATE2_OUT
-Text GLabel 1700 7300 2    50   Input ~ 0
+Text GLabel 1000 8150 2    50   Input ~ 0
 GATE3_OUT
-Text GLabel 1700 7400 2    50   Input ~ 0
+Text GLabel 1000 8350 2    50   Input ~ 0
 GATE4_OUT
 Wire Wire Line
 	8850 7350 8900 7350
@@ -2021,43 +1995,43 @@ Text GLabel 11100 7350 2    50   Input ~ 0
 CV4_LED_OUT
 Text GLabel 11100 6950 2    50   Input ~ 0
 CV3_LED_OUT
-Text GLabel 1700 7500 2    50   Input ~ 0
+Text GLabel 1000 6400 2    50   Input ~ 0
 CV1_LED_OUT
-Text GLabel 1700 7600 2    50   Input ~ 0
+Text GLabel 1000 6600 2    50   Input ~ 0
 CV2_LED_OUT
-Text GLabel 1700 7800 2    50   Input ~ 0
+Text GLabel 1000 7100 2    50   Input ~ 0
 CV4_LED_OUT
-Text GLabel 1700 7700 2    50   Input ~ 0
+Text GLabel 1000 6900 2    50   Input ~ 0
 CV3_LED_OUT
-Text GLabel 3050 6350 2    50   Input ~ 0
+Text GLabel 1000 7750 2    50   Input ~ 0
 GATE1_LED_OUT
-Text GLabel 3050 6450 2    50   Input ~ 0
+Text GLabel 1000 7950 2    50   Input ~ 0
 GATE2_LED_OUT
-Text GLabel 3050 6550 2    50   Input ~ 0
+Text GLabel 1000 8250 2    50   Input ~ 0
 GATE3_LED_OUT
-Text GLabel 3050 6650 2    50   Input ~ 0
+Text GLabel 1000 8450 2    50   Input ~ 0
 GATE4_LED_OUT
-Text GLabel 3050 6750 2    50   Input ~ 0
+Text GLabel 2250 6500 2    50   Input ~ 0
 GATE5_LED_OUT
-Text GLabel 3050 6850 2    50   Input ~ 0
+Text GLabel 2250 7850 2    50   Input ~ 0
 GATE6_LED_OUT
-Text GLabel 3050 6950 2    50   Input ~ 0
+Text GLabel 2250 6600 2    50   Input ~ 0
 GATE7_LED_OUT
-Text GLabel 3050 7050 2    50   Input ~ 0
+Text GLabel 2250 7950 2    50   Input ~ 0
 GATE8_LED_OUT
 Text GLabel 7350 5200 0    50   Input ~ 0
 MIDI_DATA
 Text GLabel 7350 4700 0    50   Input ~ 0
 MIDI_VREF
-Text GLabel 1700 6500 2    50   Input ~ 0
+Text GLabel 2250 8350 2    50   Input ~ 0
 MIDI_DATA
-Text GLabel 1700 6400 2    50   Input ~ 0
+Text GLabel 2250 8450 2    50   Input ~ 0
 MIDI_VREF
 Text GLabel 5250 6100 2    50   Input ~ 0
 RESET_SWITCH
 Wire Wire Line
 	5100 6100 5250 6100
-Text GLabel 1700 6600 2    50   Input ~ 0
+Text GLabel 2250 8250 2    50   Input ~ 0
 RESET_SWITCH
 Text GLabel 6050 1100 2    50   Input ~ 0
 CV1_OUT
@@ -2079,64 +2053,98 @@ Connection ~ 5850 3650
 Wire Wire Line
 	6000 4900 5850 4900
 Connection ~ 5850 4900
-Text GLabel 3050 7150 2    50   Input ~ 0
+Text GLabel 1000 6500 2    50   Input ~ 0
 CV1_OUT
-Text GLabel 3050 7250 2    50   Input ~ 0
+Text GLabel 1000 6700 2    50   Input ~ 0
 CV2_OUT
-Text GLabel 3050 7350 2    50   Input ~ 0
+Text GLabel 1000 6800 2    50   Input ~ 0
 CV3_OUT
-Text GLabel 3050 7450 2    50   Input ~ 0
+Text GLabel 1000 7000 2    50   Input ~ 0
 CV4_OUT
 $Comp
 L power:GND #PWR0102
 U 1 1 5E745851
-P 1700 7900
-F 0 "#PWR0102" H 1700 7650 50  0001 C CNN
-F 1 "GND" V 1700 7700 50  0000 C CNN
-F 2 "" H 1700 7900 50  0001 C CNN
-F 3 "" H 1700 7900 50  0001 C CNN
-	1    1700 7900
+P 2250 6400
+F 0 "#PWR0102" H 2250 6150 50  0001 C CNN
+F 1 "GND" V 2250 6200 50  0000 C CNN
+F 2 "" H 2250 6400 50  0001 C CNN
+F 3 "" H 2250 6400 50  0001 C CNN
+	1    2250 6400
 	0    -1   -1   0   
-$EndComp
-$Comp
-L Connector:Conn_01x16_Male J?
-U 1 1 5E745CF1
-P 1500 7100
-F 0 "J?" H 1750 8100 50  0000 C CNN
-F 1 "Conn_01x16_Male" H 1800 7950 50  0000 C CNN
-F 2 "" H 1500 7100 50  0001 C CNN
-F 3 "~" H 1500 7100 50  0001 C CNN
-	1    1500 7100
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector:Conn_01x16_Male J?
-U 1 1 5E981EA4
-P 2850 7050
-F 0 "J?" H 3100 8050 50  0000 C CNN
-F 1 "Conn_01x16_Male" H 3150 7900 50  0000 C CNN
-F 2 "" H 2850 7050 50  0001 C CNN
-F 3 "~" H 2850 7050 50  0001 C CNN
-	1    2850 7050
-	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0103
 U 1 1 5E983194
-P 3050 7850
-F 0 "#PWR0103" H 3050 7600 50  0001 C CNN
-F 1 "GND" V 3050 7650 50  0000 C CNN
-F 2 "" H 3050 7850 50  0001 C CNN
-F 3 "" H 3050 7850 50  0001 C CNN
-	1    3050 7850
+P 2250 7750
+F 0 "#PWR0103" H 2250 7500 50  0001 C CNN
+F 1 "GND" V 2250 7550 50  0000 C CNN
+F 2 "" H 2250 7750 50  0001 C CNN
+F 3 "" H 2250 7750 50  0001 C CNN
+	1    2250 7750
 	0    -1   -1   0   
 $EndComp
-Text GLabel 3400 4850 2    50   Input ~ 0
+Text GLabel 3400 4550 2    50   Input ~ 0
 CV1_LED
 Text GLabel 3400 5050 2    50   Input ~ 0
 CV2_LED
-Text GLabel 3400 3850 2    50   Input ~ 0
+Text GLabel 1700 4950 0    50   Input ~ 0
 CV4_LED
 Text GLabel 1650 4550 0    50   Input ~ 0
 CV3_LED
+$Comp
+L Connector:Conn_01x08_Male J2
+U 1 1 5DD2A989
+P 800 6700
+F 0 "J2" H 1150 7250 50  0000 C CNN
+F 1 "Conn_01x08_Male" H 1150 7150 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x08_Pitch2.54mm" H 800 6700 50  0001 C CNN
+F 3 "~" H 800 6700 50  0001 C CNN
+	1    800  6700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x08_Male J3
+U 1 1 5DD2E118
+P 800 8050
+F 0 "J3" H 1150 8600 50  0000 C CNN
+F 1 "Conn_01x08_Male" H 1200 8500 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x08_Pitch2.54mm" H 800 8050 50  0001 C CNN
+F 3 "~" H 800 8050 50  0001 C CNN
+	1    800  8050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x08_Male J4
+U 1 1 5DE36376
+P 2050 6700
+F 0 "J4" H 2400 7250 50  0000 C CNN
+F 1 "Conn_01x08_Male" H 2400 7150 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x08_Pitch2.54mm" H 2050 6700 50  0001 C CNN
+F 3 "~" H 2050 6700 50  0001 C CNN
+	1    2050 6700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x08_Male J5
+U 1 1 5DE62687
+P 2050 8050
+F 0 "J5" H 2300 8600 50  0000 C CNN
+F 1 "Conn_01x08_Male" H 2350 8500 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x08_Pitch2.54mm" H 2050 8050 50  0001 C CNN
+F 3 "~" H 2050 8050 50  0001 C CNN
+	1    2050 8050
+	1    0    0    -1  
+$EndComp
+Text GLabel 3400 3450 2    50   Input ~ 0
+SWCLK
+Text GLabel 3400 3350 2    50   Input ~ 0
+SWDIO
+Wire Wire Line
+	3400 3350 3250 3350
+Wire Wire Line
+	3400 3450 3250 3450
+Wire Wire Line
+	11850 3450 12000 3450
+Wire Wire Line
+	11400 3800 12000 3800
 $EndSCHEMATC
