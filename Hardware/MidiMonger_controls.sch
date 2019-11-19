@@ -849,13 +849,13 @@ Text GLabel 9300 1900 0    50   Input ~ 0
 GATE7_LED_OUT
 Text GLabel 9300 2300 0    50   Input ~ 0
 GATE8_LED_OUT
-Text GLabel 1400 4700 2    50   Input ~ 0
+Text GLabel 1400 5100 2    50   Input ~ 0
 CV1_LED_OUT
-Text GLabel 1400 4900 2    50   Input ~ 0
+Text GLabel 1400 5200 2    50   Input ~ 0
 CV2_LED_OUT
 Text GLabel 1400 5400 2    50   Input ~ 0
 CV4_LED_OUT
-Text GLabel 1400 5200 2    50   Input ~ 0
+Text GLabel 1400 5300 2    50   Input ~ 0
 CV3_LED_OUT
 Text GLabel 1400 5850 2    50   Input ~ 0
 GATE1_LED_OUT
@@ -869,7 +869,7 @@ Text GLabel 2800 4750 2    50   Input ~ 0
 GATE5_LED_OUT
 Text GLabel 2800 5950 2    50   Input ~ 0
 GATE6_LED_OUT
-Text GLabel 2800 4850 2    50   Input ~ 0
+Text GLabel 2800 5850 2    50   Input ~ 0
 GATE7_LED_OUT
 Text GLabel 2800 6050 2    50   Input ~ 0
 GATE8_LED_OUT
@@ -883,7 +883,7 @@ Text GLabel 2800 6550 2    50   Input ~ 0
 MIDI_VREF
 Text GLabel 5700 3700 0    50   Input ~ 0
 RESET_SWITCH
-Text GLabel 2800 6350 2    50   Input ~ 0
+Text GLabel 2800 4650 2    50   Input ~ 0
 RESET_SWITCH
 Text GLabel 4000 1200 0    50   Input ~ 0
 CV1_OUT
@@ -893,34 +893,34 @@ Text GLabel 4000 2800 0    50   Input ~ 0
 CV3_OUT
 Text GLabel 4000 3600 0    50   Input ~ 0
 CV4_OUT
-Text GLabel 1400 4800 2    50   Input ~ 0
+Text GLabel 1400 4700 2    50   Input ~ 0
 CV1_OUT
-Text GLabel 1400 5000 2    50   Input ~ 0
+Text GLabel 1400 4800 2    50   Input ~ 0
 CV2_OUT
-Text GLabel 1400 5100 2    50   Input ~ 0
+Text GLabel 1400 4900 2    50   Input ~ 0
 CV3_OUT
-Text GLabel 1400 5300 2    50   Input ~ 0
+Text GLabel 1400 5000 2    50   Input ~ 0
 CV4_OUT
 $Comp
 L power:GND #PWR01
 U 1 1 5E745851
-P 2800 4650
-F 0 "#PWR01" H 2800 4400 50  0001 C CNN
-F 1 "GND" V 2800 4450 50  0000 C CNN
-F 2 "" H 2800 4650 50  0001 C CNN
-F 3 "" H 2800 4650 50  0001 C CNN
-	1    2800 4650
+P 2800 4850
+F 0 "#PWR01" H 2800 4600 50  0001 C CNN
+F 1 "GND" V 2800 4650 50  0000 C CNN
+F 2 "" H 2800 4850 50  0001 C CNN
+F 3 "" H 2800 4850 50  0001 C CNN
+	1    2800 4850
 	0    -1   -1   0   
 $EndComp
 $Comp
 L power:GND #PWR06
 U 1 1 5E983194
-P 2800 5850
-F 0 "#PWR06" H 2800 5600 50  0001 C CNN
-F 1 "GND" V 2800 5650 50  0000 C CNN
-F 2 "" H 2800 5850 50  0001 C CNN
-F 3 "" H 2800 5850 50  0001 C CNN
-	1    2800 5850
+P 2800 6350
+F 0 "#PWR06" H 2800 6100 50  0001 C CNN
+F 1 "GND" V 2800 6150 50  0000 C CNN
+F 2 "" H 2800 6350 50  0001 C CNN
+F 3 "" H 2800 6350 50  0001 C CNN
+	1    2800 6350
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
@@ -939,9 +939,9 @@ Wire Wire Line
 	2850 1100 2950 1100
 Text GLabel 2800 5150 2    50   Input ~ 0
 USB_VBUS
-Text GLabel 2800 5350 2    50   Input ~ 0
-USB_DP
 Text GLabel 2800 5250 2    50   Input ~ 0
+USB_DP
+Text GLabel 2800 5350 2    50   Input ~ 0
 USB_DM
 $Comp
 L Connector:Conn_01x08_Female J20

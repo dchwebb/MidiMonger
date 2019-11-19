@@ -1098,11 +1098,11 @@ F 3 "" H 8700 1150 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	4900 1000 5200 1000
-Text GLabel 2250 7100 2    50   Input ~ 0
-USB_VBUS
 Text GLabel 2250 6900 2    50   Input ~ 0
-USB_DP
+USB_VBUS
 Text GLabel 2250 7000 2    50   Input ~ 0
+USB_DP
+Text GLabel 2250 7100 2    50   Input ~ 0
 USB_DM
 Text GLabel 3400 2950 2    50   Input ~ 0
 USB_VBUS
