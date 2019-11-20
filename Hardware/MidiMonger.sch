@@ -1980,13 +1980,13 @@ Text GLabel 11100 7350 2    50   Input ~ 0
 CV4_LED_OUT
 Text GLabel 11100 6950 2    50   Input ~ 0
 CV3_LED_OUT
-Text GLabel 1000 6800 2    50   Input ~ 0
-CV1_LED_OUT
 Text GLabel 1000 6900 2    50   Input ~ 0
-CV2_LED_OUT
-Text GLabel 1000 7100 2    50   Input ~ 0
-CV4_LED_OUT
+CV1_LED_OUT
 Text GLabel 1000 7000 2    50   Input ~ 0
+CV2_LED_OUT
+Text GLabel 1000 7200 2    50   Input ~ 0
+CV4_LED_OUT
+Text GLabel 1000 7100 2    50   Input ~ 0
 CV3_LED_OUT
 Text GLabel 1000 7750 2    50   Input ~ 0
 GATE1_LED_OUT
@@ -2042,9 +2042,9 @@ Text GLabel 1000 6400 2    50   Input ~ 0
 CV1_OUT
 Text GLabel 1000 6500 2    50   Input ~ 0
 CV2_OUT
-Text GLabel 1000 6600 2    50   Input ~ 0
-CV3_OUT
 Text GLabel 1000 6700 2    50   Input ~ 0
+CV3_OUT
+Text GLabel 1000 6800 2    50   Input ~ 0
 CV4_OUT
 $Comp
 L power:GND #PWR0102
@@ -2076,17 +2076,6 @@ Text GLabel 3400 4450 2    50   Input ~ 0
 CV4_LED
 Text GLabel 3400 4550 2    50   Input ~ 0
 CV3_LED
-$Comp
-L Connector:Conn_01x08_Male J2
-U 1 1 5DD2A989
-P 800 6700
-F 0 "J2" H 1150 7250 50  0000 C CNN
-F 1 "Conn_01x08_Male" H 1150 7150 50  0000 C CNN
-F 2 "Socket_Strips:Socket_Strip_Straight_1x08_Pitch2.54mm" H 800 6700 50  0001 C CNN
-F 3 "~" H 800 6700 50  0001 C CNN
-	1    800  6700
-	1    0    0    -1  
-$EndComp
 $Comp
 L Connector:Conn_01x08_Male J3
 U 1 1 5DD2E118
@@ -2148,4 +2137,26 @@ NoConn ~ 1850 3950
 Wire Wire Line
 	1850 4150 1650 4150
 NoConn ~ 3250 2150
+$Comp
+L Connector:Conn_01x09_Male J2
+U 1 1 5DD6C191
+P 800 6800
+F 0 "J2" H 1100 7450 50  0000 C CNN
+F 1 "Conn_01x09_Male" H 1050 7350 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x09_Pitch2.54mm" H 800 6800 50  0001 C CNN
+F 3 "~" H 800 6800 50  0001 C CNN
+	1    800  6800
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0109
+U 1 1 5DD80FBA
+P 1000 6600
+F 0 "#PWR0109" H 1000 6350 50  0001 C CNN
+F 1 "GND" V 1000 6400 50  0000 C CNN
+F 2 "" H 1000 6600 50  0001 C CNN
+F 3 "" H 1000 6600 50  0001 C CNN
+	1    1000 6600
+	0    -1   -1   0   
+$EndComp
 $EndSCHEMATC

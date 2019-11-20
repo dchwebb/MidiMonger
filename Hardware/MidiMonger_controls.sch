@@ -893,9 +893,9 @@ Text GLabel 4000 2800 0    50   Input ~ 0
 CV3_OUT
 Text GLabel 4000 3600 0    50   Input ~ 0
 CV4_OUT
-Text GLabel 1400 4700 2    50   Input ~ 0
+Text GLabel 1400 4600 2    50   Input ~ 0
 CV1_OUT
-Text GLabel 1400 4800 2    50   Input ~ 0
+Text GLabel 1400 4700 2    50   Input ~ 0
 CV2_OUT
 Text GLabel 1400 4900 2    50   Input ~ 0
 CV3_OUT
@@ -937,23 +937,12 @@ Text GLabel 7800 3650 0    50   Input ~ 0
 CV3_LED_OUT
 Wire Wire Line
 	2850 1100 2950 1100
-Text GLabel 2800 5150 2    50   Input ~ 0
-USB_VBUS
-Text GLabel 2800 5250 2    50   Input ~ 0
-USB_DP
 Text GLabel 2800 5350 2    50   Input ~ 0
+USB_VBUS
+Text GLabel 2800 5150 2    50   Input ~ 0
+USB_DP
+Text GLabel 2800 5250 2    50   Input ~ 0
 USB_DM
-$Comp
-L Connector:Conn_01x08_Female J20
-U 1 1 5DE6ABCD
-P 1200 5000
-F 0 "J20" H 1050 5600 50  0000 L CNN
-F 1 "Conn_01x08_Female" H 750 5450 50  0000 L CNN
-F 2 "Socket_Strips:Socket_Strip_Straight_1x08_Pitch2.54mm" H 1200 5000 50  0001 C CNN
-F 3 "~" H 1200 5000 50  0001 C CNN
-	1    1200 5000
-	-1   0    0    -1  
-$EndComp
 $Comp
 L Connector:Conn_01x08_Female J21
 U 1 1 5DE6CBEA
@@ -986,5 +975,27 @@ F 2 "Socket_Strips:Socket_Strip_Straight_1x08_Pitch2.54mm" H 2600 6150 50  0001 
 F 3 "~" H 2600 6150 50  0001 C CNN
 	1    2600 6150
 	-1   0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x09_Female J20
+U 1 1 5DD622C7
+P 1200 5000
+F 0 "J20" H 1092 5585 50  0000 C CNN
+F 1 "Conn_01x09_Female" H 1092 5494 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x09_Pitch2.54mm" H 1200 5000 50  0001 C CNN
+F 3 "~" H 1200 5000 50  0001 C CNN
+	1    1200 5000
+	-1   0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0101
+U 1 1 5DD65DC5
+P 1400 4800
+F 0 "#PWR0101" H 1400 4550 50  0001 C CNN
+F 1 "GND" V 1400 4600 50  0000 C CNN
+F 2 "" H 1400 4800 50  0001 C CNN
+F 3 "" H 1400 4800 50  0001 C CNN
+	1    1400 4800
+	0    -1   -1   0   
 $EndComp
 $EndSCHEMATC
