@@ -18,7 +18,7 @@ window.onload = afterLoad;
 function afterLoad() {
 
 	for (var c = 1; c < 5; c++) {
-		// Generate html for gate configuration controls
+		// Generate html for cv configuration controls
 		var html = [
 			'<div style = "padding: 5px;">Type</div>', 
 			'<div><select id="cType' + c + '" class="docNav" onchange="updateCV(' + c + ', cfgEnum.type);"></select></div>',
@@ -211,6 +211,17 @@ function testOutput(outputType, outputNo) {
 
 	} else {
 		var ctlType = parseInt(document.getElementById("gType" + outputNo).value);
+
+		switch (ctlType) {
+		case gateEnum.specificNote:
+			var channel = document.getElementById("gChannel" + outputNo).value;
+			var note = document.getElementById("gNote" + outputNo).value;
+			output.send([0x90 + parseInt(channel - 1), note, 0x7f]);		// send each note on command after each interval
+			output.send([0x80 + parseInt(channel - 1), note, 0x40], window.performance.now() + 500);	// send off notes 50ms before next note
+			break;
+		case gateEnum.clock:
+			break;
+		}
 	}
 
 	// to test MIDI channel send sequence of notes

@@ -151,6 +151,19 @@ void MidiHandler::eventHandler(uint32_t data)
 		}
 	}
 
+	// Pitch Bend
+	if (midiEvent.msg == 0xE) {
+		for (auto cv : cvOutputs) {
+			if (cv.type == cvType::channelPitch && cv.channel == midiEvent.chn + 1) {
+				channelNotes[midiEvent.chn].pitchbend = (float)((midiEvent.db1 + (midiEvent.db2 << 7) - 8192) / 8192.0f) * (float)pitchBendSemiTones;
+
+				uint16_t dacOutput = 0xFFFF * (((float)(std::min(std::max((float)cv.currentNote + channelNotes[midiEvent.chn].pitchbend, 24.0f), 96.0f) - 24) / 72));		// limit C1 to C7
+				dacHandler.sendData(WriteChannel | cv.dacChannel, dacOutput);		// Send pitch to DAC
+
+			}
+		}
+	}
+
 	/*
 	Message Type	MS Nybble	LS Nybble		Bytes		Data Byte 1			Data Byte 2
 	-----------------------------------------------------------------------------------------
@@ -168,7 +181,15 @@ void MidiHandler::eventHandler(uint32_t data)
 	if (midiEvent.msg == 9 || midiEvent.msg == 8) {
 		// locate output that will process the request
 		for (auto gate : gateOutputs) {
-			if (gate.channel == midiEvent.chn + 1 && (gate.type == gateType::channelNote || (gate.type == gateType::specificNote && gate.note == midiEvent.db1))) {
+			if (gate.channel == midiEvent.chn + 1 && gate.type == gateType::specificNote && gate.note == midiEvent.db1) {
+				if (midiEvent.msg == 9)
+					gate.gateOn();
+				else
+					gate.gateOff();
+
+
+
+			} else if (gate.channel == midiEvent.chn + 1 && gate.type == gateType::channelNote) {
 
 				// Delete note if already playing and add to latest position in list
 				activeNote& noteList = channelNotes[gate.channel - 1].activeNotes;
@@ -186,7 +207,7 @@ void MidiHandler::eventHandler(uint32_t data)
 					// check if any voice is currently playing note
 					notePlaying = false;
 					for (uint8_t c = 0; c < 4; ++c) {
-						if (cvOutputs[c].currentNote == *currNote) {
+						if (cvOutputs[c].currentNote == *currNote && cvOutputs[c].channel == gate.channel) {
 							cvOutputs[c].nextNote = cvOutputs[c].currentNote;
 							notePlaying = true;
 							break;
@@ -213,74 +234,21 @@ void MidiHandler::eventHandler(uint32_t data)
 					if (cvOutputs[c].nextNote != cvOutputs[c].currentNote) {
 						// Mute
 						if (cvOutputs[c].nextNote == 0) {
-							gateOutputs[c].gpioPort->BSRR |= (1 << (16 + gateOutputs[c].gpioPin));			// Gate Off
+							gateOutputs[c].gateOff();
 						} else {
-							uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((int)cvOutputs[c].nextNote, 24), 96) - 24) / 72;		// limit C1 to C7
+							uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((float)cvOutputs[c].nextNote + channelNotes[midiEvent.chn].pitchbend, 24.0f), 96.0f) - 24) / 72;		// limit C1 to C7
 							dacHandler.sendData(WriteChannel | cvOutputs[c].dacChannel, dacOutput);		// Send pitch to DAC
-							gateOutputs[c].gpioPort->BSRR |= (1 << gateOutputs[c].gpioPin);					// Gate on
+							gateOutputs[c].gateOn();
 						}
 
 					}
 					cvOutputs[c].currentNote = cvOutputs[c].nextNote;
 					cvOutputs[c].nextNote = 0;
 				}
-
+				break;		// if any polyphonic note found exit
 			}
 		}
-
 	}
-	/*
-	// Note On
-	if (midiEvent.msg == 9) {
-		// Delete note if already playing and add to latest position in list
-		midiNotes.remove(midiEvent.db1);
-		midiNotes.push_back(midiEvent.db1);
-	}
-
-	// Note Off
-	if (midiEvent.msg == 8) {
-		midiNotes.remove(midiEvent.db1);
-	}
-
-	// Set pitch
-	if (midiNotes.size() > 0) {
-		//uint16_t dacOut = 4095 * (float)(std::min(std::max((int)midiNotes.back(), 24), 96) - 24) / 72;		// limit C1 to C7
-		//DAC->DHR12R1 = dacOut;
-
-		// Using external DAC
-		uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((int)midiNotes.back(), 24), 96) - 24) / 72;		// limit C1 to C7
-#ifdef MAX5134
-		//dacHandler.sendData(WriteChannel | cvOutputs[1].dacChannel, dacOutput);
-		//dacHandler.sendData(WriteChannel | ChannelB, dacOutput);
-		//dacHandler.sendData(WriteChannel | ChannelC, dacOutput);
-		//dacHandler.sendData(WriteChannel | ChannelD, dacOutput);
-
-#else
-		dacHandler.sendData(WriteChannel, ChannelA, dacOutput);
-		dacHandler.sendData(WriteChannel, ChannelB, dacOutput);
-#endif
-	}
-
-	// light up LED (PB14) and transmit gate (PA3)
-	if (midiNotes.size() > 0) {
-		GPIOB->BSRR |= GPIO_BSRR_BS_14;
-
-		//cvOutputs[0].gpioPort->BSRR |= (1 << cvOutputs[1].gpioPin);
-		//GPIOC->BSRR |= GPIO_BSRR_BS_3;		// Gate 5
-		//GPIOC->BSRR |= GPIO_BSRR_BS_0;		// Gate 6
-		//GPIOA->BSRR |= GPIO_BSRR_BS_3;		// Gate 7
-
-
-	}
-	else {
-		GPIOB->BSRR |= GPIO_BSRR_BR_14;
-
-		//cvOutputs[0].gpioPort->BSRR |= (1 << (16 + cvOutputs[1].gpioPin));
-		//GPIOA->BSRR |= GPIO_BSRR_BR_3;		// Gate 7
-		//GPIOC->BSRR |= GPIO_BSRR_BR_0;		// Gate 6
-		//GPIOC->BSRR |= GPIO_BSRR_BR_3;		// Gate 5
-	}*/
-
 }
 
 /*

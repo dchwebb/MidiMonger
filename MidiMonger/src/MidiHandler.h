@@ -48,6 +48,14 @@ struct Gate {
 	uint8_t note;
 	GPIO_TypeDef* gpioPort;
 	uint8_t gpioPin;
+
+	void gateOn() {
+		gpioPort->BSRR |= (1 << gpioPin);					// Gate on
+	}
+
+	void gateOff() {
+		gpioPort->BSRR |= (1 << (16 + gpioPin));			// Gate Off
+	}
 };
 
 enum class cvType {channelPitch = 1, controller = 2, pitchBend = 3};
@@ -56,8 +64,6 @@ struct CV {
 	cvType type;
 	uint8_t channel;
 	DacAddress dacChannel;
-	GPIO_TypeDef* gpioPort;
-	uint8_t gpioPin;
 	uint8_t controller;
 	uint8_t currentNote;
 	uint8_t nextNote;
@@ -68,6 +74,7 @@ typedef std::list<uint8_t> activeNote;
 struct channelNote {
 	activeNote activeNotes;
 	uint8_t voiceCount;
+	float pitchbend;
 };
 
 
@@ -100,7 +107,7 @@ public:
 	Gate gateOutputs[8] = {
 			{gateType::channelNote, 1, 0, GPIOC, 3},
 			{gateType::channelNote, 1, 0, GPIOC, 0},
-			{gateType::channelNote, 1, 0, GPIOA, 3},
+			{gateType::specificNote, 10, 36, GPIOA, 3},
 			{gateType::channelNote, 4, 0, GPIOC, 5},
 			{gateType::specificNote, 10, 36},
 			{gateType::specificNote, 10, 38},
@@ -109,18 +116,20 @@ public:
 	};
 
 	CV cvOutputs[4] = {
-			{cvType::channelPitch, 1, ChannelA, GPIOC, 3},
-			{cvType::channelPitch, 1, ChannelB, GPIOC, 0},
-			{cvType::channelPitch, 1, ChannelC, GPIOA, 3},
+			{cvType::channelPitch, 1, ChannelA},
+			{cvType::channelPitch, 1, ChannelB},
+			{cvType::channelPitch, 2, ChannelC},
 			{cvType::channelPitch, 4, ChannelD}
 	};
-	//std::list<uint8_t> midiNotes;			// list holds all MIDI notes currently sounding
+
 	channelNote channelNotes[16];			// For managing polyphony - stores voice count and active notes for each channel
 
 	uint8_t Queue[MIDIQUEUESIZE];			// hold incoming serial MIDI bytes
 	uint8_t QueueRead = 0;
 	uint8_t QueueWrite = 0;
 	uint8_t QueueSize = 0;
+
+	uint8_t pitchBendSemiTones = 12;
 
 private:
 	void QueueInc();
