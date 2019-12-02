@@ -20,9 +20,12 @@
 <style>
 .grid-container {
   display: grid;
-  grid-template-columns: 200px 200px 200px 200px;
+  grid-template-columns: 210px 210px;
   padding: 10px;
+  width: 440;
 }
+
+.grid-container {}
 .grid-container2 {
   display: grid;
   grid-template-columns: auto auto;
@@ -52,36 +55,27 @@
 	</div>
 
 	
-	<div class="grid-container" >
-		<div id="gateCtl1" class="grid-container2">
-			<div style = "padding: 5px;" class="gateControl">Note</div>
-			<div><select id="gNote1" class="docNav" onchange="updateGate(1);"></select></div>
-			<div style = "padding: 5px;">Channel</div>
-			<div><select id="gChannel1" class="docNav" onchange="updateGate(1);"></select></div>
-			<div class="grid-span">
-				<button class="topcoat-button-bar__button--large" onclick="sendNote(gNote1.value, gChannel1.value);">Test</button>
-			</div>
-
-		</div>
-		<div id="gateCtl2" class="grid-container2"></div>
-		<div id="gateCtl3" class="grid-container2"></div>
-		<div id="gateCtl4" class="grid-container2"></div>
-
-		<div id="gateCtl5" class="grid-container2"></div>
-		<div id="dummy" style="grid-column: 2 / 4"></div>
+	<div class="grid-container" width=420>
+		<div id="gateCtl1" class="grid-container2"></div>
 		<div id="cvCtl1" class="grid-container2"></div>
 
-		<div id="gateCtl6" class="grid-container2"></div>
-		<div id="dummy" style="grid-column: 2 / 4"></div>
+		<div id="gateCtl2" class="grid-container2"></div>
 		<div id="cvCtl2" class="grid-container2"></div>
-		
-		<div id="gateCtl7" class="grid-container2"></div>
-		<div id="dummy" style="grid-column: 2 / 4"></div>
+
+		<div id="gateCtl3" class="grid-container2"></div>
 		<div id="cvCtl3" class="grid-container2"></div>
-		
-		<div id="gateCtl8" class="grid-container2"></div>
-		<div id="dummy" style="grid-column: 2 / 4"></div>
+
+		<div id="gateCtl4" class="grid-container2"></div>
 		<div id="cvCtl4" class="grid-container2"></div>
+
+	</div>
+
+	
+	<div class="grid-container" >
+		<div id="gateCtl5" class="grid-container2"></div>
+		<div id="gateCtl6" class="grid-container2"></div>
+		<div id="gateCtl7" class="grid-container2"></div>
+		<div id="gateCtl8" class="grid-container2"></div>
 
 	</div>
 </body>

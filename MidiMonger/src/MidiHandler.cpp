@@ -201,7 +201,7 @@ void MidiHandler::eventHandler(uint32_t data)
 
 				if (noteToAssign > 0) {
 					for (uint8_t c = 0; c < 4; ++c) {
-						if (cvOutputs[c].nextNote == 0) {
+						if (cvOutputs[c].nextNote == 0 && cvOutputs[c].channel == gate.channel) {
 							cvOutputs[c].nextNote = noteToAssign;
 							break;
 						}
@@ -213,11 +213,11 @@ void MidiHandler::eventHandler(uint32_t data)
 					if (cvOutputs[c].nextNote != cvOutputs[c].currentNote) {
 						// Mute
 						if (cvOutputs[c].nextNote == 0) {
-							cvOutputs[c].gpioPort->BSRR |= (1 << (16 + cvOutputs[c].gpioPin));			// Gate Off
+							gateOutputs[c].gpioPort->BSRR |= (1 << (16 + gateOutputs[c].gpioPin));			// Gate Off
 						} else {
 							uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((int)cvOutputs[c].nextNote, 24), 96) - 24) / 72;		// limit C1 to C7
 							dacHandler.sendData(WriteChannel | cvOutputs[c].dacChannel, dacOutput);		// Send pitch to DAC
-							cvOutputs[c].gpioPort->BSRR |= (1 << cvOutputs[c].gpioPin);					// Gate on
+							gateOutputs[c].gpioPort->BSRR |= (1 << gateOutputs[c].gpioPin);					// Gate on
 						}
 
 					}
