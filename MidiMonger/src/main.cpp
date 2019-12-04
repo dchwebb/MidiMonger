@@ -16,7 +16,7 @@ volatile uint32_t SysTickVal;
 
 bool noteDown = false;
 
-MidiData midiArray[MIDIBUFFERSIZE];
+MidiData midiArray[MIDIBUFFERSIZE];		// for debugging
 MidiHandler midiHandler;
 DACHandler dacHandler;
 
@@ -32,7 +32,6 @@ int main(void)
 	SystemCoreClockUpdate();				// Update SystemCoreClock (system clock frequency) derived from settings of oscillators, prescalers and PLL
 	usb.InitUSB();
 	InitSysTick();
-	//InitDAC();
 	dacHandler.initDAC();
 	InitIO();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
 	InitUART();
@@ -40,23 +39,9 @@ int main(void)
 	// Bind the usb.dataHandler function to the midiHandler's event handler
 	usb.dataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1);
 
-	// Initialise internal DAC
-	//DAC->DHR12R1 = 2000;
-
-/*
-
-	while (1) {
-		for (uint16_t d = 0; d < 0xFFFF; ++d) {
-			dacHandler.sendData(WriteChannel | ChannelA, d);
-			dacHandler.sendData(WriteChannel | ChannelD, 0xFFFF - d);
-		}
-	}
-*/
-
-
 	while (1)
 	{
-		//midiHandler.serialHandler();
+		midiHandler.gateTimer();
 
 		// Code to output midi note
 		uint8_t noteOn[4];

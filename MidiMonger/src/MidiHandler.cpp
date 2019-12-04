@@ -1,6 +1,12 @@
 #include <MidiHandler.h>
 
 extern MidiData midiArray[MIDIBUFFERSIZE];
+channelNote MidiHandler::channelNotes[16] = {};		// definition of static declared array
+
+void MidiHandler::CV::sendNote() const {
+	uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((float)currentNote + channelNotes[channel - 1].pitchbend, 24.0f), 96.0f) - 24) / 72;		// limit C1 to C7
+	dacHandler.sendData(WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
+}
 
 MidiHandler::MidiHandler() {
 	setConfig();
@@ -55,12 +61,7 @@ void MidiHandler::serialHandler() {
 
 		// Clock
 		if (QueueSize > 0 && Queue[QueueRead] == 0xF8) {
-			ClockCount++;
-			// MIDI clock triggers at 24 pulses per quarter note
-			if (ClockCount == 6) {
-				Clock = SysTickVal;
-				ClockCount = 0;
-			}
+			eventHandler(0xF800);
 			QueueInc();
 		}
 
@@ -141,29 +142,6 @@ void MidiHandler::eventHandler(uint32_t data)
 		}
 	}
 
-	// Controller
-	if (midiEvent.msg == 0xB) {
-		for (auto cv : cvOutputs) {
-			if (cv.type == cvType::controller && cv.channel == midiEvent.chn + 1 && cv.controller == midiEvent.db1) {
-				uint16_t dacOutput = 0xFFFF * (float)midiEvent.db2 / 128;		// controller values are from 0 to 127
-				dacHandler.sendData(WriteChannel | ChannelA, dacOutput);
-			}
-		}
-	}
-
-	// Pitch Bend
-	if (midiEvent.msg == 0xE) {
-		for (auto cv : cvOutputs) {
-			if (cv.type == cvType::channelPitch && cv.channel == midiEvent.chn + 1) {
-				channelNotes[midiEvent.chn].pitchbend = (float)((midiEvent.db1 + (midiEvent.db2 << 7) - 8192) / 8192.0f) * (float)pitchBendSemiTones;
-
-				uint16_t dacOutput = 0xFFFF * (((float)(std::min(std::max((float)cv.currentNote + channelNotes[midiEvent.chn].pitchbend, 24.0f), 96.0f) - 24) / 72));		// limit C1 to C7
-				dacHandler.sendData(WriteChannel | cv.dacChannel, dacOutput);		// Send pitch to DAC
-
-			}
-		}
-	}
-
 	/*
 	Message Type	MS Nybble	LS Nybble		Bytes		Data Byte 1			Data Byte 2
 	-----------------------------------------------------------------------------------------
@@ -177,8 +155,28 @@ void MidiHandler::eventHandler(uint32_t data)
 	System			0xF			further spec	variable	variable			variable
 	*/
 
+	// Controller
+	if (midiEvent.msg == ControlChange) {
+		for (auto cv : cvOutputs) {
+			if (cv.type == cvType::controller && cv.channel == midiEvent.chn + 1 && cv.controller == midiEvent.db1) {
+				uint16_t dacOutput = 0xFFFF * (float)midiEvent.db2 / 128;		// controller values are from 0 to 127
+				dacHandler.sendData(WriteChannel | ChannelA, dacOutput);
+			}
+		}
+	}
+
+	// Pitch Bend
+	if (midiEvent.msg == PitchBend) {
+		for (auto cv : cvOutputs) {
+			if (cv.type == cvType::channelPitch && cv.channel == midiEvent.chn + 1) {
+				channelNotes[midiEvent.chn].pitchbend = (float)((midiEvent.db1 + (midiEvent.db2 << 7) - 8192) / 8192.0f) * (float)pitchBendSemiTones;
+				cv.sendNote();
+			}
+		}
+	}
+
 	//	Note on/note off
-	if (midiEvent.msg == 9 || midiEvent.msg == 8) {
+	if (midiEvent.msg == NoteOn || midiEvent.msg == NoteOff) {
 		// locate output that will process the request
 		for (auto gate : gateOutputs) {
 			if (gate.channel == midiEvent.chn + 1 && gate.type == gateType::specificNote && gate.note == midiEvent.db1) {
@@ -186,8 +184,6 @@ void MidiHandler::eventHandler(uint32_t data)
 					gate.gateOn();
 				else
 					gate.gateOff();
-
-
 
 			} else if (gate.channel == midiEvent.chn + 1 && gate.type == gateType::channelNote) {
 
@@ -231,24 +227,53 @@ void MidiHandler::eventHandler(uint32_t data)
 
 				// loop through all channels in group and update notes as required
 				for (uint8_t c = 0; c < 4; ++c) {
-					if (cvOutputs[c].nextNote != cvOutputs[c].currentNote) {
+					if (cvOutputs[c].nextNote != cvOutputs[c].currentNote && cvOutputs[c].channel == gate.channel) {
 						// Mute
 						if (cvOutputs[c].nextNote == 0) {
 							gateOutputs[c].gateOff();
+							cvOutputs[c].currentNote = 0;
 						} else {
-							uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((float)cvOutputs[c].nextNote + channelNotes[midiEvent.chn].pitchbend, 24.0f), 96.0f) - 24) / 72;		// limit C1 to C7
-							dacHandler.sendData(WriteChannel | cvOutputs[c].dacChannel, dacOutput);		// Send pitch to DAC
+							cvOutputs[c].currentNote = cvOutputs[c].nextNote;
+							cvOutputs[c].sendNote();
 							gateOutputs[c].gateOn();
 						}
-
 					}
-					cvOutputs[c].currentNote = cvOutputs[c].nextNote;
 					cvOutputs[c].nextNote = 0;
 				}
+
 				break;		// if any polyphonic note found exit
 			}
 		}
 	}
+
+	// Clock
+	if (midiEvent.db0 == 0xF8) {
+		/*
+		ClockCount++;
+		// MIDI clock triggers at 24 pulses per quarter note
+		if (ClockCount == 6) {
+			Clock = SysTickVal;
+			ClockCount = 0;
+		}*/
+		for (auto gate : gateOutputs) {
+			if (gate.type == gateType::clock) {
+				gate.gateOn();
+				gateOffTimer.insert({SysTickVal + 13, gate});		// each tick is around 400us: 15 x 400us = 6ms (standard length of clock tick)
+			}
+		}
+	}
+
+}
+
+//	Switches off clock ticks after specified time
+void MidiHandler::gateTimer() {
+	for (auto gateTimer : gateOffTimer) {
+		if (SysTickVal > gateTimer.first){
+			gateTimer.second.gateOff();
+			gateOffTimer.erase(gateTimer.first);
+		}
+	}
+
 }
 
 /*

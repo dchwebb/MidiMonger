@@ -18,7 +18,7 @@ void DACHandler::sendData(uint8_t cmd, uint16_t data) {
 	SPI3->CR1 &= ~SPI_CR1_SPE;						// Disable SPI
 	for (int x = 0; x < 10; ++x);
 #else
-	while(((SPI3->SR & SPI_SR_TXE) == 0) | ((SPI3->SR & SPI_SR_BSY) == SPI_SR_BSY) );
+	while (((SPI3->SR & SPI_SR_TXE) == 0) | ((SPI3->SR & SPI_SR_BSY) == SPI_SR_BSY) );
 	GPIOA->BSRR |= GPIO_BSRR_BS_15;
 #endif
 }

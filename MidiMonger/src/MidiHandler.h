@@ -6,6 +6,7 @@
 #include <list>
 #include <vector>
 #include <algorithm>
+#include <map>
 
 //class USB;
 extern USB usb;
@@ -60,15 +61,6 @@ struct Gate {
 
 enum class cvType {channelPitch = 1, controller = 2, pitchBend = 3};
 
-struct CV {
-	cvType type;
-	uint8_t channel;
-	DacAddress dacChannel;
-	uint8_t controller;
-	uint8_t currentNote;
-	uint8_t nextNote;
-};
-
 typedef std::list<uint8_t> activeNote;
 
 struct channelNote {
@@ -78,14 +70,15 @@ struct channelNote {
 };
 
 
-
-
 class MidiHandler {
 public:
 	MidiHandler();
 	void eventHandler(uint32_t data);
 	void setConfig();
 	void serialHandler();
+	void gateTimer();
+
+	static channelNote channelNotes[16];			// For managing pitch bends and polyphony - stores voice count and active notes for each channel
 
 	// configure gates to default values for GM drum sounds
 	/*
@@ -105,7 +98,7 @@ public:
 	49 Crash Cymbal
 	*/
 	Gate gateOutputs[8] = {
-			{gateType::channelNote, 1, 0, GPIOC, 3},
+			{gateType::clock, 1, 0, GPIOC, 3},
 			{gateType::channelNote, 1, 0, GPIOC, 0},
 			{gateType::specificNote, 10, 36, GPIOA, 3},
 			{gateType::channelNote, 4, 0, GPIOC, 5},
@@ -115,6 +108,16 @@ public:
 			{gateType::specificNote, 10, 46}
 	};
 
+	struct CV {
+		cvType type;
+		uint8_t channel;
+		DacAddress dacChannel;
+		uint8_t controller;
+		uint8_t currentNote;
+		uint8_t nextNote;
+		void sendNote() const;
+	};
+
 	CV cvOutputs[4] = {
 			{cvType::channelPitch, 1, ChannelA},
 			{cvType::channelPitch, 1, ChannelB},
@@ -122,7 +125,6 @@ public:
 			{cvType::channelPitch, 4, ChannelD}
 	};
 
-	channelNote channelNotes[16];			// For managing polyphony - stores voice count and active notes for each channel
 
 	uint8_t Queue[MIDIQUEUESIZE];			// hold incoming serial MIDI bytes
 	uint8_t QueueRead = 0;
@@ -131,12 +133,15 @@ public:
 
 	uint8_t pitchBendSemiTones = 12;
 
+	std::map<uint32_t, Gate> gateOffTimer;
 private:
 	void QueueInc();
 
 	uint64_t Timer;
 	uint64_t Clock;
 	uint8_t ClockCount = 0;
+	bool clockOn = false;
 };
+
 
 
