@@ -20,6 +20,9 @@ MidiData midiArray[MIDIBUFFERSIZE];		// for debugging
 MidiHandler midiHandler;
 DACHandler dacHandler;
 
+uint32_t debugClock = 0;
+uint32_t debugClDiff = 0;
+
 extern "C" {
 #include "interrupts.h"
 }

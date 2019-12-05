@@ -77,7 +77,7 @@ inline void MidiHandler::QueueInc() {
 	QueueRead = (QueueRead + 1) % MIDIQUEUESIZE;
 }
 
-void MidiHandler::eventHandler(uint32_t data)
+void MidiHandler::eventHandler(const uint32_t& data)
 {
 
 	MidiData midiEvent = MidiData(data);
@@ -218,7 +218,7 @@ void MidiHandler::eventHandler(uint32_t data)
 
 				if (noteToAssign > 0) {
 					for (uint8_t c = 0; c < 4; ++c) {
-						if (cvOutputs[c].nextNote == 0 && cvOutputs[c].channel == gate.channel) {
+						if (cvOutputs[c].nextNote == 0 && cvOutputs[c].channel == gate.channel && cvOutputs[c].type == cvType::channelPitch) {
 							cvOutputs[c].nextNote = noteToAssign;
 							break;
 						}
@@ -227,7 +227,7 @@ void MidiHandler::eventHandler(uint32_t data)
 
 				// loop through all channels in group and update notes as required
 				for (uint8_t c = 0; c < 4; ++c) {
-					if (cvOutputs[c].nextNote != cvOutputs[c].currentNote && cvOutputs[c].channel == gate.channel) {
+					if (cvOutputs[c].nextNote != cvOutputs[c].currentNote && cvOutputs[c].channel == gate.channel && cvOutputs[c].type == cvType::channelPitch) {
 						// Mute
 						if (cvOutputs[c].nextNote == 0) {
 							gateOutputs[c].gateOff();
@@ -248,17 +248,15 @@ void MidiHandler::eventHandler(uint32_t data)
 
 	// Clock
 	if (midiEvent.db0 == 0xF8) {
-		/*
+		extern uint32_t debugClock, debugClDiff;
 		ClockCount++;
+
 		// MIDI clock triggers at 24 pulses per quarter note
-		if (ClockCount == 6) {
-			Clock = SysTickVal;
-			ClockCount = 0;
-		}*/
-		for (auto gate : gateOutputs) {
-			if (gate.type == gateType::clock) {
-				gate.gateOn();
-				gateOffTimer.insert({SysTickVal + 13, gate});		// each tick is around 400us: 15 x 400us = 6ms (standard length of clock tick)
+		if (ClockCount % 6 == 0) {
+			for (auto& gate : gateOutputs) {
+				if (gate.type == gateType::clock) {
+					gate.gateOn(SysTickVal + 13);		// pass gate off time: each tick is around 400us: 15 x 400us = 6ms (less a bit from testing)
+				}
 			}
 		}
 	}
@@ -267,13 +265,12 @@ void MidiHandler::eventHandler(uint32_t data)
 
 //	Switches off clock ticks after specified time
 void MidiHandler::gateTimer() {
-	for (auto gateTimer : gateOffTimer) {
-		if (SysTickVal > gateTimer.first){
-			gateTimer.second.gateOff();
-			gateOffTimer.erase(gateTimer.first);
+	for (auto& gate : gateOutputs) {
+		if (gate.gateOffTime > 0 && SysTickVal > gate.gateOffTime) {
+			gate.gateOff();
+			gate.gateOffTime = 0;
 		}
 	}
-
 }
 
 /*

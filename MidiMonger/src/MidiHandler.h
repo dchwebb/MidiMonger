@@ -49,9 +49,15 @@ struct Gate {
 	uint8_t note;
 	GPIO_TypeDef* gpioPort;
 	uint8_t gpioPin;
+	uint32_t gateOffTime;
 
 	void gateOn() {
 		gpioPort->BSRR |= (1 << gpioPin);					// Gate on
+	}
+
+	void gateOn(const uint32_t& offTime) {
+		gateOn();
+		gateOffTime = offTime;
 	}
 
 	void gateOff() {
@@ -73,8 +79,7 @@ struct channelNote {
 class MidiHandler {
 public:
 	MidiHandler();
-	void eventHandler(uint32_t data);
-	void setConfig();
+	void eventHandler(const uint32_t& data);
 	void serialHandler();
 	void gateTimer();
 
@@ -98,7 +103,7 @@ public:
 	49 Crash Cymbal
 	*/
 	Gate gateOutputs[8] = {
-			{gateType::clock, 1, 0, GPIOC, 3},
+			{gateType::channelNote, 1, 0, GPIOC, 3},
 			{gateType::channelNote, 1, 0, GPIOC, 0},
 			{gateType::specificNote, 10, 36, GPIOA, 3},
 			{gateType::channelNote, 4, 0, GPIOC, 5},
@@ -131,16 +136,13 @@ public:
 	uint8_t QueueWrite = 0;
 	uint8_t QueueSize = 0;
 
-	uint8_t pitchBendSemiTones = 12;
-
-	std::map<uint32_t, Gate> gateOffTimer;
 private:
+	void setConfig();
 	void QueueInc();
 
-	uint64_t Timer;
-	uint64_t Clock;
-	uint8_t ClockCount = 0;
-	bool clockOn = false;
+	uint32_t ClockCount = 0;
+	uint8_t pitchBendSemiTones = 12;
+
 };
 
 
