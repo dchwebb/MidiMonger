@@ -55,7 +55,7 @@ struct Gate {
 		gpioPort->BSRR |= (1 << gpioPin);					// Gate on
 	}
 
-	void gateOn(const uint32_t& offTime) {
+	void gateOn(const uint32_t& offTime) {					// Gate on also setting off time for use with clocks
 		gateOn();
 		gateOffTime = offTime;
 	}
@@ -80,8 +80,12 @@ class MidiHandler {
 public:
 	MidiHandler();
 	void eventHandler(const uint32_t& data);
-	void serialHandler();
+	void serialHandler(uint32_t data);
 	void gateTimer();
+
+private:
+	void setConfig();
+	void QueueInc();
 
 	static channelNote channelNotes[16];			// For managing pitch bends and polyphony - stores voice count and active notes for each channel
 
@@ -130,18 +134,13 @@ public:
 			{cvType::channelPitch, 4, ChannelD}
 	};
 
+	uint32_t ClockCount = 0;
+	uint8_t pitchBendSemiTones = 12;
 
 	uint8_t Queue[MIDIQUEUESIZE];			// hold incoming serial MIDI bytes
 	uint8_t QueueRead = 0;
 	uint8_t QueueWrite = 0;
 	uint8_t QueueSize = 0;
-
-private:
-	void setConfig();
-	void QueueInc();
-
-	uint32_t ClockCount = 0;
-	uint8_t pitchBendSemiTones = 12;
 
 };
 

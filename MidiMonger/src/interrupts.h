@@ -9,10 +9,7 @@ void SysTick_Handler(void) {
 // MIDI Decoder
 void UART4_IRQHandler(void) {
 	if (UART4->SR | USART_SR_RXNE) {
-		midiHandler.Queue[midiHandler.QueueWrite] = UART4->DR; 				// accessing DR automatically resets the receive flag
-		midiHandler.QueueSize++;
-		midiHandler.QueueWrite = (midiHandler.QueueWrite + 1) % MIDIQUEUESIZE;
-		midiHandler.serialHandler();
+		midiHandler.serialHandler(UART4->DR); 				// accessing DR automatically resets the receive flag
 	}
 }
 

@@ -27,48 +27,47 @@ void MidiHandler::setConfig() {
 	return;
 }
 
-void MidiHandler::serialHandler() {
-	if (QueueSize > 0) {
-		//bool edited = false;
-		volatile uint8_t val1, val2;
+void MidiHandler::serialHandler(uint32_t data) {
+	Queue[QueueWrite] = data;
+	QueueSize++;
+	QueueWrite = (QueueWrite + 1) % MIDIQUEUESIZE;
 
-		MIDIType type = static_cast<MIDIType>(Queue[QueueRead] >> 4);
-		uint8_t channel = Queue[QueueRead] & 0x0F;
+	MIDIType type = static_cast<MIDIType>(Queue[QueueRead] >> 4);
+	uint8_t channel = Queue[QueueRead] & 0x0F;
 
-		//NoteOn = 0x9, NoteOff = 0x8, PolyPressure = 0xA, ControlChange = 0xB, ProgramChange = 0xC, ChannelPressure = 0xD, PitchBend = 0xE, System = 0xF
-		while ((QueueSize > 2 && (type == NoteOn || type == NoteOff || type == PolyPressure ||  type == ControlChange ||  type == PitchBend)) ||
-				(QueueSize > 1 && (type == ProgramChange || type == ChannelPressure))) {
+	//NoteOn = 0x9, NoteOff = 0x8, PolyPressure = 0xA, ControlChange = 0xB, ProgramChange = 0xC, ChannelPressure = 0xD, PitchBend = 0xE, System = 0xF
+	while ((QueueSize > 2 && (type == NoteOn || type == NoteOff || type == PolyPressure ||  type == ControlChange ||  type == PitchBend)) ||
+			(QueueSize > 1 && (type == ProgramChange || type == ChannelPressure))) {
 
-			MidiData event;
-			event.chn = channel;
-			event.msg = (uint8_t)type;
+		MidiData event;
+		event.chn = channel;
+		event.msg = (uint8_t)type;
 
-			QueueInc();
-			event.db1 = Queue[QueueRead];
-			QueueInc();
-			if (type == ProgramChange || type == ChannelPressure) {
-				event.db2 = 0;
-			} else {
-				event.db2 = Queue[QueueRead];
-				QueueInc();
-			}
-
-			eventHandler(event.data);
-
-			type = static_cast<MIDIType>(Queue[QueueRead] >> 4);
-			channel = Queue[QueueRead] & 0x0F;
-		}
-
-		// Clock
-		if (QueueSize > 0 && Queue[QueueRead] == 0xF8) {
-			eventHandler(0xF800);
+		QueueInc();
+		event.db1 = Queue[QueueRead];
+		QueueInc();
+		if (type == ProgramChange || type == ChannelPressure) {
+			event.db2 = 0;
+		} else {
+			event.db2 = Queue[QueueRead];
 			QueueInc();
 		}
 
-		//	handle unknown data in queue
-		if (QueueSize > 2 && type != 0x9 && type != 0x8 && type != 0xD && type != 0xE) {
-			QueueInc();
-		}
+		eventHandler(event.data);
+
+		type = static_cast<MIDIType>(Queue[QueueRead] >> 4);
+		channel = Queue[QueueRead] & 0x0F;
+	}
+
+	// Clock
+	if (QueueSize > 0 && Queue[QueueRead] == 0xF8) {
+		eventHandler(0xF800);
+		QueueInc();
+	}
+
+	//	handle unknown data in queue
+	if (QueueSize > 2 && type != 0x9 && type != 0x8 && type != 0xD && type != 0xE) {
+		QueueInc();
 	}
 }
 
