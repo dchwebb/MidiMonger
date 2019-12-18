@@ -1,0 +1,2 @@
+"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LINK_CLI.exe" -c SWD -P D:\Eurorack\MidiMonger\MidiMonger_446\Debug\MidiMonger_446.hex -NoPrompt -Run 0x08000000 -Q
+pause

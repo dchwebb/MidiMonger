@@ -36,18 +36,19 @@ int main(void)
 	usb.InitUSB();
 	InitSysTick();
 	dacHandler.initDAC();
-	InitIO();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
+	//InitIO();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
 	InitUART();
 
 	// Bind the usb.dataHandler function to the midiHandler's event handler
 	usb.dataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1);
+	//midiHandler.gateOutputs[1].gateOn();
 
 	while (1)
 	{
-		//midiHandler.gateTimer();
-		noteOnTest = 1;
-		midiHandler.gateOutputs[0].gateOn();
+		midiHandler.gateTimer();
+		//noteOnTest = 1;
 
+		/*
 		// Code to output midi note
 		uint8_t noteOn[4];
 		noteOn[0] = 0x08;
@@ -61,7 +62,7 @@ int main(void)
 		noteOff[2] = 60;		// note number 60 = C4
 		noteOff[3] = 47;		// Velocity
 
-		if (GPIOC->IDR & GPIO_IDR_IDR_13) {
+if (GPIOC->IDR & GPIO_IDR_IDR_13) {
 			GPIOB->BSRR |= GPIO_BSRR_BS_7;
 			if (!noteDown) {
 				noteDown = true;
@@ -74,7 +75,7 @@ int main(void)
 				usb.SendReport(noteOff, 4);
 				noteDown = false;
 			}
-		}
+		}*/
 
 	}
 }

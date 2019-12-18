@@ -51,10 +51,7 @@ struct Gate {
 	uint8_t gpioPin;
 	uint32_t gateOffTime;
 
-	Gate(gateType t, uint8_t chn, uint8_t n, GPIO_TypeDef* port, uint8_t pin)
-		: type(t), channel(chn), note(n), gpioPort(port), gpioPin(pin)
-
-	{
+	void gateInit()	{
 		gpioPort->MODER |= (1 << (2 * gpioPin));			// Set to output
 	}
 
@@ -73,7 +70,7 @@ struct Gate {
 
 };
 
-enum class cvType {channelPitch = 1, controller = 2, pitchBend = 3};
+enum class cvType {channelPitch = 1, controller = 2, pitchBend = 3, afterTouch = 4};
 
 typedef std::list<uint8_t> activeNote;
 
@@ -110,9 +107,9 @@ public:
 	*/
 	Gate gateOutputs[8] = {
 			{gateType::channelNote,  1, 0,   GPIOA, 7},
-			{gateType::channelNote,  1, 0,   GPIOA, 3},
-			{gateType::specificNote, 10, 36, GPIOA, 5},
-			{gateType::channelNote,  4,  0,  GPIOC, 5},
+			{gateType::channelNote,  2, 0,   GPIOA, 3},
+			{gateType::channelNote,  3, 0,   GPIOA, 5},
+			{gateType::channelNote,  4, 0,   GPIOC, 5},
 			{gateType::specificNote, 10, 36, GPIOC, 1},
 			{gateType::specificNote, 10, 38, GPIOB, 2},
 			{gateType::specificNote, 10, 42, GPIOC, 9},
@@ -130,17 +127,22 @@ private:
 		cvType type;
 		uint8_t channel;
 		DacAddress dacChannel;
+		GPIO_TypeDef* gpioPort;
+		uint8_t gpioPin;
+		uint32_t offTime;
 		uint8_t controller;
 		uint8_t currentNote;
 		uint8_t nextNote;
-		void sendNote() const;
+		void sendNote();
+		void cvInit();
+		void ledOn(float offMilliseconds);
 	};
 
 	CV cvOutputs[4] = {
-			{cvType::channelPitch, 1, ChannelA},
-			{cvType::channelPitch, 1, ChannelB},
-			{cvType::channelPitch, 2, ChannelC},
-			{cvType::channelPitch, 4, ChannelD}
+			{cvType::channelPitch, 1, ChannelD, GPIOC, 14},
+			{cvType::channelPitch, 2, ChannelC, GPIOC, 13},
+			{cvType::channelPitch, 3, ChannelB, GPIOB, 8},
+			{cvType::channelPitch, 4, ChannelA, GPIOB, 7}
 	};
 
 	uint32_t ClockCount = 0;

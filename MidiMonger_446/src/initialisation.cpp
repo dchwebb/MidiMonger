@@ -52,7 +52,7 @@ void InitIO()
 	// configure PC13 blue button
 	//GPIOC->PUPDR |= GPIO_PUPDR_PUPDR13_0;			// Set pin to pull up:  01 Pull-up; 10 Pull-down; 11 Reserved
 
-	GPIOA->MODER |= GPIO_MODER_MODER7_0;			// Set to output
+	//GPIOA->MODER |= GPIO_MODER_MODER7_0;			// Set to output
 
 	/*
 	// PB7 is LD2 Blue

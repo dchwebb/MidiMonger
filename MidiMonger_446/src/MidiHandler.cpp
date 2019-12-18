@@ -3,16 +3,39 @@
 //extern MidiData midiArray[MIDIBUFFERSIZE];		// for debugging
 channelNote MidiHandler::channelNotes[16] = {};		// definition of static declared array
 
-void MidiHandler::CV::sendNote() const {
+void MidiHandler::CV::sendNote() {
 	uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((float)currentNote + channelNotes[channel - 1].pitchbend, 24.0f), 96.0f) - 24) / 72;		// limit C1 to C7
 	dacHandler.sendData(WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
+	ledOn(400);										// Turn LED On for 400ms
+	//gpioPort->BSRR |= (1 << gpioPin);				// LED on
+	//offTime = SysTickVal + 2000;					// pass gate off time: each tick is around 400us: 2000 x 400us = 1 second
+}
+
+
+
+void MidiHandler::CV::cvInit() {
+	gpioPort->MODER |= (1 << (2 * gpioPin));		// Set to output
+}
+
+void MidiHandler::CV::ledOn(float offMilliseconds) {
+	gpioPort->BSRR |= (1 << gpioPin);				// LED on
+	offTime = SysTickVal + (offMilliseconds * 2.5);					// pass gate off time: each tick is around 400us: 2000 x 400us = 1 second
 }
 
 MidiHandler::MidiHandler() {
+	// Init Hardware
+	InitIO();
+	for (Gate& g : gateOutputs) {
+		g.gateInit();
+	}
+	for (CV& cv : cvOutputs) {
+		cv.cvInit();
+	}
 	setConfig();
 }
 
 void MidiHandler::setConfig() {
+
 	// Calculate number of voices available for each channel
 	uint8_t voices = 0;
 	for (uint8_t c = 0; c < 16; ++c) {
@@ -159,7 +182,7 @@ void MidiHandler::eventHandler(const uint32_t& data)
 		for (auto cv : cvOutputs) {
 			if (cv.type == cvType::controller && cv.channel == midiEvent.chn + 1 && cv.controller == midiEvent.db1) {
 				uint16_t dacOutput = 0xFFFF * (float)midiEvent.db2 / 128;		// controller values are from 0 to 127
-				dacHandler.sendData(WriteChannel | ChannelA, dacOutput);
+				dacHandler.sendData(WriteChannel | cv.dacChannel, dacOutput);
 			}
 		}
 	}
@@ -170,6 +193,16 @@ void MidiHandler::eventHandler(const uint32_t& data)
 			if (cv.type == cvType::channelPitch && cv.channel == midiEvent.chn + 1) {
 				channelNotes[midiEvent.chn].pitchbend = (float)((midiEvent.db1 + (midiEvent.db2 << 7) - 8192) / 8192.0f) * (float)pitchBendSemiTones;
 				cv.sendNote();
+			}
+		}
+	}
+
+	// Aftertouch
+	if (midiEvent.msg == ChannelPressure) {
+		for (auto cv : cvOutputs) {
+			if (cv.type == cvType::afterTouch && cv.channel == midiEvent.chn + 1) {
+				uint16_t dacOutput = 0xFFFF * (float)midiEvent.db2 / 128;		// Aftertouch values are from 0 to 127
+				dacHandler.sendData(WriteChannel | cv.dacChannel, dacOutput);		// Send pitch to DAC
 			}
 		}
 	}
@@ -268,6 +301,11 @@ void MidiHandler::gateTimer() {
 		if (gate.gateOffTime > 0 && SysTickVal > gate.gateOffTime) {
 			gate.gateOff();
 			gate.gateOffTime = 0;
+		}
+	}
+	for (auto& cv : cvOutputs) {
+		if (cv.offTime > 0 && SysTickVal > cv.offTime) {
+			cv.gpioPort->BSRR |= (1 << (16 + cv.gpioPin));			// LED Off
 		}
 	}
 }
