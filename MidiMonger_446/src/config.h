@@ -13,13 +13,13 @@ extern MidiHandler midiHandler;
 
 
 struct cfgGate {
-	gateType type;
+	uint8_t type;
 	uint8_t channel;
 	uint8_t note;
 };
 
 struct cfgCV {
-	cvType type;
+	uint8_t type;
 	uint8_t channel;
 	uint8_t controller;
 };

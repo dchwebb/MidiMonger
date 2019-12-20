@@ -8,6 +8,10 @@ void Config::ScheduleSave() {
 
 // Write calibration settings to Flash memory
 void Config::SaveConfig() {
+	// Check if save is scheduled and ready
+	if (!scheduleSave || saveBooked + 10000 < SysTickVal)
+		return;
+
 	scheduleSave = false;
 
 	uint32_t address = ADDR_FLASH_SECTOR_7;		// Store data in Sector 7 last sector in F446 to allow maximum space for program code
@@ -39,13 +43,13 @@ void Config::SaveConfig() {
 
 void Config::SetConfig(configValues &cv) {
 	cv.pitchBendSemiTones = midiHandler.pitchBendSemiTones;
-	for (uint8_t g = 1; g < 9; g++) {
-		cv.gate[g].type = midiHandler.gateOutputs[g].type;
+	for (uint8_t g = 0; g < 8; g++) {
+		cv.gate[g].type = (uint8_t)midiHandler.gateOutputs[g].type;
 		cv.gate[g].channel = midiHandler.gateOutputs[g].channel;
 		cv.gate[g].note = midiHandler.gateOutputs[g].note;
 	}
-	for (uint8_t c = 1; c < 9; c++) {
-		cv.cv[c].type = midiHandler.cvOutputs[c].type;
+	for (uint8_t c = 0; c < 4; c++) {
+		cv.cv[c].type = (uint8_t)midiHandler.cvOutputs[c].type;
 		cv.cv[c].channel = midiHandler.cvOutputs[c].channel;
 		cv.cv[c].controller = midiHandler.cvOutputs[c].controller;
 	}
@@ -61,13 +65,17 @@ void Config::RestoreConfig()
 
 	if (strcmp(cv.StartMarker, "CFG") == 0 && strcmp(cv.EndMarker, "END") == 0 && cv.Version == 1) {
 		midiHandler.pitchBendSemiTones = cv.pitchBendSemiTones;
-		for (uint8_t g = 1; g < 9; g++) {
-			midiHandler.gateOutputs[g].type = cv.gate[g].type;
+		for (uint8_t g = 0; g < 8; g++) {
+			midiHandler.gateOutputs[g].type = (gateType)cv.gate[g].type;
 			midiHandler.gateOutputs[g].channel = cv.gate[g].channel;
 			midiHandler.gateOutputs[g].note = cv.gate[g].note;
 		}
-		for (uint8_t c = 1; c < 9; c++) {
-			midiHandler.cvOutputs[c].type = cv.cv[c].type;
+		for (uint8_t c = 0; c < 4; c++) {
+			if (midiHandler.cvOutputs[c].type != (cvType)cv.cv[c].type) {
+				uint8_t changed = 1;
+			}
+
+			midiHandler.cvOutputs[c].type = (cvType)cv.cv[c].type;
 			midiHandler.cvOutputs[c].channel = cv.cv[c].channel;
 			midiHandler.cvOutputs[c].controller = cv.cv[c].controller;
 		}

@@ -3,14 +3,15 @@
 #include "initialisation.h"
 #include "USB.h"
 #include "DACHandler.h"
+#include "Config.h"
 #include <list>
 #include <vector>
-#include <algorithm>
 #include <map>
 
-//class USB;
+class Config;
 extern USB usb;
 extern DACHandler dacHandler;
+extern Config cfg;
 
 #define MIDIQUEUESIZE 20
 

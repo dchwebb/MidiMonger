@@ -38,7 +38,6 @@ int main(void)
 	usb.InitUSB();
 	InitSysTick();
 	dacHandler.initDAC();
-	//InitIO();							// PC13 blue button; PB7 is LD2 Blue; PB14 is LD3 Red
 	InitUART();
 	cfg.RestoreConfig();
 
@@ -48,7 +47,7 @@ int main(void)
 	while (1)
 	{
 		midiHandler.gateTimer();
-
+		cfg.SaveConfig();		// Checks if configuration change is pending a save
 	}
 }
 

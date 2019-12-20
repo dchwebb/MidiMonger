@@ -1,4 +1,4 @@
-#include <MidiHandler.h>
+#include "MidiHandler.h"
 
 //extern MidiData midiArray[MIDIBUFFERSIZE];		// for debugging
 channelNote MidiHandler::channelNotes[16] = {};		// definition of static declared array
@@ -157,6 +157,9 @@ void MidiHandler::eventHandler(const uint32_t& data)
 					break;
 				}
 			}
+
+			cfg.ScheduleSave();
+
 		}
 	}
 
@@ -304,6 +307,7 @@ void MidiHandler::gateTimer() {
 	for (auto& cv : cvOutputs) {
 		if (cv.offTime > 0 && SysTickVal > cv.offTime) {
 			cv.gpioPort->BSRR |= (1 << (16 + cv.gpioPin));			// LED Off
+			cv.offTime = 0;
 		}
 	}
 }
