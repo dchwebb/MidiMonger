@@ -39,10 +39,9 @@ union MidiData {
 };
 
 enum MIDIType {Unknown = 0, NoteOn = 0x9, NoteOff = 0x8, PolyPressure = 0xA, ControlChange = 0xB, ProgramChange = 0xC, ChannelPressure = 0xD, PitchBend = 0xE, System = 0xF };
-
-enum class configSetting { type = 1, specificNote = 2, channel = 3, controller = 4 };
-
+enum class configSetting {type = 1, specificNote = 2, channel = 3, controller = 4};
 enum class gateType {specificNote = 1, channelNote = 2, clock = 3};
+enum class cvType {channelPitch = 1, controller = 2, pitchBend = 3, afterTouch = 4};
 
 struct Gate {
 	gateType type;
@@ -71,7 +70,6 @@ struct Gate {
 
 };
 
-enum class cvType {channelPitch = 1, controller = 2, pitchBend = 3, afterTouch = 4};
 
 typedef std::list<uint8_t> activeNote;
 
@@ -143,6 +141,7 @@ public:
 
 private:
 	void setConfig();
+	void validateConfig(bool isGate, uint8_t num);
 	void QueueInc();
 
 	static channelNote channelNotes[16];			// For managing pitch bends and polyphony - stores voice count and active notes for each channel

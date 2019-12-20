@@ -6,7 +6,6 @@
 
 USB usb;
 uint32_t usbEvents[200];
-uint32_t reqEvents[100];
 uint8_t usbEventNo = 0;
 uint8_t reqEventNo = 0;
 uint8_t midiEventRead = 0;

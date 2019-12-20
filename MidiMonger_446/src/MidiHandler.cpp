@@ -46,6 +46,30 @@ void MidiHandler::setConfig() {
 	return;
 }
 
+// Overload to check if configuration is valid
+void MidiHandler::validateConfig(bool isGate, uint8_t num) {
+	if (num > 3)
+		return;
+
+	Gate& g = gateOutputs[num];
+	CV& c = cvOutputs[num];
+
+	if (isGate) {
+		// if switching gate to channel note ensure that cv is set to matching channel pitch
+		if (num < 4 && g.type == gateType::channelNote && (c.type != cvType::channelPitch || c.channel != g.channel)) {
+			c.type = cvType::channelPitch;
+			c.channel = g.channel;
+		}
+	} else {		// CV
+		// if switching gate to channel note ensure that cv is set to matching channel pitch
+		if (num < 4 && c.type == cvType::channelPitch && (g.type != gateType::channelNote || g.channel != c.channel)) {
+			g.type = gateType::channelNote;
+			g.channel = c.channel;
+		}
+
+	}
+}
+
 void MidiHandler::serialHandler(uint32_t data) {
 	Queue[QueueWrite] = data;
 	QueueSize++;
@@ -131,12 +155,14 @@ void MidiHandler::eventHandler(const uint32_t& data)
 				switch ((configSetting)midiEvent.configType) {
 				case configSetting::type :
 					gateOutputs[midiEvent.cfgChannelOrOutput - 1].type = (gateType)midiEvent.configValue;
+					validateConfig(true, midiEvent.cfgChannelOrOutput - 1);
 					break;
 				case configSetting::specificNote :
 					gateOutputs[midiEvent.cfgChannelOrOutput - 1].note = midiEvent.configValue;
 					break;
 				case configSetting::channel :
 					gateOutputs[midiEvent.cfgChannelOrOutput - 1].channel = midiEvent.configValue;
+					validateConfig(true, midiEvent.cfgChannelOrOutput - 1);
 					break;
 				default :
 					break;
@@ -146,9 +172,11 @@ void MidiHandler::eventHandler(const uint32_t& data)
 				switch ((configSetting)midiEvent.configType) {
 				case configSetting::type :
 					cvOutputs[midiEvent.cfgChannelOrOutput - 9].type = (cvType)midiEvent.configValue;
+					validateConfig(false, midiEvent.cfgChannelOrOutput - 9);
 					break;
 				case configSetting::channel :
 					cvOutputs[midiEvent.cfgChannelOrOutput - 9].channel = midiEvent.configValue;
+					validateConfig(false, midiEvent.cfgChannelOrOutput - 9);
 					break;
 				case configSetting::controller :
 					cvOutputs[midiEvent.cfgChannelOrOutput - 9].controller = midiEvent.configValue;
@@ -158,6 +186,7 @@ void MidiHandler::eventHandler(const uint32_t& data)
 				}
 			}
 
+			setConfig();
 			cfg.ScheduleSave();
 
 		}

@@ -71,10 +71,6 @@ void Config::RestoreConfig()
 			midiHandler.gateOutputs[g].note = cv.gate[g].note;
 		}
 		for (uint8_t c = 0; c < 4; c++) {
-			if (midiHandler.cvOutputs[c].type != (cvType)cv.cv[c].type) {
-				uint8_t changed = 1;
-			}
-
 			midiHandler.cvOutputs[c].type = (cvType)cv.cv[c].type;
 			midiHandler.cvOutputs[c].channel = cv.cv[c].channel;
 			midiHandler.cvOutputs[c].controller = cv.cv[c].controller;

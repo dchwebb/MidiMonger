@@ -152,13 +152,6 @@ void USB::USBInterruptHandler() {
 					req.Index        = SWAPBYTE      (pdata +  4);
 					req.Length       = SWAPBYTE      (pdata +  6);
 
-					/*
-					// Test logging code
-					reqEvents[reqEventNo++] = usbEventNo - 1;
-					reqEvents[reqEventNo++] = (uint32_t)(req.mRequest << 24) | (uint32_t)(req.Request << 16) | req.Value;
-					reqEvents[reqEventNo++] = (uint32_t)(req.Index << 16) | req.Length;
-					reqEventNo++;*/
-
 					ep0_state = USBD_EP0_SETUP;
 
 					switch (req.mRequest & 0x1F) {		// originally USBD_LL_SetupStage
