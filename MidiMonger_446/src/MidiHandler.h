@@ -31,7 +31,7 @@ union MidiData {
 	struct {
 		uint8_t Code;
 		uint8_t db0;
-		uint8_t cfgChannelOrOutput : 4;		// holds channel of config data being transferred.	Byte position: ----dddd
+		uint8_t cfgChannelOrOutput : 4;	// holds channel of config data being transferred.	Byte position: ----dddd
 		uint8_t configType : 4;			// holds type of config data being transferred.		Byte position: dddd----
 		uint8_t configValue;			// value of note number or controller configured
 	};
@@ -115,13 +115,6 @@ public:
 			{gateType::specificNote, 10, 42, GPIOC, 9},
 			{gateType::specificNote, 10, 46, GPIOC, 7}
 	};
-private:
-	void setConfig();
-	void QueueInc();
-
-	static channelNote channelNotes[16];			// For managing pitch bends and polyphony - stores voice count and active notes for each channel
-
-
 
 	struct CV {
 		cvType type;
@@ -145,8 +138,15 @@ private:
 			{cvType::channelPitch, 4, ChannelA, GPIOB, 7}
 	};
 
-	uint32_t ClockCount = 0;
 	uint8_t pitchBendSemiTones = 12;
+
+private:
+	void setConfig();
+	void QueueInc();
+
+	static channelNote channelNotes[16];			// For managing pitch bends and polyphony - stores voice count and active notes for each channel
+
+	uint32_t ClockCount = 0;
 
 	uint8_t Queue[MIDIQUEUESIZE];			// hold incoming serial MIDI bytes
 	uint8_t QueueRead = 0;

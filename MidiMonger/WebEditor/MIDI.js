@@ -10,7 +10,7 @@ var requestNo = 1;			// stores number of control awaiting configuration informat
 
 var cfgEnum = { type: 1, specificNote: 2, channel: 3, controller: 4 };
 var gateEnum = { specificNote: 1, channelNote: 2, clock: 3 };
-var cvEnum = { channel: 1, controller: 2, pitchbend: 3 };
+var cvEnum = { channel: 1, controller: 2, pitchbend: 3, aftertouch: 4 };
 var controlEnum = { gate: 1, cv: 2};
 var recCount = 0;
 
@@ -26,15 +26,16 @@ function afterLoad() {
 			'<div class="controllerControl"><select id="cController' + c + '" class="docNav" onchange="updateCV(' + c + ', cfgEnum.controller);"></select></div>', 
 			'<div class="channelControl" style = "padding: 5px;">Channel</div>', 
 			'<div class="channelControl"><select id="cChannel' + c + '" class="docNav" onchange="updateCV(' + c + ', cfgEnum.channel);"></select></div>', 
-			'<div class="grid-span">', 
+			'<div>', 
 			'	<button class="topcoat-button-bar__button--large" onclick="testOutput(controlEnum.cv, ' + c + ');">Test</button>', 
-			'</div>' 
+			'</div>', 
+			'<div id="connectionStatus" style="color: #d6756a; text-align: right;">' + c + '</div>' 
 			].join("\n");
 		document.getElementById("cvCtl" + c).innerHTML = html;
 
 		// populate type pickers
-		var typeNames = ["Channel pitch", "Controller", "Pitchbend"]
-		for(var i = 0; i < 3; i++) {
+		var typeNames = ["Channel pitch", "Controller", "Pitchbend", "Aftertouch"]
+		for(var i = 0; i < 4; i++) {
 			var el = document.createElement("option");
 			el.textContent = typeNames[i];
 			el.value = i + 1;
@@ -68,9 +69,10 @@ function afterLoad() {
 			'<div class="gateControl"><select id="gNote' + g + '" class="docNav" onchange="updateGate(' + g + ', cfgEnum.specificNote);"></select></div>', 
 			'<div class="channelControl" style = "padding: 5px;">Channel</div>', 
 			'<div class="channelControl"><select id="gChannel' + g + '" class="docNav" onchange="updateGate(' + g + ', cfgEnum.channel);"></select></div>', 
-			'<div class="grid-span">', 
+			'<div>', 
 			'	<button class="topcoat-button-bar__button--large" onclick="testOutput(controlEnum.gate, ' + g + ');">Test</button>', 
-			'</div>' 
+			'</div>',
+			'<div id="connectionStatus" style="color: rgb(125, 206, 115); text-align: right;">' + g + '</div>' 
 			].join("\n");
 		document.getElementById("gateCtl" + g).innerHTML = html;
 
@@ -203,10 +205,17 @@ function testOutput(outputType, outputNo) {
 			for (var o = 0; o < 128; o++) {
 				output.send([0xB0 + parseInt(channel - 1), controller, o], window.performance.now() + (o * 5));
 			}
-
 			break;
+
 		case cvEnum.pitchbend:
 			break;
+
+		case cvEnum.aftertouch:
+			var channel = document.getElementById("cChannel" + outputNo).value;
+			for (var o = 0; o < 128; o++) {
+				output.send([0xD0 + parseInt(channel - 1), o], window.performance.now() + (o * 5));
+			}
+			break;		
 		}
 
 	} else {
