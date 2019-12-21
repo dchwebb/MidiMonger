@@ -86,6 +86,7 @@ public:
 	void eventHandler(const uint32_t& data);
 	void serialHandler(uint32_t data);
 	void gateTimer();
+	void setConfig();
 
 	// configure gates to default values for GM drum sounds
 	/*
@@ -140,7 +141,7 @@ public:
 	uint8_t pitchBendSemiTones = 12;
 
 private:
-	void setConfig();
+
 	void validateConfig(bool isGate, uint8_t num);
 	void QueueInc();
 

@@ -39,9 +39,20 @@ int main(void)
 	dacHandler.initDAC();
 	InitUART();
 	cfg.RestoreConfig();
+	midiHandler.setConfig();
 
 	// Bind the usb.dataHandler function to the midiHandler's event handler
 	usb.dataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1);
+
+	// Little light show
+	for (uint8_t c = 0; c < 8; ++c) {
+		midiHandler.cvOutputs[c > 3 ? 3 - c % 4 : c].ledOn(60);
+		uint32_t delay = SysTickVal + 110;
+		while (delay > SysTickVal) {
+			midiHandler.gateTimer();
+		}
+
+	}
 
 	while (1)
 	{
