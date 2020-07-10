@@ -1,5 +1,4 @@
 EESchema Schematic File Version 4
-LIBS:MidiMonger_controls-cache
 EELAYER 30 0
 EELAYER END
 $Descr A3 16535 11693
@@ -254,7 +253,7 @@ Wire Wire Line
 	4100 3700 4100 3500
 Connection ~ 4100 3700
 $Comp
-L MIDI~DIN:MIDI_DIN J16
+L MIDI_DIN:MIDI_DIN J16
 U 1 1 5DD49C19
 P 5900 2750
 F 0 "J16" H 5906 2475 50  0000 C CNN
