@@ -36,14 +36,9 @@ F 3 "" H 4100 1400 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	4200 1100 4100 1100
-Wire Wire Line
 	4200 1300 4100 1300
 Wire Wire Line
 	4100 1300 4100 1400
-Wire Wire Line
-	4100 1300 4100 1100
-Connection ~ 4100 1300
 $Comp
 L power:GND #PWR016
 U 1 1 5D80DC54
@@ -89,14 +84,9 @@ F 3 "" H 1500 1400 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	1600 1100 1500 1100
-Wire Wire Line
 	1600 1300 1500 1300
 Wire Wire Line
 	1500 1300 1500 1400
-Wire Wire Line
-	1500 1300 1500 1100
-Connection ~ 1500 1300
 Wire Wire Line
 	1600 1200 1400 1200
 Text GLabel 5900 1250 2    50   Input ~ 0
@@ -154,14 +144,9 @@ F 3 "" H 4100 2200 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	4200 1900 4100 1900
-Wire Wire Line
 	4200 2100 4100 2100
 Wire Wire Line
 	4100 2100 4100 2200
-Wire Wire Line
-	4100 2100 4100 1900
-Connection ~ 4100 2100
 $Comp
 L thonkiconn:AudioJack2_Ground_Switch J13
 U 1 1 5DC6C012
@@ -185,14 +170,9 @@ F 3 "" H 4100 3000 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	4200 2700 4100 2700
-Wire Wire Line
 	4200 2900 4100 2900
 Wire Wire Line
 	4100 2900 4100 3000
-Wire Wire Line
-	4100 2900 4100 2700
-Connection ~ 4100 2900
 Text GLabel 1400 1200 0    50   Input ~ 0
 GATE1_OUT
 $Comp
@@ -244,14 +224,9 @@ F 3 "" H 4100 3800 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	4200 3500 4100 3500
-Wire Wire Line
 	4200 3700 4100 3700
 Wire Wire Line
 	4100 3700 4100 3800
-Wire Wire Line
-	4100 3700 4100 3500
-Connection ~ 4100 3700
 $Comp
 L MIDI_DIN:MIDI_DIN J16
 U 1 1 5DD49C19
@@ -290,14 +265,9 @@ F 3 "" H 1500 2200 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	1600 1900 1500 1900
-Wire Wire Line
 	1600 2100 1500 2100
 Wire Wire Line
 	1500 2100 1500 2200
-Wire Wire Line
-	1500 2100 1500 1900
-Connection ~ 1500 2100
 Wire Wire Line
 	1600 2000 1400 2000
 Text GLabel 1400 2000 0    50   Input ~ 0
@@ -325,14 +295,9 @@ F 3 "" H 1450 3000 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	1550 2700 1450 2700
-Wire Wire Line
 	1550 2900 1450 2900
 Wire Wire Line
 	1450 2900 1450 3000
-Wire Wire Line
-	1450 2900 1450 2700
-Connection ~ 1450 2900
 Wire Wire Line
 	1550 2800 1350 2800
 Text GLabel 1350 2800 0    50   Input ~ 0
@@ -360,14 +325,9 @@ F 3 "" H 1450 3750 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	1550 3450 1450 3450
-Wire Wire Line
 	1550 3650 1450 3650
 Wire Wire Line
 	1450 3650 1450 3750
-Wire Wire Line
-	1450 3650 1450 3450
-Connection ~ 1450 3650
 Wire Wire Line
 	1550 3550 1350 3550
 Text GLabel 1350 3550 0    50   Input ~ 0
@@ -399,9 +359,6 @@ Wire Wire Line
 Wire Wire Line
 	2850 1300 2850 1400
 Wire Wire Line
-	2850 1300 2850 1100
-Connection ~ 2850 1300
-Wire Wire Line
 	2950 1200 2750 1200
 Text GLabel 2750 1200 0    50   Input ~ 0
 GATE5_OUT
@@ -428,14 +385,9 @@ F 3 "" H 2850 2200 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	2950 1900 2850 1900
-Wire Wire Line
 	2950 2100 2850 2100
 Wire Wire Line
 	2850 2100 2850 2200
-Wire Wire Line
-	2850 2100 2850 1900
-Connection ~ 2850 2100
 Wire Wire Line
 	2950 2000 2750 2000
 Text GLabel 2750 2000 0    50   Input ~ 0
@@ -463,14 +415,9 @@ F 3 "" H 2850 3000 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	2950 2700 2850 2700
-Wire Wire Line
 	2950 2900 2850 2900
 Wire Wire Line
 	2850 2900 2850 3000
-Wire Wire Line
-	2850 2900 2850 2700
-Connection ~ 2850 2900
 Wire Wire Line
 	2950 2800 2750 2800
 Text GLabel 2750 2800 0    50   Input ~ 0
@@ -498,14 +445,9 @@ F 3 "" H 2850 3800 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	2950 3500 2850 3500
-Wire Wire Line
 	2950 3700 2850 3700
 Wire Wire Line
 	2850 3700 2850 3800
-Wire Wire Line
-	2850 3700 2850 3500
-Connection ~ 2850 3700
 Wire Wire Line
 	2950 3600 2750 3600
 Text GLabel 2750 3600 0    50   Input ~ 0
@@ -934,8 +876,6 @@ Text GLabel 7800 4050 0    50   Input ~ 0
 CV4_LED_OUT
 Text GLabel 7800 3650 0    50   Input ~ 0
 CV3_LED_OUT
-Wire Wire Line
-	2850 1100 2950 1100
 Text GLabel 2800 5350 2    50   Input ~ 0
 USB_VBUS
 Text GLabel 2800 5150 2    50   Input ~ 0
@@ -997,4 +937,16 @@ F 3 "" H 1400 4800 50  0001 C CNN
 	1    1400 4800
 	0    -1   -1   0   
 $EndComp
+NoConn ~ 1600 1100
+NoConn ~ 2950 1100
+NoConn ~ 4200 1100
+NoConn ~ 4200 1900
+NoConn ~ 4200 2700
+NoConn ~ 4200 3500
+NoConn ~ 2950 3500
+NoConn ~ 2950 2700
+NoConn ~ 2950 1900
+NoConn ~ 1600 1900
+NoConn ~ 1550 2700
+NoConn ~ 1550 3450
 $EndSCHEMATC
