@@ -645,8 +645,8 @@ void USB::USBD_StdDevReq(usbRequest req)
 			if (dev_state == USBD_STATE_ADDRESSED) {
 				dev_state = USBD_STATE_CONFIGURED;
 
-				USB_ActivateEndpoint(req.Value, true, USBD_EP_TYPE_INTR);		// Activate in endpoint
-				USB_ActivateEndpoint(req.Value, false, USBD_EP_TYPE_INTR);		// Activate out endpoint
+				USB_ActivateEndpoint(req.Value, true, USBD_EP_TYPE_BULK);		// Activate in endpoint
+				USB_ActivateEndpoint(req.Value, false, USBD_EP_TYPE_BULK);		// Activate out endpoint
 
 				USB_EP0StartXfer(DIR_OUT, req.Value, 2);		// FIXME maxpacket is 2 for EP 1: CUSTOM_HID_EPIN_SIZE
 

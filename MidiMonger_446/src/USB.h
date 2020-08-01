@@ -157,7 +157,7 @@ public:
 
 	usbRequest req;
 	uint8_t ep0_maxPacket = 0x40;
-	uint8_t ep_maxPacket = 0x4;
+	uint8_t ep_maxPacket = 0x40;
 	uint32_t xfer_buff[32];		// in HAL there is a transfer buffer for each in and out endpoint
 	uint32_t xfer_count;
 	uint32_t xfer_rem;			// If transfer is larger than maximum packet size store remaining byte count

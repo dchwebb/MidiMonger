@@ -347,3 +347,8 @@ function updateDisplay(controlType, ctlNo) {
 
     }
 }
+
+function testSysex() {
+    var message = [0xF0, 0x01, 0x02, 0x03, 0x04, 0x0A, 0x0B, 0x0C, 0xF7];
+    output.send(message);
+}
