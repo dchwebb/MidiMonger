@@ -83,10 +83,14 @@ struct channelNote {
 class MidiHandler {
 public:
 	MidiHandler();
-	void eventHandler(const uint32_t& data, uint32_t length);
+
+	void eventHandler(uint8_t* data, uint32_t length);
+	void midiEvent(const uint32_t& data);
 	void serialHandler(uint32_t data);
 	void gateTimer();
 	void setConfig();
+	uint8_t sysEx[32];
+	uint8_t sysExCount = 0;
 
 	// configure gates to default values for GM drum sounds
 	/*

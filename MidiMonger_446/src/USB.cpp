@@ -166,9 +166,8 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 						midiArray[midiEventWrite++].data = *xfer_buff;
 						if (midiEventWrite >= MIDIBUFFERSIZE)	midiEventWrite = 0;
 */
-						dataHandler(*xfer_buff, xfer_count);
-
 						USB_EP0StartXfer(DIR_OUT, epnum, xfer_count);
+						dataHandler((uint8_t*)xfer_buff, xfer_count);
 					}
 				}
 
