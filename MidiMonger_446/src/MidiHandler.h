@@ -83,7 +83,7 @@ struct channelNote {
 class MidiHandler {
 public:
 	MidiHandler();
-	void eventHandler(const uint32_t& data);
+	void eventHandler(const uint32_t& data, uint32_t length);
 	void serialHandler(uint32_t data);
 	void gateTimer();
 	void setConfig();

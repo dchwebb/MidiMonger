@@ -42,7 +42,7 @@ int main(void)
 	midiHandler.setConfig();
 
 	// Bind the usb.dataHandler function to the midiHandler's event handler
-	usb.dataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1);
+	usb.dataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1, std::placeholders::_2);
 
 	// Little light show
 	for (uint8_t c = 0; c < 8; ++c) {

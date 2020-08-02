@@ -96,7 +96,7 @@ void MidiHandler::serialHandler(uint32_t data) {
 			QueueInc();
 		}
 
-		eventHandler(event.data);
+		eventHandler(event.data, 4);
 
 		type = static_cast<MIDIType>(Queue[QueueRead] >> 4);
 		channel = Queue[QueueRead] & 0x0F;
@@ -104,7 +104,7 @@ void MidiHandler::serialHandler(uint32_t data) {
 
 	// Clock
 	if (QueueSize > 0 && Queue[QueueRead] == 0xF8) {
-		eventHandler(0xF800);
+		eventHandler(0xF800, 4);
 		QueueInc();
 	}
 
@@ -119,7 +119,7 @@ inline void MidiHandler::QueueInc() {
 	QueueRead = (QueueRead + 1) % MIDIQUEUESIZE;
 }
 
-void MidiHandler::eventHandler(const uint32_t& data)
+void MidiHandler::eventHandler(const uint32_t& data, uint32_t length)
 {
 
 	MidiData midiEvent = MidiData(data);
@@ -147,7 +147,7 @@ void MidiHandler::eventHandler(const uint32_t& data)
 				tx.configValue = cvOutputs[midiEvent.db1 - 9].controller;
 			}
 
-			usb.SendReport((uint8_t*) &tx, 4);
+			usb.SendData((uint8_t*) &tx, 4);
 		} else {
 			// configuration changed by editor format is ttttoooo vvvvvvvv where t is type of setting, o is output number (1-8 = gate, 9 - 12 = cv) and v is setting value
 			if (midiEvent.cfgChannelOrOutput < 9) {

@@ -178,9 +178,9 @@ public:
 	bool USB_ReadInterrupts(uint32_t interrupt);
 	void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len);
 	uint32_t USBD_GetString(uint8_t *desc, uint8_t *unicode);
-	void SendData(const uint8_t *data, uint16_t len);
+	void SendReport(uint8_t *report, uint16_t len);
 
-	std::function<void(uint32_t,uint32_t)> dataHandler;	// Declare data handler to store incoming data
+	std::function<void(uint32_t)> dataHandler;	// Declare data handler to store incoming data
 
 	usbRequest req;
 	uint8_t ep0_maxPacket = 0x40;
