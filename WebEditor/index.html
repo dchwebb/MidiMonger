@@ -40,7 +40,6 @@
 </head>
 
 <body class="dark">
-<button class="topcoat-button-bar__button--large" onclick="testSysex();">Sysex Test</button>
 	<!--<button class="topcoat-button-bar__button--large" onclick="noteOn(48, 1);">C On</button>
 	<button class="topcoat-button-bar__button--large" onclick="noteOff(48, 1);">C Off</button>
 	<button class="topcoat-button-bar__button--large" onclick="noteOn(52, 1);">E On</button>
@@ -79,5 +78,12 @@
 		<div id="gateCtl8" class="grid-container2"></div>
 
 	</div>
+
+	<div style="display: grid;  grid-template-columns: 150px 100px;  padding: 10px;">
+	<div><button class="topcoat-button-bar__button--large" onclick="testSysex();">Sysex Test</button></div>
+	<div id="testResponse" style="color: #aaaaaa;">Result</div>
+	</div>
+	
+
 </body>
 </html>

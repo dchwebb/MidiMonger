@@ -159,13 +159,25 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 					USBx_OUTEP(epnum)->DOEPINT = USB_OTG_DOEPINT_XFRC;				// Clear interrupt
 
 					if (epnum == 0) {
+
+				        // In CDC mode after 0x21 0x20 packets (line coding commands)
+						if (dev_state == USBD_STATE_CONFIGURED && CmdOpCode != 0) {
+							if (CmdOpCode == 0x20) {			// SET_LINE_CODING - capture the data passed to return when queried with GET_LINE_CODING
+								for (uint8_t i = 0; i < outBuffSize; ++i) {
+									((uint8_t*)USBD_CDC_LineCoding)[i] = ((uint8_t*)xfer_buff)[i];
+								}
+							}
+							USB_EP0StartXfer(DIR_IN, 0, 0);
+							CmdOpCode = 0;
+						}
+
 						ep0_state = USBD_EP0_IDLE;
 						USBx_OUTEP(epnum)->DOEPCTL |= USB_OTG_DOEPCTL_STALL;
 					} else {
-						/*// Add buffer contents to midiArray
-						midiArray[midiEventWrite++].data = *xfer_buff;
-						if (midiEventWrite >= MIDIBUFFERSIZE)	midiEventWrite = 0;
-*/
+						// Add buffer contents to midiArray
+						//midiArray[midiEventWrite++].data = *xfer_buff;
+						//if (midiEventWrite >= MIDIBUFFERSIZE)	midiEventWrite = 0;
+
 						USB_EP0StartXfer(DIR_OUT, epnum, xfer_count);
 						dataHandler((uint8_t*)xfer_buff, xfer_count);
 					}
@@ -186,8 +198,34 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 						break;
 
 					case USB_REQ_RECIPIENT_INTERFACE:
-						if (req.mRequest == 0x21) {
-							USB_EP0StartXfer(DIR_IN, 0, 0);		// sends blank request back
+						if ((req.mRequest & USB_REQ_TYPE_MASK) == USB_REQ_TYPE_CLASS) {		// 0xA1 & 0x60 == 0x20
+
+							if (req.Length > 0) {
+								if ((req.mRequest & USB_REQ_DIRECTION_MASK) != 0U) {		// Device to host [USBD_CtlSendData]
+									// CDC request 0xA1, 0x21, 0x0, 0x0, 0x7		GetLineCoding 0xA1 0x21 0 Interface 7; Data: Line Coding Data Structure
+									// 0xA1 [1|01|00001] Device to host | Class | Interface
+
+									outBuffSize = req.Length;
+									outBuff = (uint8_t*)USBD_CDC_LineCoding;
+									ep0_state = USBD_EP0_DATA_IN;
+
+									usbDebug[usbDebugNo].PacketSize = outBuffSize;
+									usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
+									usbDebug[usbDebugNo].xferBuff1 = ((uint32_t*)outBuff)[1];
+
+									USB_EP0StartXfer(DIR_IN, 0, req.Length);		// sends blank request back
+								} else {
+									//CDC request 0x21, 0x20, 0x0, 0x0, 0x7			// USBD_CtlPrepareRx
+									// 0x21 [0|01|00001] Host to device | Class | Interface
+									CmdOpCode = req.Request;
+									USB_EP0StartXfer(DIR_OUT, epnum, req.Length);
+								}
+							} else {
+								// 0x21, 0x22, 0x0, 0x0, 0x0	SetControlLineState 0x21 | 0x22 | 2 | Interface | 0 | None
+								// 0x21, 0x20, 0x0, 0x0, 0x0	SetLineCoding       0x21 | 0x20 | 0 | Interface | 0 | Line Coding Data Structure
+								USB_EP0StartXfer(DIR_IN, 0, 0);
+							}
+
 						} else if (req.mRequest == 0x81) {
 
 							if (req.Value >> 8 == 0x22)		// 0x22 = CUSTOM_HID_REPORT_DESC
@@ -198,6 +236,9 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 								USB_EP0StartXfer(DIR_IN, 0, outBuffSize);
 							}
 						}
+						break;
+
+					case USB_REQ_RECIPIENT_ENDPOINT:
 						break;
 
 					default:

@@ -161,7 +161,11 @@ function getMIDIMessage(midiMessage) {
 
         }
         recCount++;
-    }
+    } else if (midiMessage.data[0] == 0xF0) {
+		  var response = document.getElementById("testResponse");    
+        response.innerHTML = "Received: " + midiMessage.data[1];
+	 }
+
 }
 
 // Sends MIDI note to requested channel

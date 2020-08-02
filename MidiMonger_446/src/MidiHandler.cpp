@@ -135,7 +135,13 @@ void MidiHandler::eventHandler(uint8_t* data, uint32_t length) {
 			}
 		}
 		sysExCount = i;
-
+		MidiData tx;
+		tx.Code = 0x03;
+		tx.db0 = 0xF0;
+		tx.db1 = sysExCount;
+		tx.db2 = 0xF7;
+		usb.SendData((uint8_t*) &tx, 4);
+		//usb.SendData(sysEx, sysExCount);		// NB to get this to work we would need to prefix each packet with the appropriate CIN (see note at bottom)
 	}
 }
 
