@@ -1,107 +1,4 @@
-#include <USB.h>
-
-	/* startup sequence:
-0		40000000 SRQINT 	Session request/new session detected
-1		800		USBSUSP 	USB suspend
-2		80000000 WKUINT 	Resume/remote wakeup detected
-3		1000	USBRST 		USB reset
-4		2000	ENUMDNE 	Enumeration done
-5		10 		RXFLVL
-6  		10
-7		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,100,0,40		Device descriptor USBD_FS_DeviceDesc
-8		40000	IEPINT  	USB_OTG_DIEPINT_TXFE  Transmit FIFO empty
-9		40000	IEPINT  	USB_OTG_DIEPINT_XFRC  Transfer completed
-10 		10
-11 		10
-12		80000				USB_OTG_DOEPINT_XFRC
-13		10					Address setup happens here
-14 		10
-15		80000	OEPINT		USB_OTG_DOEPINT_STUP req 0x0,5,31,0				Address setup - third param is address (0x31 in this case)
-16		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-17		10					STS_SETUP_UPDT
-18		10					STS_SETUP_COMP
-19		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,100,12			Device descriptor again but with device address (rather than 0)
-20		40000	IEPINT		USB_OTG_DIEPINT_TXFE
-21		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-22		10					STS_DATA_UPDT
-23		10					STS_SETUP_UPDT
-24		80000	OEPINT 		USB_OTG_DOEPINT_XFRC
-25		10					STS_SETUP_UPDT
-26		10					STS_SETUP_COMP
-27		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,200,0,FF		configuration descriptor usbd_audio_CfgDesc
-28		40000	IEPINT		USB_OTG_DIEPINT_TXFE
-29		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-30		40000	IEPINT		USB_OTG_DIEPINT_TXFE 							second part of configuration descriptor
-31		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-32		10					STS_DATA_UPDT
-33		10					STS_SETUP_UPDT
-34		80000	OEPINT 		USB_OTG_DOEPINT_XFRC
-35		10					STS_SETUP_UPDT
-36		10					STS_SETUP_COMP
-37		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,F00,0,FF		USBD_FS_BOSDesc
-38		40000	IEPINT		USB_OTG_DIEPINT_TXFE
-39		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-40		10					STS_DATA_UPDT
-41		10					STS_SETUP_UPDT
-42		80000	OEPINT 		USB_OTG_DOEPINT_XFRC
-43		10					STS_SETUP_UPDT
-44		10					STS_SETUP_COMP
-45		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,303,409,FF		USBD_IDX_SERIAL_STR
-46		40000	IEPINT		USB_OTG_DIEPINT_TXFE
-47		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-48		10					STS_DATA_UPDT
-49		10					STS_SETUP_UPDT
-50		80000	OEPINT 		USB_OTG_DOEPINT_XFRC
-51		10					STS_SETUP_UPDT
-52		10					STS_SETUP_COMP
-53		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,300,0,FF		USBD_IDX_LANGID_STR
-54		40000	IEPINT		USB_OTG_DIEPINT_TXFE
-55		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-56		10					STS_DATA_UPDT
-57		10					STS_SETUP_UPDT
-58		80000	OEPINT 		USB_OTG_DOEPINT_XFRC
-59		10					STS_SETUP_UPDT
-60		10					STS_SETUP_COMP
-61		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,302,409,FF		USBD_IDX_PRODUCT_STR
-62		40000	IEPINT		USB_OTG_DIEPINT_TXFE
-63		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-64		10					STS_DATA_UPDT
-65		10					STS_SETUP_UPDT
-66		80000	OEPINT 		USB_OTG_DOEPINT_XFRC
-67		10					STS_SETUP_UPDT
-68		10					STS_SETUP_COMP
-69		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,600,A			USB_DESC_TYPE_DEVICE_QUALIFIER > Stall
-70		10					STS_DATA_UPDT
-71		10					STS_SETUP_UPDT
-72		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0,9,1,0,0 				Set configuration to 1
-73		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-74		10					STS_DATA_UPDT
-75		10					STS_SETUP_UPDT
-76		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,302,409,4		USBD_IDX_PRODUCT_STR
-77		40000	IEPINT		USB_OTG_DIEPINT_TXFE
-78		40000	IEPINT		USB_OTG_DIEPINT_XFRC
-79		10					STS_DATA_UPDT
-80		10					STS_SETUP_UPDT
-81		80000	OEPINT 		USB_OTG_DOEPINT_XFRC
-82		10					STS_SETUP_UPDT reads
-83		10					STS_SETUP_COMP
-84		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,302,409,1C		USBD_IDX_PRODUCT_STR
-
-92		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,302,409,1C		USBD_IDX_PRODUCT_STR
-
-100		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,302,409,1C		USBD_IDX_PRODUCT_STR
-
-108		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,600,A 			USB_DESC_TYPE_DEVICE_QUALIFIER > Stall
-
-111		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,300,0,1FE		USBD_IDX_LANGID_STR
-
-119		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,301,409,1FE		USBD_IDX_MFC_STR
-
-127		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,302,409,1FE		USBD_IDX_PRODUCT_STR
-
-135		80000	OEPINT 		USB_OTG_DOEPINT_STUP req 0x80,6,3EE,409,1FE		Custom user string?
-
-*/
+#include "USB.h"
 
 void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pcd.c
 
@@ -121,19 +18,23 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 		epnum = receiveStatus & USB_OTG_GRXSTSP_EPNUM;		// Get the endpoint number
 		uint16_t packetSize = (receiveStatus & USB_OTG_GRXSTSP_BCNT) >> 4;
 
+#if (USB_DEBUG)
 		usbDebug[usbDebugNo].IntData = receiveStatus;
 		usbDebug[usbDebugNo].endpoint = epnum;
 		usbDebug[usbDebugNo].PacketSize = packetSize;
+#endif
 
 		if (((receiveStatus & USB_OTG_GRXSTSP_PKTSTS) >> 17) == STS_DATA_UPDT && packetSize != 0) {		// 2 = OUT data packet received
 			USB_ReadPacket(xfer_buff, packetSize);
 		} else if (((receiveStatus & USB_OTG_GRXSTSP_PKTSTS) >> 17) == STS_SETUP_UPDT) {				// 6 = SETUP data packet received
 			USB_ReadPacket(xfer_buff, 8U);
-			}
+		}
 		if (packetSize != 0) {
 			xfer_count = packetSize;
+#if (USB_DEBUG)
 			usbDebug[usbDebugNo].xferBuff0 = xfer_buff[0];
 			usbDebug[usbDebugNo].xferBuff1 = xfer_buff[1];
+#endif
 		}
 		USB_OTG_FS->GINTMSK |= USB_OTG_GINTSTS_RXFLVL;
 	}
@@ -143,7 +44,7 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 	if (USB_ReadInterrupts(USB_OTG_GINTSTS_OEPINT)) {
 
 		// Read the output endpoint interrupt register to ascertain which endpoint(s) fired an interrupt
-		ep_intr = ((USBx_DEVICE->DAINT & USBx_DEVICE->DAINTMSK) & 0xFFFF0000U) >> 16; // FIXME mask unnecessary with shift right?
+		ep_intr = ((USBx_DEVICE->DAINT & USBx_DEVICE->DAINTMSK) & USB_OTG_DAINTMSK_OEPM_Msk) >> 16;
 
 		// process each endpoint in turn incrementing the epnum and checking the interrupts (ep_intr) if that endpoint fired
 		epnum = 0;
@@ -151,8 +52,10 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 			if ((ep_intr & 1) != 0) {
 				epint = USBx_OUTEP(epnum)->DOEPINT & USBx_DEVICE->DOEPMSK;
 
+#if (USB_DEBUG)
 				usbDebug[usbDebugNo].endpoint = epnum;
 				usbDebug[usbDebugNo].IntData = epint;
+#endif
 
 				if ((epint & USB_OTG_DOEPINT_XFRC) == USB_OTG_DOEPINT_XFRC) {		// 0x01 Transfer completed
 
@@ -164,37 +67,39 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 						if (dev_state == USBD_STATE_CONFIGURED && CmdOpCode != 0) {
 							if (CmdOpCode == 0x20) {			// SET_LINE_CODING - capture the data passed to return when queried with GET_LINE_CODING
 								for (uint8_t i = 0; i < outBuffSize; ++i) {
-									((uint8_t*)USBD_CDC_LineCoding)[i] = ((uint8_t*)xfer_buff)[i];
+									((uint8_t*)&USBD_CDC_LineCoding)[i] = ((uint8_t*)xfer_buff)[i];
 								}
 							}
-							USB_EP0StartXfer(DIR_IN, 0, 0);
+							USB_EPStartXfer(Direction::in, 0, 0);
 							CmdOpCode = 0;
 						}
 
 						ep0_state = USBD_EP0_IDLE;
 						USBx_OUTEP(epnum)->DOEPCTL |= USB_OTG_DOEPCTL_STALL;
 					} else {
-						// Add buffer contents to midiArray
-						//midiArray[midiEventWrite++].data = *xfer_buff;
-						//if (midiEventWrite >= MIDIBUFFERSIZE)	midiEventWrite = 0;
-
-						USB_EP0StartXfer(DIR_OUT, epnum, xfer_count);
-						dataHandler((uint8_t*)xfer_buff, xfer_count);
+						// Call appropriate data handler depending on endpoint of data
+						USB_EPStartXfer(Direction::out, epnum, xfer_count);
+						if (epnum == MIDI_Out) {
+							midiDataHandler((uint8_t*)xfer_buff, xfer_count);
+						} else {
+							cdcDataHandler((uint8_t*)xfer_buff, xfer_count);
+						}
 					}
 				}
 
 				if ((epint & USB_OTG_DOEPINT_STUP) == USB_OTG_DOEPINT_STUP) {		// SETUP phase done: the application can decode the received SETUP data packet.
 					// Parse Setup Request containing data in xfer_buff filled by RXFLVL interrupt
 					req.loadData((uint8_t*)xfer_buff);
-
+#if (USB_DEBUG)
 					usbDebug[usbDebugNo].Request = req;
+#endif
 
 					ep0_state = USBD_EP0_SETUP;
 
 					switch (req.mRequest & 0x1F) {		// originally USBD_LL_SetupStage
 					case USB_REQ_RECIPIENT_DEVICE:
 						//initially USB_REQ_GET_DESCRIPTOR >> USB_DESC_TYPE_DEVICE (bmrequest is 0x6)
-						USBD_StdDevReq(req);
+						USBD_StdDevReq();
 						break;
 
 					case USB_REQ_RECIPIENT_INTERFACE:
@@ -206,35 +111,28 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 									// 0xA1 [1|01|00001] Device to host | Class | Interface
 
 									outBuffSize = req.Length;
-									outBuff = (uint8_t*)USBD_CDC_LineCoding;
+									outBuff = (uint8_t*)&USBD_CDC_LineCoding;
 									ep0_state = USBD_EP0_DATA_IN;
 
+#if (USB_DEBUG)
 									usbDebug[usbDebugNo].PacketSize = outBuffSize;
 									usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
 									usbDebug[usbDebugNo].xferBuff1 = ((uint32_t*)outBuff)[1];
+#endif
 
-									USB_EP0StartXfer(DIR_IN, 0, req.Length);		// sends blank request back
+									USB_EPStartXfer(Direction::in, 0, req.Length);		// sends blank request back
 								} else {
 									//CDC request 0x21, 0x20, 0x0, 0x0, 0x7			// USBD_CtlPrepareRx
 									// 0x21 [0|01|00001] Host to device | Class | Interface
 									CmdOpCode = req.Request;
-									USB_EP0StartXfer(DIR_OUT, epnum, req.Length);
+									USB_EPStartXfer(Direction::out, epnum, req.Length);
 								}
 							} else {
 								// 0x21, 0x22, 0x0, 0x0, 0x0	SetControlLineState 0x21 | 0x22 | 2 | Interface | 0 | None
 								// 0x21, 0x20, 0x0, 0x0, 0x0	SetLineCoding       0x21 | 0x20 | 0 | Interface | 0 | Line Coding Data Structure
-								USB_EP0StartXfer(DIR_IN, 0, 0);
+								USB_EPStartXfer(Direction::in, 0, 0);
 							}
 
-						} else if (req.mRequest == 0x81) {
-
-							if (req.Value >> 8 == 0x22)		// 0x22 = CUSTOM_HID_REPORT_DESC
-							{
-								outBuffSize = std::min((uint16_t)0x4A, req.Length);		// 0x4A = USBD_CUSTOM_HID_REPORT_DESC_SIZE
-								outBuff = CUSTOM_HID_ReportDesc_FS;
-								ep0_state = USBD_EP0_DATA_IN;
-								USB_EP0StartXfer(DIR_IN, 0, outBuffSize);
-							}
 						}
 						break;
 
@@ -266,74 +164,67 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 	}
 
 	///////////		40000 		IEPINT: IN endpoint interrupt
-	if (USB_ReadInterrupts(USB_OTG_GINTSTS_IEPINT))
-	{
+	if (USB_ReadInterrupts(USB_OTG_GINTSTS_IEPINT)) {
+
 		// Read in the device interrupt bits [initially 1]
-		ep_intr = (USBx_DEVICE->DAINT & USBx_DEVICE->DAINTMSK) & 0xFFFFU;
+		ep_intr = (USBx_DEVICE->DAINT & USBx_DEVICE->DAINTMSK) & USB_OTG_DAINTMSK_IEPM_Msk;
 
 		// process each endpoint in turn incrementing the epnum and checking the interrupts (ep_intr) if that endpoint fired
 		epnum = 0;
 		while (ep_intr != 0) {
 			if ((ep_intr & 1) != 0) { // In ITR [initially true]
-				usbDebug[usbDebugNo].endpoint = epnum;
 
-				epint = USBx_INEP((uint32_t)epnum)->DIEPINT & (USBx_DEVICE->DIEPMSK | (((USBx_DEVICE->DIEPEMPMSK >> (epnum & EP_ADDR_MSK)) & 0x1U) << 7));
+
+				epint = USBx_INEP((uint32_t)epnum)->DIEPINT & (USBx_DEVICE->DIEPMSK | (((USBx_DEVICE->DIEPEMPMSK >> (epnum & EP_ADDR_MASK)) & 0x1U) << 7));
+
+#if (USB_DEBUG)
+				usbDebug[usbDebugNo].endpoint = epnum;
 				usbDebug[usbDebugNo].IntData = epint;
+#endif
 
 				if ((epint & USB_OTG_DIEPINT_XFRC) == USB_OTG_DIEPINT_XFRC) {			// 0x1 Transfer completed interrupt
-					uint32_t fifoemptymsk = (uint32_t)(0x1UL << (epnum & EP_ADDR_MSK));
+					uint32_t fifoemptymsk = (uint32_t)(0x1UL << (epnum & EP_ADDR_MASK));
 					USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 
 					USBx_INEP(epnum)->DIEPINT = USB_OTG_DIEPINT_XFRC;
 
-					if (epnum == 0) {
+					if (epnum == 0 && ep0_state == USBD_EP0_DATA_IN && xfer_rem == 0) {
+						ep0_state = USBD_EP0_STATUS_OUT;								//HAL_PCD_EP_Receive
+						xfer_buff[0] = 0;
+						USB_EPStartXfer(Direction::out, 0, ep_maxPacket);
+					}
 
-						if (ep0_state == USBD_EP0_DATA_IN) {
-							if (xfer_rem > 0) {
-								outBuffSize = xfer_rem;
-								xfer_rem = 0;
-
-								usbDebug[usbDebugNo].PacketSize = outBuffSize;
-								usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
-								usbDebug[usbDebugNo].xferBuff1 = ((uint32_t*)outBuff)[1];
-
-								USB_EP0StartXfer(DIR_IN, 0, outBuffSize);
-							} else {
-
-								//USB_EPSetStall(epnum);
-
-								ep0_state = USBD_EP0_STATUS_OUT;
-
-								//HAL_PCD_EP_Receive
-								xfer_rem = 0;
-								xfer_buff[0] = 0;
-								USB_EP0StartXfer(DIR_OUT, 0, ep0_maxPacket);
-							}
-						} else if ((ep0_state == USBD_EP0_STATUS_IN) || (ep0_state == USBD_EP0_IDLE)) {		// second time around
-							//USB_EPSetStall(epnum);
-						}
-					} else {
+					if (ep0_state == USBD_EP0_DATA_IN && xfer_rem > 0) {
+						outBuffSize = xfer_rem;
+						xfer_rem = 0;
+#if (USB_DEBUG)
+						usbDebug[usbDebugNo].PacketSize = outBuffSize;
+						usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
+						usbDebug[usbDebugNo].xferBuff1 = ((uint32_t*)outBuff)[1];
+#endif
+						USB_EPStartXfer(Direction::in, epnum, outBuffSize);
+					} else if (epnum > 0) {
 						transmitting = false;
 					}
 				}
 
 				if ((epint & USB_OTG_DIEPINT_TXFE) == USB_OTG_DIEPINT_TXFE) {				// 0x80 Transmit FIFO empty
-					uint32_t maxPacket = (epnum == 0 ? ep0_maxPacket : ep_maxPacket);
-
+#if (USB_DEBUG)
 					usbDebug[usbDebugNo].PacketSize = outBuffSize;
 					usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
 					usbDebug[usbDebugNo].xferBuff1 = ((uint32_t*)outBuff)[1];
-
-					if (outBuffSize > maxPacket) {
-						xfer_rem = outBuffSize - maxPacket;
-						outBuffSize = maxPacket;
+#endif
+					if (outBuffSize > ep_maxPacket) {
+						xfer_rem = outBuffSize - ep_maxPacket;
+						outBuffSize = ep_maxPacket;
 					}
 
 					USB_WritePacket(outBuff, epnum, (uint16_t)outBuffSize);
 
 					outBuff += outBuffSize;		// Move pointer forwards
-					uint32_t fifoemptymsk = (uint32_t)(0x1UL << (epnum & EP_ADDR_MSK));
+					uint32_t fifoemptymsk = (uint32_t)(0x1UL << (epnum & EP_ADDR_MASK));
 					USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
+
 				}
 
 				if ((epint & USB_OTG_DIEPINT_TOC) == USB_OTG_DIEPINT_TOC) {					// Timeout condition
@@ -358,8 +249,7 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 
 
 	/////////// 	800 		USBSUSP: Suspend Interrupt
-	if (USB_ReadInterrupts(USB_OTG_GINTSTS_USBSUSP))
-	{
+	if (USB_ReadInterrupts(USB_OTG_GINTSTS_USBSUSP)) {
 		if ((USBx_DEVICE->DSTS & USB_OTG_DSTS_SUSPSTS) == USB_OTG_DSTS_SUSPSTS) {
 			dev_state  = USBD_STATE_SUSPENDED;
 			USBx_PCGCCTL |= USB_OTG_PCGCCTL_STOPCLK;
@@ -369,8 +259,7 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 
 
 	/////////// 	1000 		USBRST: Reset Interrupt
-	if (USB_ReadInterrupts(USB_OTG_GINTSTS_USBRST))
-	{
+	if (USB_ReadInterrupts(USB_OTG_GINTSTS_USBRST))	{
 		USBx_DEVICE->DCTL &= ~USB_OTG_DCTL_RWUSIG;
 
 		// USB_FlushTxFifo
@@ -403,8 +292,7 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 
 
 	/////////// 	2000		ENUMDNE: Enumeration done Interrupt
-	if (USB_ReadInterrupts(USB_OTG_GINTSTS_ENUMDNE))
-	{
+	if (USB_ReadInterrupts(USB_OTG_GINTSTS_ENUMDNE)) {
 		// Set the Maximum packet size of the IN EP based on the enumeration speed
 		USBx_INEP(0U)->DIEPCTL &= ~USB_OTG_DIEPCTL_MPSIZ;
 		USBx_DEVICE->DCTL |= USB_OTG_DCTL_CGINAK;		//  Clear global IN NAK
@@ -413,8 +301,8 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 		USB_OTG_FS->GUSBCFG &= ~USB_OTG_GUSBCFG_TRDT;
 		USB_OTG_FS->GUSBCFG |= (6 << 10);
 
-		USB_ActivateEndpoint(0, DIR_OUT, 0);			// Open EP0 OUT
-		USB_ActivateEndpoint(0, DIR_IN, 0);				// Open EP0 IN
+		USB_ActivateEndpoint(0, Direction::out, 0);			// Open EP0 OUT
+		USB_ActivateEndpoint(0, Direction::in, 0);				// Open EP0 IN
 
 		ep0_state = USBD_EP0_IDLE;
 
@@ -423,27 +311,22 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 
 
 	///////////		40000000	SRQINT: Connection event Interrupt
-	if (USB_ReadInterrupts(USB_OTG_GINTSTS_SRQINT))
-	{
+	if (USB_ReadInterrupts(USB_OTG_GINTSTS_SRQINT))	{
 		//HAL_PCD_ConnectCallback(hpcd);		// this doesn't seem to do anything
-
 		USB_OTG_FS->GINTSTS &= USB_OTG_GINTSTS_SRQINT;
 	}
 
 
 	/////////// 	80000000	WKUINT: Resume Interrupt
-	if (USB_ReadInterrupts(USB_OTG_GINTSTS_WKUINT))
-	{
+	if (USB_ReadInterrupts(USB_OTG_GINTSTS_WKUINT)) {
 		// Clear the Remote Wake-up Signaling
 		USBx_DEVICE->DCTL &= ~USB_OTG_DCTL_RWUSIG;
-
 		USB_OTG_FS->GINTSTS &= USB_OTG_GINTSTS_WKUINT;
 	}
 
 
 	/////////// OTGINT: Handle Disconnection event Interrupt
-	if (USB_ReadInterrupts(USB_OTG_GINTSTS_OTGINT))
-	{
+	if (USB_ReadInterrupts(USB_OTG_GINTSTS_OTGINT)) {
 		uint32_t temp = USB_OTG_FS->GOTGINT;
 
 		if ((temp & USB_OTG_GOTGINT_SEDET) == USB_OTG_GOTGINT_SEDET)
@@ -519,24 +402,24 @@ void USB::InitUSB()
     USB_OTG_FS->GAHBCFG |= USB_OTG_GAHBCFG_GINT;		// Activate USB Interrupts
 }
 
-void USB::USB_ActivateEndpoint(uint32_t epnum, bool is_in, uint8_t eptype)
+void USB::USB_ActivateEndpoint(uint8_t endpoint, Direction direction, uint8_t eptype)
 {
-	uint8_t maxpktsize = (epnum == 0 ? ep0_maxPacket : ep_maxPacket);
+	endpoint = endpoint & 0xF;
 
-	if (is_in) {
-		USBx_DEVICE->DAINTMSK |= USB_OTG_DAINTMSK_IEPM & (uint32_t)(1UL << (epnum & EP_ADDR_MSK));
+	if (direction == Direction::in) {
+		USBx_DEVICE->DAINTMSK |= USB_OTG_DAINTMSK_IEPM & (uint32_t)(1UL << (endpoint & EP_ADDR_MASK));
 
-		if ((USBx_INEP(epnum)->DIEPCTL & USB_OTG_DIEPCTL_USBAEP) == 0U) {
-			USBx_INEP(epnum)->DIEPCTL |= (maxpktsize & USB_OTG_DIEPCTL_MPSIZ) |
-					((uint32_t)eptype << 18) | (epnum << 22) |
+		if ((USBx_INEP(endpoint)->DIEPCTL & USB_OTG_DIEPCTL_USBAEP) == 0U) {
+			USBx_INEP(endpoint)->DIEPCTL |= (ep_maxPacket & USB_OTG_DIEPCTL_MPSIZ) |
+					((uint32_t)eptype << 18) | (endpoint << 22) |
 					USB_OTG_DIEPCTL_SD0PID_SEVNFRM |
 					USB_OTG_DIEPCTL_USBAEP;
 		}
 	} else {
-		USBx_DEVICE->DAINTMSK |= USB_OTG_DAINTMSK_OEPM & ((uint32_t)(1UL << (epnum & EP_ADDR_MSK)) << 16);
+		USBx_DEVICE->DAINTMSK |= USB_OTG_DAINTMSK_OEPM & ((uint32_t)(1UL << (endpoint & EP_ADDR_MASK)) << 16);
 
-		if (((USBx_OUTEP(epnum)->DOEPCTL) & USB_OTG_DOEPCTL_USBAEP) == 0U) {
-			USBx_OUTEP(epnum)->DOEPCTL |= (maxpktsize & USB_OTG_DOEPCTL_MPSIZ) |
+		if (((USBx_OUTEP(endpoint)->DOEPCTL) & USB_OTG_DOEPCTL_USBAEP) == 0U) {
+			USBx_OUTEP(endpoint)->DOEPCTL |= (ep_maxPacket & USB_OTG_DOEPCTL_MPSIZ) |
 					((uint32_t)eptype << 18) |
 					USB_OTG_DIEPCTL_SD0PID_SEVNFRM |
 					USB_OTG_DOEPCTL_USBAEP;
@@ -546,9 +429,8 @@ void USB::USB_ActivateEndpoint(uint32_t epnum, bool is_in, uint8_t eptype)
 }
 
 // USB_ReadPacket : read a packet from the RX FIFO
-void USB::USB_ReadPacket(uint32_t *dest, uint16_t len)
-{
-	uint32_t *pDest = (uint32_t *)dest;
+void USB::USB_ReadPacket(const uint32_t* dest, uint16_t len) {
+	uint32_t* pDest = (uint32_t*)dest;
 	uint32_t count32b = ((uint32_t)len + 3U) / 4U;
 
 	for (uint32_t i = 0; i < count32b; i++)	{
@@ -557,21 +439,18 @@ void USB::USB_ReadPacket(uint32_t *dest, uint16_t len)
 	}
 }
 
-void USB::USB_WritePacket(uint8_t *src, uint32_t ch_ep_num, uint16_t len)
-{
-	uint32_t *pSrc = (uint32_t *)src;
+void USB::USB_WritePacket(const uint8_t* src, uint8_t endpoint, uint16_t len) {
+	uint32_t* pSrc = (uint32_t*)src;
 	uint32_t count32b = ((uint32_t)len + 3U) / 4U;
 
 	for (uint32_t i = 0; i < count32b; i++) {
-		USBx_DFIFO(ch_ep_num) = *pSrc;
+		USBx_DFIFO(endpoint) = *pSrc;
 		pSrc++;
 	}
 }
 
 // Descriptors in usbd_desc.c
-void USB::USBD_GetDescriptor(usbRequest req)
-{
-	//uint32_t deviceserial0, deviceserial1, deviceserial2;
+void USB::USBD_GetDescriptor() {
 
 	switch (req.Value >> 8)	{
 	case USB_DESC_TYPE_DEVICE:
@@ -580,13 +459,11 @@ void USB::USBD_GetDescriptor(usbRequest req)
 		break;
 
 	case USB_DESC_TYPE_CONFIGURATION:
-
-		outBuff = usbd_audio_CfgDesc;
-		outBuffSize = sizeof(usbd_audio_CfgDesc);
+		outBuff = CDC_MIDI_CfgFSDesc;
+		outBuffSize = sizeof(CDC_MIDI_CfgFSDesc);
 		break;
 
 	case USB_DESC_TYPE_BOS:
-
 		outBuff = USBD_FS_BOSDesc;
 		outBuffSize = sizeof(USBD_FS_BOSDesc);
 		break;
@@ -594,26 +471,26 @@ void USB::USBD_GetDescriptor(usbRequest req)
 	case USB_DESC_TYPE_STRING:
 
 		switch ((uint8_t)(req.Value)) {
-		case USBD_IDX_LANGID_STR:		// 300
+		case USBD_IDX_LANGID_STR:			// 300
 			outBuff = USBD_LangIDDesc;
 			outBuffSize = sizeof(USBD_LangIDDesc);
 			break;
-		case USBD_IDX_MFC_STR:			// 301
+		case USBD_IDX_MFC_STR:				// 301
 			outBuffSize = USBD_GetString((uint8_t*)USBD_MANUFACTURER_STRING, USBD_StrDesc);
 			outBuff = USBD_StrDesc;
 			break;
-		case USBD_IDX_PRODUCT_STR:		// 302
-			outBuffSize = USBD_GetString((uint8_t*)USBD_PRODUCT_STRING_FS, USBD_StrDesc);
+		case USBD_IDX_PRODUCT_STR:			// 302
+			outBuffSize = USBD_GetString((uint8_t*)USBD_PRODUCT_STRING, USBD_StrDesc);
 			outBuff = USBD_StrDesc;
 			break;
-		case USBD_IDX_SERIAL_STR:		// 303
+		case USBD_IDX_SERIAL_STR:			// 303
 			{
 				// STM32 unique device ID (96 bit number starting at UID_BASE)
-					uint32_t deviceserial0 = *(uint32_t*) UID_BASE;
-					uint32_t deviceserial1 = *(uint32_t*) UID_BASE + 4;
-					uint32_t deviceserial2 = *(uint32_t*) UID_BASE + 8;
+				uint32_t deviceserial0 = *(uint32_t*) UID_BASE;
+				uint32_t deviceserial1 = *(uint32_t*) UID_BASE + 4;
+				uint32_t deviceserial2 = *(uint32_t*) UID_BASE + 8;
 				deviceserial0 += deviceserial2;
-	
+
 				if (deviceserial0 != 0) {
 					IntToUnicode(deviceserial0, &USBD_StringSerial[2], 8);
 					IntToUnicode(deviceserial1, &USBD_StringSerial[18], 4);
@@ -622,15 +499,15 @@ void USB::USBD_GetDescriptor(usbRequest req)
 				outBuffSize = sizeof(USBD_StringSerial);
 			}
 			break;
-	    case USBD_IDX_CONFIG_STR:		// 304
-			outBuffSize = USBD_GetString((uint8_t*)USBD_CONFIG_FS, USBD_StrDesc);
+	    case USBD_IDX_MIDI_STR:				// 304
+			outBuffSize = USBD_GetString((uint8_t*)USBD_MIDI_STRING, USBD_StrDesc);
 			outBuff = USBD_StrDesc;
 	      break;
 
-	    case USBD_IDX_INTERFACE_STR:	// 305
-			outBuffSize = USBD_GetString((uint8_t*)USBD_INTERFACE_FS, USBD_StrDesc);
+	    case USBD_IDX_CDC_STR:				// 305
+			outBuffSize = USBD_GetString((uint8_t*)USBD_CDC_STRING, USBD_StrDesc);
 			outBuff = USBD_StrDesc;
-			break;
+	      break;
 
 		default:
 			USBD_CtlError();
@@ -644,22 +521,24 @@ void USB::USBD_GetDescriptor(usbRequest req)
 	}
 
 	if ((outBuffSize != 0U) && (req.Length != 0U)) {
+
+#if (USB_DEBUG)
 		usbDebug[usbDebugNo].PacketSize = outBuffSize;
 		usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
 		usbDebug[usbDebugNo].xferBuff1 = ((uint32_t*)outBuff)[1];
+#endif
 
 		ep0_state = USBD_EP0_DATA_IN;
 		outBuffSize = std::min(outBuffSize, (uint32_t)req.Length);
-		USB_EP0StartXfer(DIR_IN, 0, outBuffSize);
+		USB_EPStartXfer(Direction::in, 0, outBuffSize);
 	}
 
 	if (req.Length == 0U) {
-		USB_EP0StartXfer(DIR_IN, 0, 0);
+		USB_EPStartXfer(Direction::in, 0, 0);
 	}
 }
 
-uint32_t USB::USBD_GetString(uint8_t *desc, uint8_t *unicode)
-{
+uint32_t USB::USBD_GetString(const uint8_t* desc, uint8_t *unicode) {
 	uint32_t idx = 2;
 
 	if (desc != NULL) {
@@ -673,7 +552,7 @@ uint32_t USB::USBD_GetString(uint8_t *desc, uint8_t *unicode)
 	return idx;
 }
 
-void USB::IntToUnicode(uint32_t value, uint8_t *pbuf, uint8_t len) {
+void USB::IntToUnicode(uint32_t value, uint8_t* pbuf, uint8_t len) {
 
 	for (uint8_t idx = 0; idx < len; idx++) {
 		if ((value >> 28) < 0xA) {
@@ -688,7 +567,7 @@ void USB::IntToUnicode(uint32_t value, uint8_t *pbuf, uint8_t len) {
 	}
 }
 
-void USB::USBD_StdDevReq(usbRequest req)
+void USB::USBD_StdDevReq()
 {
 	uint8_t dev_addr;
 	switch (req.mRequest & USB_REQ_TYPE_MASK)
@@ -703,7 +582,7 @@ void USB::USBD_StdDevReq(usbRequest req)
 		switch (req.Request)
 		{
 		case USB_REQ_GET_DESCRIPTOR:
-			USBD_GetDescriptor(req);
+			USBD_GetDescriptor();
 			break;
 
 		case USB_REQ_SET_ADDRESS:
@@ -711,7 +590,7 @@ void USB::USBD_StdDevReq(usbRequest req)
 			USBx_DEVICE->DCFG &= ~(USB_OTG_DCFG_DAD);
 			USBx_DEVICE->DCFG |= ((uint32_t)dev_addr << 4) & USB_OTG_DCFG_DAD;
 			ep0_state = USBD_EP0_STATUS_IN;
-			USB_EP0StartXfer(DIR_IN, 0, 0);
+			USB_EPStartXfer(Direction::in, 0, 0);
 			dev_state = USBD_STATE_ADDRESSED;
 			break;
 
@@ -719,13 +598,16 @@ void USB::USBD_StdDevReq(usbRequest req)
 			if (dev_state == USBD_STATE_ADDRESSED) {
 				dev_state = USBD_STATE_CONFIGURED;
 
-				USB_ActivateEndpoint(req.Value, true, USBD_EP_TYPE_BULK);		// Activate in endpoint
-				USB_ActivateEndpoint(req.Value, false, USBD_EP_TYPE_BULK);		// Activate out endpoint
+				USB_ActivateEndpoint(CDC_In,   Direction::in,  USBD_EP_TYPE_BULK);		// Activate CDC in endpoint
+				USB_ActivateEndpoint(CDC_Out,  Direction::out, USBD_EP_TYPE_BULK);		// Activate CDC out endpoint
+				USB_ActivateEndpoint(CDC_Cmd,  Direction::in,  USBD_EP_TYPE_INTR);		// Activate Command IN EP
+				USB_ActivateEndpoint(MIDI_In,  Direction::in,  USBD_EP_TYPE_BULK);		// Activate MIDI in endpoint
+				USB_ActivateEndpoint(MIDI_Out, Direction::out, USBD_EP_TYPE_BULK);		// Activate MIDI out endpoint
 
-				USB_EP0StartXfer(DIR_OUT, req.Value, 2);		// FIXME maxpacket is 2 for EP 1: CUSTOM_HID_EPIN_SIZE
+				USB_EPStartXfer(Direction::out, req.Value, 0x40);		// FIXME maxpacket is 2 for EP 1: CUSTOM_HID_EPIN_SIZE, 0x40 = CDC_DATA_FS_OUT_PACKET_SIZE
 
 				ep0_state = USBD_EP0_STATUS_IN;
-				USB_EP0StartXfer(DIR_IN, 0, 0);
+				USB_EPStartXfer(Direction::in, 0, 0);
 			}
 			break;
 
@@ -760,89 +642,164 @@ void USB::USBD_StdDevReq(usbRequest req)
 
 }
 
-void USB::USB_EP0StartXfer(bool is_in, uint8_t epnum, uint32_t xfer_len)
-{
-	// IN endpoint
-	if (is_in) {
-			USBx_INEP(epnum)->DIEPTSIZ &= ~(USB_OTG_DIEPTSIZ_PKTCNT);
-			USBx_INEP(epnum)->DIEPTSIZ &= ~(USB_OTG_DIEPTSIZ_XFRSIZ);
+void USB::USB_EPStartXfer(Direction direction, uint8_t endpoint, uint32_t xfer_len) {
 
-			uint32_t maxPacket = (epnum == 0 ? ep0_maxPacket : ep_maxPacket);
+	if (direction == Direction::in) {				// IN endpoint
 
-			// Program the transfer size and packet count as follows: xfersize = N * maxpacket + short_packet pktcnt = N + (short_packet exist ? 1 : 0)
-		if (xfer_len > maxPacket && epnum == 0) {		// currently set to 0x40
-				xfer_rem = xfer_len - maxPacket;
-				xfer_len = maxPacket;
-			}
-		USBx_INEP(epnum)->DIEPTSIZ |= (USB_OTG_DIEPTSIZ_PKTCNT & (((xfer_len + maxPacket - 1) / maxPacket) << 19));
-			USBx_INEP(epnum)->DIEPTSIZ |= (USB_OTG_DIEPTSIZ_XFRSIZ & xfer_len);
+		endpoint = endpoint & EP_ADDR_MASK;			// Strip out 0x80 if endpoint passed eg as 0x81
 
-		USBx_INEP(epnum)->DIEPCTL |= (USB_OTG_DIEPCTL_CNAK | USB_OTG_DIEPCTL_EPENA);	// EP enable, IN data in FIFO
+		USBx_INEP(endpoint)->DIEPTSIZ &= ~(USB_OTG_DIEPTSIZ_PKTCNT);
+		USBx_INEP(endpoint)->DIEPTSIZ &= ~(USB_OTG_DIEPTSIZ_XFRSIZ);
+
+		if (xfer_len > ep_maxPacket) {				// If the transfer is larger than the maximum packet size send the maximum size and use the remaining flag to trigger a second send
+			xfer_rem = xfer_len - ep_maxPacket;
+			xfer_len = ep_maxPacket;
+		}
+		USBx_INEP(endpoint)->DIEPTSIZ |= (USB_OTG_DIEPTSIZ_PKTCNT & (((xfer_len + ep_maxPacket - 1) / ep_maxPacket) << 19));
+		USBx_INEP(endpoint)->DIEPTSIZ |= (USB_OTG_DIEPTSIZ_XFRSIZ & xfer_len);
+
+		USBx_INEP(endpoint)->DIEPCTL |= (USB_OTG_DIEPCTL_CNAK | USB_OTG_DIEPCTL_EPENA);	// EP enable, IN data in FIFO
 
 		// Enable the Tx FIFO Empty Interrupt for this EP
 		if (xfer_len > 0) {
-			USBx_DEVICE->DIEPEMPMSK |= 1UL << (epnum & EP_ADDR_MSK);
+			USBx_DEVICE->DIEPEMPMSK |= 1UL << (endpoint & EP_ADDR_MASK);
 		}
 	} else { 		// OUT endpoint
-		// Program the transfer size and packet count as follows: pktcnt = N xfersize = N * maxpacket
-		USBx_OUTEP(epnum)->DOEPTSIZ &= ~(USB_OTG_DOEPTSIZ_XFRSIZ);
-		USBx_OUTEP(epnum)->DOEPTSIZ &= ~(USB_OTG_DOEPTSIZ_PKTCNT);
 
-		USBx_OUTEP(epnum)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_PKTCNT & (1U << 19));
-		USBx_OUTEP(epnum)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_XFRSIZ & xfer_len);
+		USBx_OUTEP(endpoint)->DOEPTSIZ &= ~(USB_OTG_DOEPTSIZ_XFRSIZ);
+		USBx_OUTEP(endpoint)->DOEPTSIZ &= ~(USB_OTG_DOEPTSIZ_PKTCNT);
 
-		USBx_OUTEP(epnum)->DOEPCTL |= (USB_OTG_DOEPCTL_CNAK | USB_OTG_DOEPCTL_EPENA);		// EP enable
+		USBx_OUTEP(endpoint)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_PKTCNT & (1U << 19));
+		USBx_OUTEP(endpoint)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_XFRSIZ & xfer_len);
+
+		USBx_OUTEP(endpoint)->DOEPCTL |= (USB_OTG_DOEPCTL_CNAK | USB_OTG_DOEPCTL_EPENA);		// EP enable
 	}
 }
 
 void USB::USBD_CtlError() {
 	USBx_INEP(0)->DIEPCTL |= USB_OTG_DIEPCTL_STALL;
-
-/*			USBx_OUTEP(0U)->DOEPTSIZ = 0U;
-	USBx_OUTEP(0U)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_PKTCNT & (1U << 19));
-	USBx_OUTEP(0U)->DOEPTSIZ |= (3U * 8U);
-	USBx_OUTEP(0U)->DOEPTSIZ |=  USB_OTG_DOEPTSIZ_STUPCNT;*/
-
 	USBx_OUTEP(0)->DOEPCTL |= USB_OTG_DOEPCTL_STALL;
 }
 
-/*void USB::USB_EPSetStall(uint8_t epnum) {
-	if (((USBx_INEP(epnum)->DIEPCTL & USB_OTG_DIEPCTL_EPENA) == 0U) && (epnum != 0U)) {	//
-		USBx_INEP(epnum)->DIEPCTL &= ~(USB_OTG_DIEPCTL_EPDIS);
-	}
-	USBx_INEP(epnum)->DIEPCTL |= USB_OTG_DIEPCTL_STALL;
 
-	// FIXME - cleared in USB_EP0StartXfer?
-	//USB_EP0_OutStart
+bool USB::USB_ReadInterrupts(uint32_t interrupt) {
 
-	USBx_OUTEP(0U)->DOEPTSIZ = 0U;			// USB_EP0_OutStart - set STUPCNT=3; PKTCNT=1; XFRSIZ=0x18
-	USBx_OUTEP(0U)->DOEPTSIZ |= (USB_OTG_DOEPTSIZ_PKTCNT & (1U << 19));
-	USBx_OUTEP(0U)->DOEPTSIZ |= (3U * 8U);
-	USBx_OUTEP(0U)->DOEPTSIZ |=  USB_OTG_DOEPTSIZ_STUPCNT;
-
-}*/
-
-bool USB::USB_ReadInterrupts(uint32_t interrupt){
-
+#if (USB_DEBUG)
 	if (((USB_OTG_FS->GINTSTS & USB_OTG_FS->GINTMSK) & interrupt) == interrupt && usbDebugNo < USB_DEBUG_COUNT) {
 		usbDebugNo = usbDebugEvent % USB_DEBUG_COUNT;
 		usbDebug[usbDebugNo].eventNo = usbDebugEvent;
 		usbDebug[usbDebugNo].Interrupt = USB_OTG_FS->GINTSTS & USB_OTG_FS->GINTMSK;
 		usbDebugEvent++;
 	}
+#endif
 
 	return ((USB_OTG_FS->GINTSTS & USB_OTG_FS->GINTMSK) & interrupt) == interrupt;
 }
 
-void USB::SendData(const uint8_t *data, uint16_t len) {
+void USB::SendData(const uint8_t* data, uint16_t len, uint8_t endpoint) {
 	if (dev_state == USBD_STATE_CONFIGURED) {
 		if (!transmitting) {
 			transmitting = true;
 			outBuff = (uint8_t*)data;
 			outBuffSize = len;
-			USB_EP0StartXfer(DIR_IN, 1, len);
+			ep0_state = USBD_EP0_DATA_IN;
+			USB_EPStartXfer(Direction::in, endpoint, len);
 		}
 	}
 }
 
+#if (USB_DEBUG)
+void USB::OutputDebug() {
 
+	uartSendStr("Event,Interrupt,Desc,Int Data,Desc,Endpoint,mRequest,Request,Value,Index,Length,PacketSize,XferBuff0,XferBuff1,\n");
+	uint16_t evNo = usbDebugEvent % USB_DEBUG_COUNT;
+	std::string interrupt, subtype;
+	for (int i = 0; i < USB_DEBUG_COUNT; ++i) {
+		switch (usbDebug[evNo].Interrupt) {
+		case USB_OTG_GINTSTS_RXFLVL:
+			interrupt = "RXFLVL";
+
+			switch ((usbDebug[evNo].IntData & USB_OTG_GRXSTSP_PKTSTS) >> 17) {
+			case STS_DATA_UPDT:			// 2 = OUT data packet received
+				subtype = "Out packet rec";
+				break;
+			case STS_XFER_COMP:			// 3 = Transfer completed
+				subtype = "Transfer completed";
+				break;
+			case STS_SETUP_UPDT:		// 6 = SETUP data packet received
+				subtype = "Setup packet rec";
+				break;
+			case STS_SETUP_COMP:		// 4 = SETUP comp
+				subtype = "Setup comp";
+				break;
+			default:
+				subtype = "";
+			}
+
+			break;
+		case USB_OTG_GINTSTS_SRQINT:
+			interrupt = "SRQINT";
+			break;
+		case USB_OTG_GINTSTS_USBSUSP:
+			interrupt = "USBSUSP";
+			break;
+		case USB_OTG_GINTSTS_WKUINT:
+			interrupt = "WKUINT";
+			break;
+		case USB_OTG_GINTSTS_USBRST:
+			interrupt = "USBRST";
+			break;
+		case USB_OTG_GINTSTS_ENUMDNE:
+			interrupt = "ENUMDNE";
+			break;
+		case USB_OTG_GINTSTS_OEPINT:
+			interrupt = "OEPINT";
+
+			switch (usbDebug[evNo].IntData) {
+			case USB_OTG_DOEPINT_XFRC:
+				subtype = "Transfer completed";
+				break;
+			case USB_OTG_DOEPINT_STUP:
+				subtype = "Setup phase done";
+				break;
+			default:
+				subtype = "";
+			}
+			break;
+		case USB_OTG_GINTSTS_IEPINT:
+			interrupt = "IEPINT";
+
+				switch (usbDebug[evNo].IntData) {
+				case USB_OTG_DIEPINT_XFRC:
+					subtype = "Transfer completed";
+					break;
+				case USB_OTG_DIEPINT_TXFE:
+					subtype = "Transmit FIFO empty";
+					break;
+				default:
+					subtype = "";
+				}
+
+			break;
+		default:
+			interrupt = "";
+		}
+
+		if (usbDebug[evNo].Interrupt != 0) {
+			uartSendStr(IntToString(usbDebug[evNo].eventNo) + ","
+					+ HexToString(usbDebug[evNo].Interrupt, false) + "," + interrupt + ","
+					+ HexToString(usbDebug[evNo].IntData, false) + "," + subtype + ","
+					+ IntToString(usbDebug[evNo].endpoint) + ","
+					+ HexByte(usbDebug[evNo].Request.mRequest) + ", "
+					+ HexByte(usbDebug[evNo].Request.Request) + ", "
+					+ HexByte(usbDebug[evNo].Request.Value) + ", "
+					+ HexByte(usbDebug[evNo].Request.Index) + ", "
+					+ HexByte(usbDebug[evNo].Request.Length) + ", "
+					+ HexByte(usbDebug[evNo].PacketSize) + ", "
+					+ HexToString(usbDebug[evNo].xferBuff0, false) + ", "
+					+ HexToString(usbDebug[evNo].xferBuff1, false) + "\n");
+		}
+		evNo = (evNo + 1) % USB_DEBUG_COUNT;
+	}
+}
+#endif

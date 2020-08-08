@@ -140,7 +140,7 @@ void MidiHandler::eventHandler(uint8_t* data, uint32_t length) {
 		tx.db0 = 0xF0;
 		tx.db1 = sysExCount;
 		tx.db2 = 0xF7;
-		usb.SendData((uint8_t*) &tx, 4);
+		usb.SendData((uint8_t*) &tx, 4, usb.MIDI_In);
 		//usb.SendData(sysEx, sysExCount);		// NB to get this to work we would need to prefix each packet with the appropriate CIN (see note at bottom)
 	}
 }
@@ -172,7 +172,7 @@ void MidiHandler::midiEvent(const uint32_t& data) {
 				tx.configValue = cvOutputs[midiEvent.db1 - 9].controller;
 			}
 
-			usb.SendData((uint8_t*) &tx, 4);
+			usb.SendData((uint8_t*) &tx, 4, usb.MIDI_In);
 		} else {
 			// configuration changed by editor format is ttttoooo vvvvvvvv where t is type of setting, o is output number (1-8 = gate, 9 - 12 = cv) and v is setting value
 			if (midiEvent.cfgChannelOrOutput < 9) {

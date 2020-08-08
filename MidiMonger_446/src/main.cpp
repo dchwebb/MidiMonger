@@ -28,6 +28,22 @@ extern "C" {
 #include "interrupts.h"
 }
 
+// test routine that plays a short note when Virtial COM port receives text 'test'
+void CDCHandler(uint8_t* data, uint32_t length) {
+	std::string s = std::string((char*)data, length);
+	if (s.compare("test")) {
+		MidiData midiEvent;
+		midiEvent.chn = 0;
+		midiEvent.msg = NoteOn;
+		midiEvent.db1 = 50;
+		midiHandler.midiEvent(midiEvent.data);
+
+		for (int i = 0; i < 1000000; ++i);
+		midiEvent.msg = NoteOff;
+		midiHandler.midiEvent(midiEvent.data);
+	}
+}
+
 extern uint32_t SystemCoreClock;
 int main(void)
 {
@@ -42,7 +58,8 @@ int main(void)
 	midiHandler.setConfig();
 
 	// Bind the usb.dataHandler function to the midiHandler's event handler
-	usb.dataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1, std::placeholders::_2);
+	usb.midiDataHandler = std::bind(&MidiHandler::eventHandler, &midiHandler, std::placeholders::_1, std::placeholders::_2);
+	usb.cdcDataHandler = std::bind(CDCHandler, std::placeholders::_1, std::placeholders::_2);
 
 	// Little light show
 	for (uint8_t c = 0; c < 8; ++c) {
