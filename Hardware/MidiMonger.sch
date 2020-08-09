@@ -1,14 +1,13 @@
 EESchema Schematic File Version 4
-LIBS:MidiMonger-cache
 EELAYER 30 0
 EELAYER END
-$Descr A3 16535 11693
+$Descr User 14000 9500
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
+Title "MIDI Monger"
+Date "2020-08-09"
 Rev ""
-Comp ""
+Comp "Mountjoy Modular"
 Comment1 ""
 Comment2 ""
 Comment3 ""

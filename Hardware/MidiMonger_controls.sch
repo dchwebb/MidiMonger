@@ -1,13 +1,13 @@
 EESchema Schematic File Version 4
 EELAYER 30 0
 EELAYER END
-$Descr A3 16535 11693
+$Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
+Title "MIDI Monger"
 Date ""
 Rev ""
-Comp ""
+Comp "Mountjoy Modular"
 Comment1 ""
 Comment2 ""
 Comment3 ""
