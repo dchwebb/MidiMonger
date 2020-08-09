@@ -1,4 +1,6 @@
 # MidiMonger
+![Image](https://github.com/dchwebb/MidiMonger/raw/master/Images/MidiMonger.png "icon")
+
 Eurorack MIDI interface supporting USB and serial MIDI. 
 
 MIDI Monger is a configurable MIDI interface for controlling Eurorack modules from either USB MIDI or Serial MIDI (or both simultaneously).
