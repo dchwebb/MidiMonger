@@ -707,6 +707,10 @@ void USB::SendData(const uint8_t* data, uint16_t len, uint8_t endpoint) {
 		}
 	}
 }
+void USB::SendString(const char* s) {
+	while (transmitting);
+	SendData((uint8_t*)s, strlen(s), CDC_In);
+}
 
 #if (USB_DEBUG)
 void USB::OutputDebug() {

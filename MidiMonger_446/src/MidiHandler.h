@@ -14,6 +14,8 @@ extern DACHandler dacHandler;
 extern Config cfg;
 
 #define MIDIQUEUESIZE 20
+#define MIDI_DEBUG false
+#define MIDIBUFFERSIZE 100
 
 union MidiData {
 	MidiData(uint32_t d) : data(d) {};
@@ -158,6 +160,11 @@ private:
 	uint8_t QueueWrite = 0;
 	uint8_t QueueSize = 0;
 
+public:
+#if (MIDI_DEBUG)
+	uint8_t midiEventRead = 0;
+	MidiData midiArray[MIDIBUFFERSIZE];		// for debugging
+#endif
 };
 
 

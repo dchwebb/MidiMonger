@@ -149,9 +149,11 @@ void MidiHandler::midiEvent(const uint32_t& data) {
 
 	MidiData midiEvent = MidiData(data);
 
+#if (MIDI_DEBUG)
 	// Store Midi events to array for debugging
-	/*midiArray[midiEventRead] = midiEvent;
-	midiEventRead = midiEventRead == MIDIBUFFERSIZE - 1 ? 0 : midiEventRead + 1;*/
+	midiArray[midiEventRead] = midiEvent;
+	midiEventRead = midiEventRead == MIDIBUFFERSIZE - 1 ? 0 : midiEventRead + 1;
+#endif
 
 	// Editor communication
 	if (midiEvent.db0 == 0xF2) {

@@ -5,8 +5,6 @@
 
 extern volatile uint32_t SysTickVal;
 
-#define MIDIBUFFERSIZE 100
-
 void SystemClock_Config(void);
 void InitIO(void);
 void InitSysTick();
