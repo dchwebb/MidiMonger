@@ -25,3 +25,11 @@ Legend
 4) MIDI Serial buffer using 6N137 Optocoupler
 5) Eurorack Power input and conversion to 3.3V and 5V rails
 6) SWD Programming header (eg using ST Link)
+
+Control PCB
+-----------
+![Image](https://github.com/dchwebb/MidiMonger/raw/master/Images/controls.png "icon")
+
+Front Panel
+-----------
+![Image](https://github.com/dchwebb/MidiMonger/raw/master/Images/panel.png "icon")
