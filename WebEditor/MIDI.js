@@ -143,13 +143,13 @@ function getMIDIMessage(midiMessage) {
         var type = (midiMessage.data[1] & 0xF0) >> 4;
         if (requestNo < 9) {
             document.getElementById("gType" + requestNo).value = type;
-            document.getElementById("gChannel" + requestNo).value = (midiMessage.data[1] & 0xF);
+            document.getElementById("gChannel" + requestNo).value = (midiMessage.data[1] & 0xF) + 1;
             document.getElementById("gNote" + requestNo).value = midiMessage.data[2];
 
             updateDisplay(controlEnum.gate, requestNo);
         } else {
             document.getElementById("cType" + (requestNo - 8)).value = type;
-            document.getElementById("cChannel" + (requestNo - 8)).value = (midiMessage.data[1] & 0xF);
+            document.getElementById("cChannel" + (requestNo - 8)).value = (midiMessage.data[1] & 0xF) + 1;
             document.getElementById("cController" + (requestNo - 8)).value = midiMessage.data[2];
 
             updateDisplay(controlEnum.cv, requestNo - 8);

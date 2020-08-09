@@ -12,7 +12,7 @@ Configuration is carried out from a web interface using the Chrome browser or vi
 # Technical
 MIDI Monger is based around an ARM STM32F446 Microcontroller. The MCU handles both MIDI and UART Serial interfacing and outputs control voltage via an external 16 bit DAC (Maxim MAX5134). Gate outputs are converted to Eurorack standard of 5V using a SN74HCT244 Octal buffer as a level shifter. MIDI Serial signals are buffered through a 6N137 Optocoupler.
 
-The module is constructed using three PCBs: a component board, a control board and a panel.
+The module is constructed using three PCBs: a component board, a control board and a panel. Schematics and PCB layout created in KiCad and available in Hardware folder.
 
 Annotated component PCB
 -----------------------

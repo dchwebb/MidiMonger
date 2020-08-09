@@ -165,12 +165,12 @@ void MidiHandler::midiEvent(const uint32_t& data) {
 			if (midiEvent.db1 < 9) {
 				// Gate outputs (1 - 8)
 				tx.configType = (uint8_t)gateOutputs[midiEvent.db1 - 1].type;
-				tx.cfgChannelOrOutput = gateOutputs[midiEvent.db1 - 1].channel;
+				tx.cfgChannelOrOutput = gateOutputs[midiEvent.db1 - 1].channel - 1;
 				tx.configValue = gateOutputs[midiEvent.db1 - 1].note;
 			} else {
 				// CV outputs (9 - 12)
 				tx.configType = (uint8_t)cvOutputs[midiEvent.db1 - 9].type;
-				tx.cfgChannelOrOutput = cvOutputs[midiEvent.db1 - 9].channel;
+				tx.cfgChannelOrOutput = cvOutputs[midiEvent.db1 - 9].channel - 1;
 				tx.configValue = cvOutputs[midiEvent.db1 - 9].controller;
 			}
 
