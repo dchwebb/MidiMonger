@@ -89,6 +89,8 @@ public:
 	void serialHandler(uint32_t data);
 	void gateTimer();
 	void setConfig();
+	void validateConfig(bool isGate, uint8_t num);
+	void gatesOff();
 	uint8_t sysEx[32];
 	uint8_t sysExCount = 0;
 
@@ -146,7 +148,6 @@ public:
 
 private:
 
-	void validateConfig(bool isGate, uint8_t num);
 	void QueueInc();
 
 	static channelNote channelNotes[16];			// For managing pitch bends and polyphony - stores voice count and active notes for each channel

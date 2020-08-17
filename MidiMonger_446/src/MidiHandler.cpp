@@ -121,6 +121,7 @@ inline void MidiHandler::QueueInc() {
 void MidiHandler::eventHandler(uint8_t* data, uint32_t length) {
 	if (length == 4) {
 		midiEvent(*(uint32_t*)data);
+
 	} else if (data[1] == 0xF0 && length > 3) {		// Sysex
 		// sysEx will be padded when supplied by usb - add only actual sysEx message bytes to array
 		uint8_t sysExCnt = 2, i = 0;
@@ -364,6 +365,14 @@ void MidiHandler::gateTimer() {
 			cv.gpioPort->BSRR |= (1 << (16 + cv.gpioPin));			// LED Off
 			cv.offTime = 0;
 		}
+	}
+}
+
+//	Switch off all gates
+void MidiHandler::gatesOff() {
+	for (auto& gate : gateOutputs) {
+		gate.gateOff();
+		gate.gateOffTime = 0;
 	}
 }
 

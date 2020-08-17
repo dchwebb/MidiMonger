@@ -455,8 +455,7 @@ void USB::USB_ActivateEndpoint(uint8_t endpoint, Direction direction, uint8_t ep
 
 		if ((USBx_INEP(endpoint)->DIEPCTL & USB_OTG_DIEPCTL_USBAEP) == 0U) {
 			USBx_INEP(endpoint)->DIEPCTL |= (ep_maxPacket & USB_OTG_DIEPCTL_MPSIZ) |
-					((uint32_t)eptype << 18) | (endpoint << 22) |
-					USB_OTG_DIEPCTL_SD0PID_SEVNFRM |
+					((uint32_t)eptype << 18) | (endpoint << 22) |	//					USB_OTG_DIEPCTL_SD0PID_SEVNFRM |
 					USB_OTG_DIEPCTL_USBAEP;
 		}
 	} else {
@@ -464,8 +463,7 @@ void USB::USB_ActivateEndpoint(uint8_t endpoint, Direction direction, uint8_t ep
 
 		if (((USBx_OUTEP(endpoint)->DOEPCTL) & USB_OTG_DOEPCTL_USBAEP) == 0U) {
 			USBx_OUTEP(endpoint)->DOEPCTL |= (ep_maxPacket & USB_OTG_DOEPCTL_MPSIZ) |
-					((uint32_t)eptype << 18) |
-					USB_OTG_DIEPCTL_SD0PID_SEVNFRM |
+					((uint32_t)eptype << 18) |	//					USB_OTG_DIEPCTL_SD0PID_SEVNFRM |
 					USB_OTG_DOEPCTL_USBAEP;
 		}
 	}
@@ -641,7 +639,7 @@ void USB::USBD_StdDevReq()
 		case USB_REQ_SET_CONFIGURATION:
 			if (dev_state == USBD_STATE_ADDRESSED) {
 				dev_state = USBD_STATE_CONFIGURED;
-				//USBx_INEP(2)->DTXFSTS
+
 				USB_ActivateEndpoint(CDC_In,   Direction::in,  USBD_EP_TYPE_BULK);		// Activate CDC in endpoint
 				USB_ActivateEndpoint(CDC_Out,  Direction::out, USBD_EP_TYPE_BULK);		// Activate CDC out endpoint
 				USB_ActivateEndpoint(CDC_Cmd,  Direction::in,  USBD_EP_TYPE_INTR);		// Activate Command IN EP
