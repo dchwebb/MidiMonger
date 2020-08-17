@@ -12,6 +12,6 @@ void InitSampleAcquisition();
 void InitCoverageTimer();
 void InitDebounceTimer();
 void InitEncoders();
-void InitUART();
+void InitMidiUART();
 void InitDAC();
 

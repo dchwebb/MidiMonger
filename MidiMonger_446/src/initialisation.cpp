@@ -191,7 +191,7 @@ void InitEncoders() {
 
 }
 
-void InitUART() {
+void InitMidiUART() {
 	// PC11 UART4_RX 79
 	// [PA1  UART4_RX 24 (AF8) ** NB Dev board seems to have something pulling this pin to ground so can't use]
 

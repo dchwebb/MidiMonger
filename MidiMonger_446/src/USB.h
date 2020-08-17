@@ -5,7 +5,7 @@
 #include <cstring>
 
 // Enables capturing of debug data for output over STLink UART on dev boards
-#define USB_DEBUG false
+#define USB_DEBUG true
 #if (USB_DEBUG)
 #include "uartHandler.h"
 #define USB_DEBUG_COUNT 400
@@ -112,9 +112,10 @@ public:
 	void SendString(const char* s);
 
 	std::function<void(uint8_t*,uint32_t)> cdcDataHandler;			// Declare data handler to store incoming CDC data
-	std::function<void(uint8_t*,uint32_t)> midiDataHandler;		// Declare data handler to store incoming midi data
+	std::function<void(uint8_t*,uint32_t)> midiDataHandler;			// Declare data handler to store incoming midi data
 
 	enum EndPoint {MIDI_In = 0x81, MIDI_Out = 0x1, CDC_In = 0x82, CDC_Out = 0x2, CDC_Cmd = 0x83, };
+	//enum EndPoint {MIDI_In = 0x82, MIDI_Out = 0x2, CDC_In = 0x81, CDC_Out = 0x1, CDC_Cmd = 0x83, };
 	enum class Direction {in, out};
 private:
 	void USB_ActivateEndpoint(uint8_t endpoint, Direction direction, uint8_t eptype);
@@ -133,9 +134,9 @@ private:
 	uint32_t xfer_buff[64];			// in HAL there is a transfer buffer for each in and out endpoint
 	uint32_t xfer_count;
 	uint32_t xfer_rem;				// If transfer is larger than maximum packet size store remaining byte count
-	const uint8_t* outBuff;
+	const uint8_t* outBuff;			// FIXME - out misleading as this relates to the IN (ie device to Host transfers)??
 	uint32_t outBuffSize;
-	uint32_t outCount;
+	uint32_t outBuffCount;			// Number of bytes already sent to host from a large packet
 	uint32_t ep0_state;
 	uint8_t dev_state;
 	uint8_t CmdOpCode;				// stores class specific operation codes (eg CDC set line config)
@@ -192,7 +193,7 @@ private:
 			USB_DESC_TYPE_CONFIGURATION,		// bDescriptorType: Configuration
 			LOBYTE(CDC_MIDI_CONFIG_DESC_SIZE),	// wTotalLength
 			HIBYTE(CDC_MIDI_CONFIG_DESC_SIZE),
-			0x04,								// bNumInterfaces: 4 interfaces FIXME
+			0x04,								// bNumInterfaces: 4 interfaces
 			0x01,								// bConfigurationValue: Configuration value
 			0x00,								// iConfiguration: Index of string descriptor describing the configuration
 			0xC0,								// bmAttributes: self powered
