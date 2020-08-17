@@ -5,8 +5,6 @@
 #include "DACHandler.h"
 #include "Config.h"
 #include <list>
-#include <vector>
-#include <map>
 
 class Config;
 extern USB usb;

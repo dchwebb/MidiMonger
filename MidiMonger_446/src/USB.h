@@ -5,7 +5,7 @@
 #include <cstring>
 
 // Enables capturing of debug data for output over STLink UART on dev boards
-#define USB_DEBUG true
+#define USB_DEBUG false
 #if (USB_DEBUG)
 #include "uartHandler.h"
 #define USB_DEBUG_COUNT 400
@@ -49,8 +49,6 @@
 #define USB_REQ_SET_DESCRIPTOR			0x07U
 #define USB_REQ_GET_CONFIGURATION		0x08U
 #define USB_REQ_SET_CONFIGURATION		0x09U
-
-
 
 #define USB_DESC_TYPE_DEVICE			0x01U
 #define USB_DESC_TYPE_CONFIGURATION		0x02U
@@ -115,7 +113,6 @@ public:
 	std::function<void(uint8_t*,uint32_t)> midiDataHandler;			// Declare data handler to store incoming midi data
 
 	enum EndPoint {MIDI_In = 0x81, MIDI_Out = 0x1, CDC_In = 0x82, CDC_Out = 0x2, CDC_Cmd = 0x83, };
-	//enum EndPoint {MIDI_In = 0x82, MIDI_Out = 0x2, CDC_In = 0x81, CDC_Out = 0x1, CDC_Cmd = 0x83, };
 	enum class Direction {in, out};
 private:
 	void USB_ActivateEndpoint(uint8_t endpoint, Direction direction, uint8_t eptype);

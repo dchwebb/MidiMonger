@@ -1,6 +1,5 @@
 #include "MidiHandler.h"
 
-//extern MidiData midiArray[MIDIBUFFERSIZE];		// for debugging
 channelNote MidiHandler::channelNotes[16] = {};		// definition of static declared array
 
 void MidiHandler::CV::sendNote() {
@@ -148,7 +147,6 @@ void MidiHandler::eventHandler(uint8_t* data, uint32_t length) {
 void MidiHandler::midiEvent(const uint32_t& data) {
 
 	MidiData midiEvent = MidiData(data);
-	uartSendStr(HexToString(data, true).c_str());
 
 #if (MIDI_DEBUG)
 	// Store Midi events to array for debugging

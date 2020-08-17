@@ -186,26 +186,7 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 					USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 
 					USBx_INEP(epnum)->DIEPINT = USB_OTG_DIEPINT_XFRC;
-					//USBD_LL_DataInStage
-/*
-					// New code
-					if (epnum > 0 && pdev->dev_state == USBD_STATE_CONFIGURED) {
-						//ret = (USBD_StatusTypeDef)pdev->pClass->DataIn(pdev, epnum);
-						//total_length set in USBD_CDC_TransmitPacket when transmission first triggered
-						 if ((pdev->ep_in[epnum].total_length > 0U) && ((pdev->ep_in[epnum].total_length % hpcd->IN_ep[epnum].maxpacket) == 0U)) {
-						    // Update the packet total length
-						    pdev->ep_in[epnum].total_length = 0U;
-						    // Send ZLP
-						    (void)USBD_LL_Transmit(pdev, epnum, NULL, 0U);
-						  } else {
-							  // active branch after large packet transmit
-							  hcdc->TxState = 0U;
-						    ((USBD_CDC_ItfTypeDef *)pdev->pUserData)->TransmitCplt(hcdc->TxBuffer, &hcdc->TxLength, epnum);
-						  }
-					} else
 
-					//----------------------
-*/
 					if (epnum == 0 && ep0_state == USBD_EP0_DATA_IN && xfer_rem == 0) {
 						ep0_state = USBD_EP0_STATUS_OUT;								//HAL_PCD_EP_Receive
 						xfer_buff[0] = 0;
@@ -222,7 +203,6 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 #endif
 						USB_EPStartXfer(Direction::in, epnum, outBuffSize);
 					} else if (epnum > 0) {
-						//USBx_INEP(epnum)->DIEPCTL |= USB_OTG_DIEPCTL_STALL;
 						transmitting = false;
 					}
 				}
@@ -245,51 +225,37 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 						uint32_t fifoemptymsk = (uint32_t)(0x1UL << (epnum & EP_ADDR_MASK));
 						USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 					} else {
-
-						///-----------------------------------------------------------------------
 						// PCD_WriteEmptyTxFifo
-						//ep->xfer_len is length of data to transmit (eg 0x514 = 1300)
-						// outBuffSize = ep->xfer_len
-						// outBuffCount = ep->xfer_count
-
 						uint16_t len = outBuffSize - outBuffCount;
-
 						if (len > ep_maxPacket) {
 							len = ep_maxPacket;
 						}
-						//USBx_INEP(1)->DTXFSTS;
 						uint16_t len32b = (len + 3U) / 4U;
 
-						// DTXFSTS: IN endpoint transmit FIFO status register;
+						// Keep filling transmit FIFO whilst space still available
 						// INEPTFSAV[15:0]: IN endpoint Tx FIFO space available: 0x0: Endpoint Tx FIFO is full; 0x1: 1 31-bit word available; 0xn: n words available
-						// 0x80 at start - FIXME Why is USBx_INEP(epnum)->DTXFSTS = 0????? USBx_INEP(1)->DTXFSTS = 0x80
-						while (((USBx_INEP(epnum)->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV) >= len32b) && (outBuffCount < outBuffSize) && (outBuffSize != 0U))
-						{
-							//USBx_INEP(2)->DTXFSTS;
-							// Write the FIFO
-							len = outBuffSize - outBuffCount;
+						while (((USBx_INEP(epnum)->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV) >= len32b) && (outBuffCount < outBuffSize) && (outBuffSize != 0U)) {
 
+							len = outBuffSize - outBuffCount;
 							if (len > ep_maxPacket) {
 								len = ep_maxPacket;
 							}
 							len32b = (len + 3U) / 4U;
-
+#if (USB_DEBUG)
 							usbDebug[usbDebugNo].PacketSize = outBuffSize - outBuffCount;
 							usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
 							usbDebug[usbDebugNo].xferBuff1 = ((uint32_t*)outBuff)[1];
-
+#endif
 							USB_WritePacket(outBuff, epnum, len);
 
 							outBuff += len;
 							outBuffCount += len;
 						}
 
-						// xfer_count = 0x1c0 (448)
 						if (outBuffSize <= outBuffCount) {
 							uint32_t fifoemptymsk = (uint32_t)(0x1UL << (epnum & EP_ADDR_MASK));
 							USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 						}
-						///////////////////////////////////////////////////////////////////////////
 					}
 				}
 
@@ -430,14 +396,11 @@ void USB::InitUSB()
 	USB_OTG_FS->GUSBCFG |= USB_OTG_GUSBCFG_FDMOD;		// Force USB device mode
 	//HAL_Delay(50U);
 
-	// Clear all transmit FIFO address and data lengths - these will be set to correct values below for endpoint 0 and 1
-	// OTG device IN endpoint transmit FIFO size register	(OTG_DIEPTXFx) (x = 1..5[FS] /8[HS], where x is the	FIFO number)
-	// Bits 31:16 INEPTXFD[15:0]: IN endpoint Tx FIFO depth
-	// Bits 15:0 INEPTXSA[15:0]: IN endpoint FIFOx transmit RAM start address
+	// Clear all transmit FIFO address and data lengths - these will be set to correct values below for endpoints 0,1 and 2
 	for (uint8_t i = 0U; i < 15U; i++) {
 		USB_OTG_FS->DIEPTXF[i] = 0U;
 	}
-	//USB_OTG_FS->DIEPTXF[1] = 0x800140;
+
 	USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_VBDEN; 			// Enable HW VBUS sensing
 	USBx_DEVICE->DCFG |= USB_OTG_DCFG_DSPD;				// 11: Full speed using internal FS PHY
 
@@ -457,29 +420,27 @@ void USB::InitUSB()
 			USB_OTG_GINTMSK_IEPINT | USB_OTG_GINTMSK_OEPINT | USB_OTG_GINTMSK_WUIM |	// IN endpoint; OUT endpoint; Resume/remote wakeup detected
 			USB_OTG_GINTMSK_SRQIM | USB_OTG_GINTMSK_OTGINT;								// Session request/new session detected; OTG interrupt
 
+
+	// NB - FIFO Sizes are in words NOT bytes. There is a total size of 320 (320x4 = 1280 bytes) available which is divided up thus:
+	// FIFO		Start		Size
+	// RX 		0			128
+	// EP0		128			64
+	// EP1		192			64
+	// EP2		256			64
+
 	USB_OTG_FS->GRXFSIZ = 128;		 					// RxFIFO depth
 
 	// Endpoint 0 Transmit FIFO size/address (as in device mode - this is also used as the non-periodic transmit FIFO size in host mode)
 	USB_OTG_FS->DIEPTXF0_HNPTXFSIZ = (64 << USB_OTG_TX0FD_Pos) |		// Endpoint 0 TxFIFO depth
 			(128 << USB_OTG_TX0FSA_Pos);								// Endpoint 0 transmit RAM start  address - this is offset from the RX FIFO (set above to 128)
 
- /*   // Configure Endpoint 1 FIFO size/address (address is offset from EP0 address+size above)
-    USB_OTG_FS->DIEPTXF[0] = (128 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |	// IN endpoint TxFIFO depth
-    		(192 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint FIFO2 transmit RAM start address
+	// Endpoint 1 FIFO size/address (address is offset from EP0 address+size above)
+	USB_OTG_FS->DIEPTXF[0] = (64 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |		// IN endpoint TxFIFO depth
+			(192 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint FIFO1 transmit RAM start address
 
-    // Configure Endpoint 2 FIFO size/address (address is offset from EP0 address+size above)
-     USB_OTG_FS->DIEPTXF[1] = (128 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |	// IN endpoint TxFIFO depth
-     		(320 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint FIFO2 transmit RAM start address*/
-
-     // Configure Endpoint 1 FIFO size/address (address is offset from EP0 address+size above)
-     USB_OTG_FS->DIEPTXF[0] = (64 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |	// IN endpoint TxFIFO depth
-     		(192 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint FIFO1 transmit RAM start address
-
-     // Configure Endpoint 2 FIFO size/address (address is offset from EP0 address+size above)
-      USB_OTG_FS->DIEPTXF[1] = (64 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |	// IN endpoint TxFIFO depth
-      		(256 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint FIFO2 transmit RAM start address
-
-
+	// Endpoint 2 FIFO size/address (address is offset from EP1 address+size above)
+	USB_OTG_FS->DIEPTXF[1] = (64 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |		// IN endpoint TxFIFO depth
+			(256 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint FIFO2 transmit RAM start address
 
     USBx_DEVICE->DCTL &= ~USB_OTG_DCTL_SDIS;			// Activate USB
     USB_OTG_FS->GAHBCFG |= USB_OTG_GAHBCFG_GINT;		// Activate USB Interrupts
@@ -734,21 +695,10 @@ void USB::USB_EPStartXfer(Direction direction, uint8_t endpoint, uint32_t xfer_l
 		USBx_INEP(endpoint)->DIEPTSIZ &= ~(USB_OTG_DIEPTSIZ_PKTCNT);
 		USBx_INEP(endpoint)->DIEPTSIZ &= ~(USB_OTG_DIEPTSIZ_XFRSIZ);
 
-		/*for ep0
-		if (ep->xfer_len > ep->maxpacket) {
-			ep->xfer_len = ep->maxpacket;
-		}
-		USBx_INEP(epnum)->DIEPTSIZ |= (USB_OTG_DIEPTSIZ_PKTCNT & (1U << 19));
-		*/
-
 		if (endpoint == 0 && xfer_len > ep_maxPacket) {				// If the transfer is larger than the maximum packet size send the maximum size and use the remaining flag to trigger a second send
 			xfer_rem = xfer_len - ep_maxPacket;
 			xfer_len = ep_maxPacket;
 		}
-	    /* USB_OTG_DIEPTSIZ_PKTCNT = 0x15 = 21 for xfer_len = 0x514
-		USBx_INEP(epnum)->DIEPTSIZ |= (USB_OTG_DIEPTSIZ_PKTCNT & (((ep->xfer_len + ep->maxpacket - 1U) / ep->maxpacket) << 19));
-	    USBx_INEP(epnum)->DIEPTSIZ |= (USB_OTG_DIEPTSIZ_XFRSIZ & ep->xfer_len);
-	    */
 
 		USBx_INEP(endpoint)->DIEPTSIZ |= (USB_OTG_DIEPTSIZ_PKTCNT & (((xfer_len + ep_maxPacket - 1) / ep_maxPacket) << 19));
 		USBx_INEP(endpoint)->DIEPTSIZ |= (USB_OTG_DIEPTSIZ_XFRSIZ & xfer_len);

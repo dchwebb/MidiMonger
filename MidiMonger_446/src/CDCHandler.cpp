@@ -1,5 +1,6 @@
 #include "CDCHandler.h"
 extern MidiHandler midiHandler;
+void LilLightShow();
 
 int16_t ParseInt(const std::string cmd, const char precedingChar) {
 	uint16_t val = -1;
@@ -14,7 +15,7 @@ bool CDCCommand(const std::string ComCmd) {
 	std::stringstream ss;
 
 	if (ComCmd.compare("help\n") == 0) {
-/*		usb.SendString("Mountjoy MIDI Monger - supported commands:\n\n"
+		usb.SendString("Mountjoy MIDI Monger - supported commands:\n\n"
 				"help      -  Shows this information\n"
 				"config    -  Shows current control configuration\n"
 				"test      -  Light display\n"
@@ -24,22 +25,10 @@ bool CDCCommand(const std::string ComCmd) {
 				"             Eg g7m1c10n37 to configure gate 7, mode Specific note, channel 10, note 37\n"
 				"             Eg g2m2c12 to configure gate 2, mode Channel gate, channel 12\n"
 				"             Eg g8m3 to configure gate 8, mode clock\n"
-				"help      -  Shows this information\n"
-				"config    -  Shows current control configuration\n"
-				"test      -  Light display\n"
-				"nVcC      -  Play note value V on channel C. Eg \'n60c1\' is middle C on channel 1\n"
-				"gGmMcCnN  -  Configure gate N (1-8) mode MM (1=specific note, 2=channel gate, 3=clock)\n"
-				"             Optional: channel C (1-16) note N (from 24=C1 to 96=C7)\n"
-				"             Eg g7m1c10n37 to configure gate 7, mode Specific note, channel 10, note 37\n"
-				"             Eg g2m2c12 to configure gate 2, mode Channel gate, channel 12\n"
-				"             Eg g8m3 to configure gate 8, mode clock\n"
-				"help      -  Shows this information\n"
-				"help      -  Shows this information\n"
-				"help      -  Shows this informa"
-		);*/
+		);
 
 
-		usb.SendString("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
+/*		usb.SendString("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
 				"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
 				"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
 				"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
@@ -52,7 +41,7 @@ bool CDCCommand(const std::string ComCmd) {
 				"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
 				"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
 				"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
-				);
+				);*/
 		//usb.SendString("2");
 
 	} else 	if (ComCmd.compare(0, 1, "g") == 0) {
@@ -132,7 +121,7 @@ bool CDCCommand(const std::string ComCmd) {
 		usb.SendString(ss.str().c_str());
 
 	} else if (ComCmd.compare("test\n") == 0) {
-		//LilLightShow();
+		LilLightShow();
 	} else 	if (ComCmd.compare(0, 1, "n") == 0) {
 
 		int8_t cpos = ComCmd.find("c");		// locate position of channel code

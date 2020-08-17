@@ -1,5 +1,9 @@
 #include "uartHandler.h"
 
+volatile uint8_t uartCmdPos = 0;
+volatile char uartCmd[100];
+volatile bool uartCmdRdy = false;
+
 // Manages communication to ST Link debugger UART
 
 void InitUART() {
@@ -62,4 +66,19 @@ void uartSendStr(const std::string& s) {
 		while ((USART3->SR & USART_SR_TXE) == 0);
 		USART3->DR = c;
 	}
+}
+
+extern "C" {
+// Dev board ST Link UART Handler
+void USART3_IRQHandler(void) {
+	if (USART3->SR | USART_SR_RXNE && !uartCmdRdy) {
+		uartCmd[uartCmdPos] = USART3->DR; 				// accessing DR automatically resets the receive flag
+		if (uartCmd[uartCmdPos] == 10) {
+			uartCmdRdy = true;
+			uartCmdPos = 0;
+		} else {
+			uartCmdPos++;
+		}
+	}
+}
 }

@@ -18,9 +18,7 @@ Config cfg;
 uint32_t debugClock = 0;
 uint32_t debugClDiff = 0;
 bool USBDebug;
-volatile uint8_t uartCmdPos = 0;
-volatile char uartCmd[100];
-volatile bool uartCmdRdy = false;
+
 
 extern "C" {
 #include "interrupts.h"
@@ -32,11 +30,6 @@ void CDCHandler(uint8_t* data, uint32_t length) {
 	CmdPending = true;
 }
 
-//std::string IntToString(const int32_t& v) {
-//	std::stringstream ss;
-//	ss << v;
-//	return ss.str();
-//}
 
 void LilLightShow() {
 	for (uint8_t c = 0; c < 8; ++c) {
