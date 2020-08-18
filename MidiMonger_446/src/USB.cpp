@@ -172,9 +172,9 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 		// process each endpoint in turn incrementing the epnum and checking the interrupts (ep_intr) if that endpoint fired
 		epnum = 0;
 		while (ep_intr != 0) {
-			if ((ep_intr & 1) != 0) { // In ITR [initially true]
+			if ((ep_intr & 1) != 0) {
 
-				epint = USBx_INEP((uint32_t)epnum)->DIEPINT & (USBx_DEVICE->DIEPMSK | (((USBx_DEVICE->DIEPEMPMSK >> (epnum & EP_ADDR_MASK)) & 0x1U) << 7));
+				epint = USBx_INEP(epnum)->DIEPINT & (USBx_DEVICE->DIEPMSK | (((USBx_DEVICE->DIEPEMPMSK >> (epnum & EP_ADDR_MASK)) & 0x1U) << 7));
 
 #if (USB_DEBUG)
 				usbDebug[usbDebugNo].endpoint = epnum;
@@ -182,32 +182,33 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 #endif
 
 				if ((epint & USB_OTG_DIEPINT_XFRC) == USB_OTG_DIEPINT_XFRC) {			// 0x1 Transfer completed interrupt
-					uint32_t fifoemptymsk = (uint32_t)(0x1UL << (epnum & EP_ADDR_MASK));
+					uint32_t fifoemptymsk = (0x1UL << (epnum & EP_ADDR_MASK));
 					USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 
 					USBx_INEP(epnum)->DIEPINT = USB_OTG_DIEPINT_XFRC;
 
-					if (epnum == 0 && ep0_state == USBD_EP0_DATA_IN && xfer_rem == 0) {
-						ep0_state = USBD_EP0_STATUS_OUT;								//HAL_PCD_EP_Receive
-						xfer_buff[0] = 0;
-						USB_EPStartXfer(Direction::out, 0, ep_maxPacket);
-					}
+					if (epnum == 0) {
+						if (ep0_state == USBD_EP0_DATA_IN && xfer_rem == 0) {
+							ep0_state = USBD_EP0_STATUS_OUT;							// After completing transmission on EP0 send an out packet [HAL_PCD_EP_Receive]
+							xfer_buff[0] = 0;
+							USB_EPStartXfer(Direction::out, 0, ep_maxPacket);
 
-					if (ep0_state == USBD_EP0_DATA_IN && xfer_rem > 0) {
-						outBuffSize = xfer_rem;
-						xfer_rem = 0;
+						} else if (ep0_state == USBD_EP0_DATA_IN && xfer_rem > 0) {		// For EP0 long packets are sent separately rather than streamed out of the FIFO
+							outBuffSize = xfer_rem;
+							xfer_rem = 0;
 #if (USB_DEBUG)
-						usbDebug[usbDebugNo].PacketSize = outBuffSize;
-						usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
-						usbDebug[usbDebugNo].xferBuff1 = ((uint32_t*)outBuff)[1];
+							usbDebug[usbDebugNo].PacketSize = outBuffSize;
+							usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
+							usbDebug[usbDebugNo].xferBuff1 = ((uint32_t*)outBuff)[1];
 #endif
-						USB_EPStartXfer(Direction::in, epnum, outBuffSize);
-					} else if (epnum > 0) {
+							USB_EPStartXfer(Direction::in, epnum, outBuffSize);
+						}
+					} else {
 						transmitting = false;
 					}
 				}
 
-				if ((epint & USB_OTG_DIEPINT_TXFE) == USB_OTG_DIEPINT_TXFE) {				// 0x80 Transmit FIFO empty
+				if ((epint & USB_OTG_DIEPINT_TXFE) == USB_OTG_DIEPINT_TXFE) {			// 0x80 Transmit FIFO empty
 #if (USB_DEBUG)
 					usbDebug[usbDebugNo].PacketSize = outBuffSize;
 					usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
@@ -222,25 +223,19 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 						USB_WritePacket(outBuff, epnum, (uint16_t)outBuffSize);
 
 						outBuff += outBuffSize;		// Move pointer forwards
-						uint32_t fifoemptymsk = (uint32_t)(0x1UL << (epnum & EP_ADDR_MASK));
+						uint32_t fifoemptymsk = (0x1UL << (epnum & EP_ADDR_MASK));
 						USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 					} else {
-						// PCD_WriteEmptyTxFifo
-						uint16_t len = outBuffSize - outBuffCount;
-						if (len > ep_maxPacket) {
-							len = ep_maxPacket;
-						}
-						uint16_t len32b = (len + 3U) / 4U;
 
-						// Keep filling transmit FIFO whilst space still available
+						// For regular endpoints keep writing packets to the FIFO while space available [PCD_WriteEmptyTxFifo]
+						uint16_t len = std::min(outBuffSize - outBuffCount, (uint32_t)ep_maxPacket);
+						uint16_t len32b = (len + 3) / 4;			// FIFO size is in 4 byte words
+
 						// INEPTFSAV[15:0]: IN endpoint Tx FIFO space available: 0x0: Endpoint Tx FIFO is full; 0x1: 1 31-bit word available; 0xn: n words available
-						while (((USBx_INEP(epnum)->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV) >= len32b) && (outBuffCount < outBuffSize) && (outBuffSize != 0U)) {
+						while (((USBx_INEP(epnum)->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV) >= len32b) && (outBuffCount < outBuffSize) && (outBuffSize != 0)) {
 
-							len = outBuffSize - outBuffCount;
-							if (len > ep_maxPacket) {
-								len = ep_maxPacket;
-							}
-							len32b = (len + 3U) / 4U;
+							len = std::min(outBuffSize - outBuffCount, (uint32_t)ep_maxPacket);
+							len32b = (len + 3) / 4;
 #if (USB_DEBUG)
 							usbDebug[usbDebugNo].PacketSize = outBuffSize - outBuffCount;
 							usbDebug[usbDebugNo].xferBuff0 = ((uint32_t*)outBuff)[0];
@@ -253,7 +248,7 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 						}
 
 						if (outBuffSize <= outBuffCount) {
-							uint32_t fifoemptymsk = (uint32_t)(0x1UL << (epnum & EP_ADDR_MASK));
+							uint32_t fifoemptymsk = (0x1UL << (epnum & EP_ADDR_MASK));
 							USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 						}
 					}
@@ -333,8 +328,8 @@ void USB::USBInterruptHandler() {		// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f
 		USB_OTG_FS->GUSBCFG &= ~USB_OTG_GUSBCFG_TRDT;
 		USB_OTG_FS->GUSBCFG |= (6 << 10);
 
-		USB_ActivateEndpoint(0, Direction::out, 0);			// Open EP0 OUT
-		USB_ActivateEndpoint(0, Direction::in, 0);				// Open EP0 IN
+		USB_ActivateEndpoint(0, Direction::out, Control);			// Open EP0 OUT
+		USB_ActivateEndpoint(0, Direction::in, Control);			// Open EP0 IN
 
 		ep0_state = USBD_EP0_IDLE;
 
@@ -424,29 +419,29 @@ void USB::InitUSB()
 	// NB - FIFO Sizes are in words NOT bytes. There is a total size of 320 (320x4 = 1280 bytes) available which is divided up thus:
 	// FIFO		Start		Size
 	// RX 		0			128
-	// EP0		128			64
-	// EP1		192			64
-	// EP2		256			64
+	// EP0 TX	128			64
+	// EP1 TX	192			64
+	// EP2 TX 	256			64
 
-	USB_OTG_FS->GRXFSIZ = 128;		 					// RxFIFO depth
+	USB_OTG_FS->GRXFSIZ = 128;		 					// Rx FIFO depth
 
 	// Endpoint 0 Transmit FIFO size/address (as in device mode - this is also used as the non-periodic transmit FIFO size in host mode)
-	USB_OTG_FS->DIEPTXF0_HNPTXFSIZ = (64 << USB_OTG_TX0FD_Pos) |		// Endpoint 0 TxFIFO depth
-			(128 << USB_OTG_TX0FSA_Pos);								// Endpoint 0 transmit RAM start  address - this is offset from the RX FIFO (set above to 128)
+	USB_OTG_FS->DIEPTXF0_HNPTXFSIZ = (64 << USB_OTG_TX0FD_Pos) |		// IN Endpoint 0 Tx FIFO depth
+			(128 << USB_OTG_TX0FSA_Pos);								// IN Endpoint 0 FIFO transmit RAM start address - this is offset from the RX FIFO (set above to 128)
 
 	// Endpoint 1 FIFO size/address (address is offset from EP0 address+size above)
-	USB_OTG_FS->DIEPTXF[0] = (64 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |		// IN endpoint TxFIFO depth
-			(192 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint FIFO1 transmit RAM start address
+	USB_OTG_FS->DIEPTXF[0] = (64 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |		// IN endpoint 1 Tx FIFO depth
+			(192 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint 1 FIFO transmit RAM start address
 
 	// Endpoint 2 FIFO size/address (address is offset from EP1 address+size above)
-	USB_OTG_FS->DIEPTXF[1] = (64 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |		// IN endpoint TxFIFO depth
-			(256 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint FIFO2 transmit RAM start address
+	USB_OTG_FS->DIEPTXF[1] = (64 << USB_OTG_DIEPTXF_INEPTXFD_Pos) |		// IN endpoint 2 Tx FIFO depth
+			(256 << USB_OTG_DIEPTXF_INEPTXSA_Pos);  					// IN endpoint 2 FIFO transmit RAM start address
 
     USBx_DEVICE->DCTL &= ~USB_OTG_DCTL_SDIS;			// Activate USB
     USB_OTG_FS->GAHBCFG |= USB_OTG_GAHBCFG_GINT;		// Activate USB Interrupts
 }
 
-void USB::USB_ActivateEndpoint(uint8_t endpoint, Direction direction, uint8_t eptype)
+void USB::USB_ActivateEndpoint(uint8_t endpoint, Direction direction, EndPointType eptype)
 {
 	endpoint = endpoint & 0xF;
 
@@ -455,7 +450,7 @@ void USB::USB_ActivateEndpoint(uint8_t endpoint, Direction direction, uint8_t ep
 
 		if ((USBx_INEP(endpoint)->DIEPCTL & USB_OTG_DIEPCTL_USBAEP) == 0U) {
 			USBx_INEP(endpoint)->DIEPCTL |= (ep_maxPacket & USB_OTG_DIEPCTL_MPSIZ) |
-					((uint32_t)eptype << 18) | (endpoint << 22) |	//					USB_OTG_DIEPCTL_SD0PID_SEVNFRM |
+					((uint32_t)eptype << 18) | (endpoint << 22) |
 					USB_OTG_DIEPCTL_USBAEP;
 		}
 	} else {
@@ -463,7 +458,7 @@ void USB::USB_ActivateEndpoint(uint8_t endpoint, Direction direction, uint8_t ep
 
 		if (((USBx_OUTEP(endpoint)->DOEPCTL) & USB_OTG_DOEPCTL_USBAEP) == 0U) {
 			USBx_OUTEP(endpoint)->DOEPCTL |= (ep_maxPacket & USB_OTG_DOEPCTL_MPSIZ) |
-					((uint32_t)eptype << 18) |	//					USB_OTG_DIEPCTL_SD0PID_SEVNFRM |
+					((uint32_t)eptype << 18) |
 					USB_OTG_DOEPCTL_USBAEP;
 		}
 	}
@@ -604,7 +599,6 @@ void USB::IntToUnicode(uint32_t value, uint8_t* pbuf, uint8_t len) {
 		}
 
 		value = value << 4;
-
 		pbuf[2 * idx + 1] = 0;
 	}
 }
@@ -640,14 +634,13 @@ void USB::USBD_StdDevReq()
 			if (dev_state == USBD_STATE_ADDRESSED) {
 				dev_state = USBD_STATE_CONFIGURED;
 
-				USB_ActivateEndpoint(CDC_In,   Direction::in,  USBD_EP_TYPE_BULK);		// Activate CDC in endpoint
-				USB_ActivateEndpoint(CDC_Out,  Direction::out, USBD_EP_TYPE_BULK);		// Activate CDC out endpoint
-				USB_ActivateEndpoint(CDC_Cmd,  Direction::in,  USBD_EP_TYPE_INTR);		// Activate Command IN EP
-				USB_ActivateEndpoint(MIDI_In,  Direction::in,  USBD_EP_TYPE_BULK);		// Activate MIDI in endpoint
-				USB_ActivateEndpoint(MIDI_Out, Direction::out, USBD_EP_TYPE_BULK);		// Activate MIDI out endpoint
+				USB_ActivateEndpoint(CDC_In,   Direction::in,  Bulk);			// Activate CDC in endpoint
+				USB_ActivateEndpoint(CDC_Out,  Direction::out, Bulk);			// Activate CDC out endpoint
+				USB_ActivateEndpoint(CDC_Cmd,  Direction::in,  Interrupt);		// Activate Command IN EP
+				USB_ActivateEndpoint(MIDI_In,  Direction::in,  Bulk);			// Activate MIDI in endpoint
+				USB_ActivateEndpoint(MIDI_Out, Direction::out, Bulk);			// Activate MIDI out endpoint
 
-				USB_EPStartXfer(Direction::out, req.Value, 0x40);		// FIXME maxpacket is 2 for EP 1: CUSTOM_HID_EPIN_SIZE, 0x40 = CDC_DATA_FS_OUT_PACKET_SIZE
-
+				//USB_EPStartXfer(Direction::out, req.Value, 0x40);		// FIXME maxpacket is 2 for EP 1: CUSTOM_HID_EPIN_SIZE, 0x40 = CDC_DATA_FS_OUT_PACKET_SIZE
 				ep0_state = USBD_EP0_STATUS_IN;
 				USB_EPStartXfer(Direction::in, 0, 0);
 			}

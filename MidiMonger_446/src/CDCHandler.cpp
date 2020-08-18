@@ -11,7 +11,7 @@ int16_t ParseInt(const std::string cmd, const char precedingChar) {
 	return val;
 }
 
-static std::string IntToString(const int32_t& v) {
+static std::string IntToStr(const int32_t& v) {
 	std::stringstream ss;
 	ss << v;
 	return ss.str();
@@ -46,7 +46,7 @@ bool CDCCommand(const std::string ComCmd) {
 		int16_t pb = ParseInt(ComCmd, 'p');
 		if (pb > 0 && pb < 25) {
 			midiHandler.pitchBendSemiTones = pb;
-			usb.SendString(("Pitchbend set to " + IntToString(pb) + " semitones\n").c_str());
+			usb.SendString(("Pitchbend set to " + IntToStr(pb) + " semitones\n").c_str());
 			changed = true;
 		} else {
 			return false;
@@ -156,7 +156,7 @@ bool CDCCommand(const std::string ComCmd) {
 			}
 			ss << ". Channel: " << (int)cv.channel;
 		}
-		ss << "\n\nPitchbend range: " + IntToString(midiHandler.pitchBendSemiTones) + " semitones\n";
+		ss << "\n\nPitchbend range: " + IntToStr(midiHandler.pitchBendSemiTones) + " semitones\n";
 		usb.SendString(ss.str().c_str());
 
 	} else if (ComCmd.compare("test\n") == 0) {
@@ -189,6 +189,8 @@ bool CDCCommand(const std::string ComCmd) {
 		} else {
 			return false;
 		}
+	} else {
+		return false;
 	}
 	if (changed) {
 		midiHandler.setConfig();

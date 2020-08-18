@@ -12,10 +12,10 @@
 #endif
 
 
-// USB Definitions
-#define USBx_PCGCCTL	 *(__IO uint32_t *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_PCGCCTL_BASE)
-#define USBx_DEVICE	  ((USB_OTG_DeviceTypeDef *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_DEVICE_BASE))
-#define USBx_INEP(i)	 ((USB_OTG_INEndpointTypeDef *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_IN_ENDPOINT_BASE + ((i) * USB_OTG_EP_REG_SIZE)))
+// USB Hardware Registers
+#define USBx_PCGCCTL	*(__IO uint32_t *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_PCGCCTL_BASE)
+#define USBx_DEVICE		((USB_OTG_DeviceTypeDef *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_DEVICE_BASE))
+#define USBx_INEP(i)	((USB_OTG_INEndpointTypeDef *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_IN_ENDPOINT_BASE + ((i) * USB_OTG_EP_REG_SIZE)))
 #define USBx_OUTEP(i)	((USB_OTG_OUTEndpointTypeDef *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_OUT_ENDPOINT_BASE + ((i) * USB_OTG_EP_REG_SIZE)))
 #define USBx_DFIFO(i)	*(uint32_t*)(USB_OTG_FS_PERIPH_BASE + USB_OTG_FIFO_BASE + ((i) * USB_OTG_FIFO_SIZE))
 
@@ -69,17 +69,13 @@
 #define USBD_EP0_STATUS_OUT				0x05U
 #define USBD_EP0_STALL					0x06U
 
-#define USBD_EP_TYPE_CTRL				0x00U
-#define USBD_EP_TYPE_ISOC				0x01U
-#define USBD_EP_TYPE_BULK				0x02U
-#define USBD_EP_TYPE_INTR				0x03U
-
 //  Device Status
 #define USBD_STATE_DEFAULT				0x01U
 #define USBD_STATE_ADDRESSED			0x02U
 #define USBD_STATE_CONFIGURED			0x03U
 #define USBD_STATE_SUSPENDED			0x04U
 
+// Index of string descriptors
 #define USBD_IDX_LANGID_STR				0x00U
 #define USBD_IDX_MFC_STR				0x01U
 #define USBD_IDX_PRODUCT_STR			0x02U
@@ -113,9 +109,10 @@ public:
 	std::function<void(uint8_t*,uint32_t)> midiDataHandler;			// Declare data handler to store incoming midi data
 
 	enum EndPoint {MIDI_In = 0x81, MIDI_Out = 0x1, CDC_In = 0x82, CDC_Out = 0x2, CDC_Cmd = 0x83, };
+	enum EndPointType { Control = 0, Isochronous = 1, Bulk = 2, Interrupt = 3 };
 	enum class Direction {in, out};
 private:
-	void USB_ActivateEndpoint(uint8_t endpoint, Direction direction, uint8_t eptype);
+	void USB_ActivateEndpoint(uint8_t endpoint, Direction direction, EndPointType eptype);
 	void USB_ReadPacket(const uint32_t* dest, uint16_t len);
 	void USB_WritePacket(const uint8_t* src, uint8_t endpoint, uint16_t len);
 	void USBD_GetDescriptor();
@@ -263,7 +260,7 @@ private:
 			0x09,								// bLength
 			USB_DESC_TYPE_ENDPOINT,				// bDescriptorType = endpoint
 			MIDI_Out,							// bEndpointAddress
-			0x02,								// bmAttributes: 2:Bulk, 3:Interrupt endpoint
+			Bulk,								// bmAttributes: 2:Bulk
 			0x40, 0X00,							// wMaxPacketSize 64 bytes per packet.
 			0x00,								// bInterval in ms : ignored for bulk
 			0x00,								// bRefresh Unused
@@ -280,7 +277,7 @@ private:
 			0x09,								// bLength
 			USB_DESC_TYPE_ENDPOINT,				// bDescriptorType = endpoint
 			MIDI_In,							// bEndpointAddress IN endpoint number 3
-			0X02,								// bmAttributes: 2: Bulk, 3: Interrupt endpoint
+			Bulk,								// bmAttributes: 2: Bulk, 3: Interrupt endpoint
 			0x40, 0X00,							// wMaxPacketSize
 			0X00,								// bInterval in ms
 			0X00,								// bRefresh
@@ -346,7 +343,7 @@ private:
 			0x07,								// bLength: Endpoint Descriptor size
 			USB_DESC_TYPE_ENDPOINT,				// bDescriptorType: Endpoint
 			CDC_Cmd,							// bEndpointAddress
-			0x03,								// bmAttributes: Interrupt
+			Interrupt,							// bmAttributes: Interrupt
 			0x08,								// wMaxPacketSize
 			0x00,
 			0x10,								// bInterval
@@ -368,7 +365,7 @@ private:
 			0x07,								// bLength: Endpoint Descriptor size
 			USB_DESC_TYPE_ENDPOINT,				// bDescriptorType: Endpoint
 			CDC_Out,							// bEndpointAddress
-			0x02,								// bmAttributes: Bulk
+			Bulk,								// bmAttributes: Bulk
 			LOBYTE(ep_maxPacket),				// wMaxPacketSize:
 			HIBYTE(ep_maxPacket),
 			0x00,								// bInterval: ignore for Bulk transfer
@@ -377,7 +374,7 @@ private:
 			0x07,								// bLength: Endpoint Descriptor size
 			USB_DESC_TYPE_ENDPOINT,				// bDescriptorType: Endpoint
 			CDC_In,								// bEndpointAddress
-			0x02,								// bmAttributes: Bulk
+			Bulk,								// bmAttributes: Bulk
 			LOBYTE(ep_maxPacket),				// wMaxPacketSize:
 			HIBYTE(ep_maxPacket),
 			0x00								// bInterval: ignore for Bulk transfer

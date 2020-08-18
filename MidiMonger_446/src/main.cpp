@@ -71,7 +71,7 @@ int main(void)
 		// Check for incoming CDC commands
 		if (CmdPending) {
 			if (!CDCCommand(ComCmd)) {
-				usb.SendString("Unrecognised command\n");
+				usb.SendString("Unrecognised command. Type 'help' for supported commands\n");
 			}
 			CmdPending = false;
 		}
