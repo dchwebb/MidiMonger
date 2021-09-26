@@ -9,12 +9,12 @@ MIDI Monger has 12 outputs of which 8 are gate outputs and 4 are control voltage
 
 When not used in a pair a gate output can send a gate for any MIDI on note from a channel, for a specific note number on a channel (eg for use as drum triggers) or a clock. The Control Voltage outputs can be configured to send controller data, pitch bend or aftertouch.
 
-Configuration is carried out from a web interface using the Chrome browser or via a Virtual COM Port.
+Configuration is carried out from a [web interface](https://htmlpreview.github.io/?https://github.com/dchwebb/MidiMonger/blob/master/WebEditor/index.html) using the Chrome browser or via a Virtual COM Port.
 
 # Technical
 MIDI Monger is based around an ARM STM32F446 Microcontroller. The MCU handles both MIDI and UART Serial interfacing and outputs control voltage via an external 16 bit DAC (Maxim MAX5134). Gate outputs are converted to Eurorack standard of 5V using a SN74HCT244 Octal buffer as a level shifter. MIDI Serial signals are buffered through a 6N137 Optocoupler.
 
-The module is constructed using three PCBs: a component board, a control board and a panel. Schematics and PCB layout created in KiCad and available in Hardware folder.
+The module is constructed using three PCBs: a component board, a control board and a panel. Schematics and PCB layout created in KiCad and available in [Hardware folder](https://github.com/dchwebb/MidiMonger/tree/master/Hardware).
 
 Annotated component PCB
 -----------------------
