@@ -1,5 +1,5 @@
 # MidiMonger
-![Image](https://github.com/dchwebb/MidiMonger/raw/master/Images/MidiMonger.png "icon")
+![Image](https://github.com/dchwebb/MidiMonger/raw/master/pictures/midimonger_front.jpg "icon")
 
 Eurorack MIDI interface supporting USB and serial MIDI. 
 
@@ -12,13 +12,14 @@ When not used in a pair a gate output can send a gate for any MIDI on note from 
 Configuration is carried out from a web interface using the Chrome browser or via a Virtual COM Port.
 
 # Technical
+![Image](https://github.com/dchwebb/MidiMonger/raw/master/pictures/midimonger_components.jpg "icon")
 MIDI Monger is based around an ARM STM32F446 Microcontroller. The MCU handles both MIDI and UART Serial interfacing and outputs control voltage via an external 16 bit DAC (Maxim MAX5134). Gate outputs are converted to Eurorack standard of 5V using a SN74HCT244 Octal buffer as a level shifter. MIDI Serial signals are buffered through a 6N137 Optocoupler.
 
 The module is constructed using three PCBs: a component board, a control board and a panel. Schematics and PCB layout created in KiCad and available in Hardware folder.
 
 Annotated component PCB
 -----------------------
-![Image](https://github.com/dchwebb/MidiMonger/raw/master/Images/components.png "icon")
+![Image](https://github.com/dchwebb/MidiMonger/raw/master/pictures/components.png "icon")
 
 Legend
 1) Maxim MAX5134 DAC and TL074 Buffer
@@ -30,8 +31,6 @@ Legend
 
 Control PCB
 -----------
-![Image](https://github.com/dchwebb/MidiMonger/raw/master/Images/controls.png "icon")
+![Image](https://github.com/dchwebb/MidiMonger/raw/master/pictures/controls.png "icon")
 
-Front Panel
------------
-![Image](https://github.com/dchwebb/MidiMonger/raw/master/Images/panel.png "icon")
+
