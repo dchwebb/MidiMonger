@@ -1,3 +1,6 @@
+Hardware/MidiMonger_controls-backups/
+/Debug/
+
 # Prerequisites
 *.d
 
@@ -36,7 +39,8 @@
 *.map
 *.su
 *.launch
-/Debug/
+
 *.sch-bak
 *.kicad_pcb-bak
-*.kicad_pcb-bak
+
+
