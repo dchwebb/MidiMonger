@@ -1,6 +1,6 @@
 {
   "board": {
-    "active_layer": 0,
+    "active_layer": 31,
     "active_layer_preset": "",
     "auto_track_width": true,
     "hidden_nets": [],
@@ -18,9 +18,9 @@
       "footprints": true,
       "graphics": true,
       "keepouts": true,
-      "lockedItems": true,
+      "lockedItems": false,
       "otherItems": true,
-      "pads": true,
+      "pads": false,
       "text": true,
       "tracks": true,
       "vias": true,
@@ -64,10 +64,10 @@
       36
     ],
     "visible_layers": "000ffff_80000001",
-    "zone_display_mode": 0
+    "zone_display_mode": 1
   },
   "meta": {
-    "filename": "MidiMonger_controls.kicad_prl",
+    "filename": "QMidiMonger_controls.kicad_prl",
     "version": 3
   },
   "project": {

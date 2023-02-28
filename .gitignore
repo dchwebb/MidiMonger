@@ -1,5 +1,6 @@
 Hardware/MidiMonger_controls-backups/
 Hardware/MidiMonger-backups/
+Hardware/QMidiMonger_controls-backups/
 /Debug/
 
 # Prerequisites
@@ -44,5 +45,4 @@ Hardware/MidiMonger-backups/
 *.sch-bak
 *.kicad_pcb-bak
 
-
-
+Hardware/\#auto_saved_files\#
