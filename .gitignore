@@ -1,6 +1,7 @@
 Hardware/MidiMonger_controls-backups/
 Hardware/MidiMonger-backups/
 Hardware/QMidiMonger_controls-backups/
+Hardware/QMidiMonger_panel-backups/
 /Debug/
 
 # Prerequisites
@@ -46,3 +47,4 @@ Hardware/QMidiMonger_controls-backups/
 *.kicad_pcb-bak
 
 Hardware/\#auto_saved_files\#
+
