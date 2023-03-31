@@ -2,22 +2,28 @@
 
 channelNote MidiHandler::channelNotes[16] = {};		// definition of static declared array
 
-void MidiHandler::CV::sendNote() {
+void MidiHandler::CV::sendNote()
+{
 	uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((float)currentNote + channelNotes[channel - 1].pitchbend, 24.0f), 96.0f) - 24) / 72;		// limit C1 to C7
 	dacHandler.sendData(WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
 	ledOn(400);										// Turn LED On for 400ms
 }
 
-void MidiHandler::CV::cvInit() {
+void MidiHandler::CV::cvInit()
+{
 	gpioPort->MODER |= (1 << (2 * gpioPin));		// Set to output
 }
 
-void MidiHandler::CV::ledOn(float offMilliseconds) {
+
+void MidiHandler::CV::ledOn(float offMilliseconds)
+{
 	gpioPort->BSRR |= (1 << gpioPin);				// LED on
 	offTime = SysTickVal + (offMilliseconds * 2.5);					// pass gate off time: each tick is around 400us: 2500 x 400us = 1 second
 }
 
-MidiHandler::MidiHandler() {
+
+MidiHandler::MidiHandler()
+{
 	// Init Hardware
 	InitIO();
 	for (Gate& g : gateOutputs) {
@@ -29,7 +35,9 @@ MidiHandler::MidiHandler() {
 	setConfig();
 }
 
-void MidiHandler::setConfig() {
+
+void MidiHandler::setConfig()
+{
 
 	// Calculate number of voices available for each channel
 	uint8_t voices = 0;
@@ -45,10 +53,13 @@ void MidiHandler::setConfig() {
 	return;
 }
 
+
 // Overload to check if configuration is valid
-void MidiHandler::validateConfig(bool isGate, uint8_t num) {
-	if (num > 3)
+void MidiHandler::validateConfig(bool isGate, uint8_t num)
+{
+	if (num > 3) {
 		return;
+	}
 
 	Gate& g = gateOutputs[num];
 	CV& c = cvOutputs[num];
@@ -69,7 +80,9 @@ void MidiHandler::validateConfig(bool isGate, uint8_t num) {
 	}
 }
 
-void MidiHandler::serialHandler(uint32_t data) {
+
+void MidiHandler::serialHandler(uint32_t data)
+{
 	Queue[QueueWrite] = data;
 	QueueSize++;
 	QueueWrite = (QueueWrite + 1) % MIDIQUEUESIZE;
@@ -113,12 +126,16 @@ void MidiHandler::serialHandler(uint32_t data) {
 	}
 }
 
-inline void MidiHandler::QueueInc() {
+
+inline void MidiHandler::QueueInc()
+{
 	QueueSize--;
 	QueueRead = (QueueRead + 1) % MIDIQUEUESIZE;
 }
 
-void MidiHandler::eventHandler(uint8_t* data, uint32_t length) {
+
+void MidiHandler::eventHandler(uint8_t* data, uint32_t length)
+{
 	if (length == 4) {
 		midiEvent(*(uint32_t*)data);
 
@@ -145,7 +162,9 @@ void MidiHandler::eventHandler(uint8_t* data, uint32_t length) {
 	}
 }
 
-void MidiHandler::midiEvent(const uint32_t& data) {
+
+void MidiHandler::midiEvent(const uint32_t& data)
+{
 
 	MidiData midiEvent = MidiData(data);
 
@@ -269,18 +288,20 @@ void MidiHandler::midiEvent(const uint32_t& data) {
 		// locate output that will process the request
 		for (auto& gate : gateOutputs) {
 			if (gate.channel == midiEvent.chn + 1 && gate.type == gateType::specificNote && gate.note == midiEvent.db1) {
-				if (midiEvent.msg == 9)
+				if (midiEvent.msg == NoteOn) {
 					gate.gateOn();
-				else
+				} else {
 					gate.gateOff();
+				}
 
 			} else if (gate.channel == midiEvent.chn + 1 && gate.type == gateType::channelNote) {
 
 				// Delete note if already playing and add to latest position in list
 				activeNote& noteList = channelNotes[gate.channel - 1].activeNotes;
 				noteList.remove(midiEvent.db1);
-				if (midiEvent.msg == 9)
+				if (midiEvent.msg == NoteOn) {
 					noteList.push_back(midiEvent.db1);
+				}
 
 				// work back through the active note list checking which voice to assign note to
 				bool notePlaying;
@@ -300,7 +321,7 @@ void MidiHandler::midiEvent(const uint32_t& data) {
 					}
 
 					// if no voice is currently playing note it will be assigned after all playing notes are identified
-					if (!notePlaying) {
+					if (!notePlaying && midiEvent.db1 == *currNote) {		// Added condition midiEvent.db1 == *currNote to prevent replaying notes that have been voice stolen
 						noteToAssign = *currNote;
 					}
 				}
