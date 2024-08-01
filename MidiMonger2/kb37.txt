@@ -1,0 +1,311 @@
+
+    =========================== USB Port3 ===========================
+
+Connection Status        : 0x01 (Device is connected)
+Port Chain               : 2-3-1-3
+Properties               : 0x01
+ IsUserConnectable       : yes
+ PortIsDebugCapable      : no
+ PortHasMultiCompanions  : no
+ PortConnectorIsTypeC    : no
+ConnectionIndex          : 0x03 (Port 3)
+CompanionIndex           : 0
+ CompanionHubSymLnk      : USB#VID_045B&PID_0210#6&1341aef&0&1#{f18a0e88-c30c-11d0-8815-00a0c906bed8}
+ CompanionPortNumber     : 0x03 (Port 3)
+ -> CompanionPortChain   : 2-19-1-3
+
+      ========================== Summary =========================
+Vendor ID                : 0x12E6 (Waldorf-Music AG)
+Product ID               : 0x001D
+USB Version              : 2.00 -> wrong, Device is Full-Speed only
+Port maximum Speed       : High-Speed (Companion Port 2-19-1-3 supports SuperSpeed)
+Device maximum Speed     : Full-Speed
+Device Connection Speed  : Full-Speed
+Self powered             : yes
+Demanded Current         : 100 mA
+Used Endpoints           : 3
+
+      ======================== USB Device ========================
+
+        +++++++++++++++++ Device Information ++++++++++++++++++
+Device Description       : USB Composite Device
+Device Path              : \\?\USB#VID_12E6&PID_001D#E100D1001075333553336302#{a5dcbf10-6530-11d2-901f-00c04fb951ed} (GUID_DEVINTERFACE_USB_DEVICE)
+Kernel Name              : \Device\USBPDO-10
+Device ID                : USB\VID_12E6&PID_001D\E100D1001075333553336302
+Hardware IDs             : USB\VID_12E6&PID_001D&REV_0070 USB\VID_12E6&PID_001D
+Driver KeyName           : {36fc9e60-c465-11cf-8056-444553540000}\0007 (GUID_DEVCLASS_USB)
+Driver                   : \SystemRoot\System32\drivers\usbccgp.sys (Version: 10.0.19041.1949  Date: 2022-09-29)
+Driver Inf               : C:\WINDOWS\inf\usb.inf
+Legacy BusType           : PNPBus
+Class                    : USB
+Class GUID               : {36fc9e60-c465-11cf-8056-444553540000} (GUID_DEVCLASS_USB)
+Service                  : usbccgp
+Enumerator               : USB
+Location Info            : Port_#0003.Hub_#0006
+Location IDs             : PCIROOT(0)#PCI(1400)#USBROOT(0)#USB(3)#USB(1)#USB(3), ACPI(_SB_)#ACPI(PCI0)#ACPI(XHC_)#ACPI(RHUB)#ACPI(HS03)#USB(1)#USB(3)
+Container ID             : {69d37290-0faf-5332-a288-19949d3f18c2}
+Manufacturer Info        : (Standard USB Host Controller)
+Capabilities             : 0x94 (Removable, UniqueID, SurpriseRemovalOK)
+Status                   : 0x0180600A (DN_DRIVER_LOADED, DN_STARTED, DN_DISABLEABLE, DN_REMOVABLE, DN_NT_ENUMERATOR, DN_NT_DRIVER)
+Problem Code             : 0
+Address                  : 3
+HcDisableSelectiveSuspend: 0
+EnableSelectiveSuspend   : 0
+SelectiveSuspendEnabled  : 0
+EnhancedPowerMgmtEnabled : 0
+IdleInWorkingState       : 0
+WakeFromSleepState       : 0
+Power State              : D0 (supported: D0, D2, D3, wake from D0, wake from D2)
+ Child Device 1          : KB37 (USB Audio Device)
+  Device Path 1          : \\?\USB#VID_12E6&PID_001D&MI_00#6&25458a18&0&0000#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\global (AM_KSCATEGORY_AUDIO)
+  Device Path 2          : \\?\USB#VID_12E6&PID_001D&MI_00#6&25458a18&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\global (AM_KSCATEGORY_CAPTURE)
+  Device Path 3          : \\?\USB#VID_12E6&PID_001D&MI_00#6&25458a18&0&0000#{65e8773e-8f56-11d0-a3b9-00a0c9223196}\global (AM_KSCATEGORY_RENDER)
+  Kernel Name            : \Device\0000008d
+  Device ID              : USB\VID_12E6&PID_001D&MI_00\6&25458A18&0&0000
+  Class                  : MEDIA
+  Driver KeyName         : {4d36e96c-e325-11ce-bfc1-08002be10318}\0000 (GUID_DEVCLASS_MEDIA)
+  Service                : usbaudio
+  Location               : 0000.0014.0000.003.001.003.000.000.000
+  LocationPaths          : PCIROOT(0)#PCI(1400)#USBROOT(0)#USB(3)#USB(1)#USB(3)#USBMI(0)  PCIROOT(0)#PCI(1400)#USBROOT(0)#USB(3)#USB(1)#USB(3)#USB(3)  ACPI(_SB_)#ACPI(PCI0)#ACPI(XHC_)#ACPI(RHUB)#ACPI(HS03)#USB(1)#USB(3)#USBMI(0)  ACPI(_SB_)#ACPI(PCI0)#ACPI(XHC_)#ACPI(RHUB)#ACPI(HS03)#USB(1)#USB(3)#USB(3)
+   Child Device 1        : KB37 [0] (Generic software device)
+    Device ID            : SWD\MMDEVAPI\MIDII_F9A9D661.P_0000
+    Class                : SoftwareDevice
+    Driver KeyName       : {62f9c741-b25a-46ce-b54c-9bccce08b6f2}\0002 (GUID_DEVCLASS_SWD)
+   Child Device 2        : KB37 [1] (Generic software device)
+    Device ID            : SWD\MMDEVAPI\MIDII_F9A9D661.P_0001
+    Class                : SoftwareDevice
+    Driver KeyName       : {62f9c741-b25a-46ce-b54c-9bccce08b6f2}\0003 (GUID_DEVCLASS_SWD)
+
+        +++++++++++++++++ Registry USB Flags +++++++++++++++++
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\usbflags\12E6001D0070
+ osvc                    : REG_BINARY 00 00
+ NewInterfaceUsage       : REG_DWORD 00000000 (0)
+
+        ---------------- Connection Information ---------------
+Connection Index         : 0x03 (Port 3)
+Connection Status        : 0x01 (DeviceConnected)
+Current Config Value     : 0x01 (Configuration 1)
+Device Address           : 0x0A (10)
+Is Hub                   : 0x00 (no)
+Device Bus Speed         : 0x01 (Full-Speed)
+Number Of Open Pipes     : 0x02 (2 pipes to data endpoints)
+Pipe[0]                  : EndpointID=1  Direction=OUT  ScheduleOffset=0  Type=Bulk  wMaxPacketSize=64   bInterval=0
+Pipe[1]                  : EndpointID=2  Direction=IN   ScheduleOffset=0  Type=Bulk  wMaxPacketSize=64   bInterval=0
+Data (HexDump)           : 03 00 00 00 12 01 00 02 00 00 00 40 E6 12 1D 00   ...........@....
+                           70 00 01 02 03 01 01 01 00 0A 00 02 00 00 00 01   p...............
+                           00 00 00 09 05 01 02 40 00 00 00 00 00 00 09 05   .......@........
+                           82 02 40 00 00 00 00 00 00                        ..@......
+
+        --------------- Connection Information V2 -------------
+Connection Index         : 0x03 (3)
+Length                   : 0x10 (16 bytes)
+SupportedUsbProtocols    : 0x03
+ Usb110                  : 1 (yes, port supports USB 1.1)
+ Usb200                  : 1 (yes, port supports USB 2.0)
+ Usb300                  : 0 (no, port not supports USB 3.0) -> but Companion Port 2-19-1-3 does
+ ReservedMBZ             : 0x00
+Flags                    : 0x00
+ DevIsOpAtSsOrHigher     : 0 (Device is not operating at SuperSpeed or higher)
+ DevIsSsCapOrHigher      : 0 (Device is not SuperSpeed capable or higher)
+ DevIsOpAtSsPlusOrHigher : 0 (Device is not operating at SuperSpeedPlus or higher)
+ DevIsSsPlusCapOrHigher  : 0 (Device is not SuperSpeedPlus capable or higher)
+ ReservedMBZ             : 0x00
+Data (HexDump)           : 03 00 00 00 10 00 00 00 03 00 00 00 00 00 00 00   ................
+
+    ---------------------- Device Descriptor ----------------------
+bLength                  : 0x12 (18 bytes)
+bDescriptorType          : 0x01 (Device Descriptor)
+bcdUSB                   : 0x200 (USB Version 2.00) -> wrong, device is Full-Speed only
+bDeviceClass             : 0x00 (defined by the interface descriptors)
+bDeviceSubClass          : 0x00
+bDeviceProtocol          : 0x00
+bMaxPacketSize0          : 0x40 (64 bytes)
+idVendor                 : 0x12E6 (Waldorf-Music AG)
+idProduct                : 0x001D
+bcdDevice                : 0x0070
+iManufacturer            : 0x01 (String Descriptor 1)
+ Language 0x0409         : "Waldorf Music GmbH"
+iProduct                 : 0x02 (String Descriptor 2)
+ Language 0x0409         : "KB37"
+iSerialNumber            : 0x03 (String Descriptor 3)
+ Language 0x0409         : "E100D1001075333553336302"
+bNumConfigurations       : 0x01 (1 Configuration)
+Data (HexDump)           : 12 01 00 02 00 00 00 40 E6 12 1D 00 70 00 01 02   .......@....p...
+                           03 01                                             ..
+
+    ------------------ Configuration Descriptor -------------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x02 (Configuration Descriptor)
+wTotalLength             : 0x0065 (101 bytes)
+bNumInterfaces           : 0x02 (2 Interfaces)
+bConfigurationValue      : 0x01 (Configuration 1)
+iConfiguration           : 0x00 (No String Descriptor)
+bmAttributes             : 0xC0
+ D7: Reserved, set 1     : 0x01
+ D6: Self Powered        : 0x01 (yes)
+ D5: Remote Wakeup       : 0x00 (no)
+ D4..0: Reserved, set 0  : 0x00
+MaxPower                 : 0x32 (100 mA)
+Data (HexDump)           : 09 02 65 00 02 01 00 C0 32 09 04 00 00 00 01 01   ..e.....2.......
+                           00 00 09 24 01 00 01 09 00 01 01 09 04 01 00 02   ...$............
+                           01 03 00 00 07 24 01 00 01 41 00 06 24 02 01 01   .....$...A..$...
+                           00 06 24 02 02 02 00 09 24 03 01 03 01 02 01 00   ..$.....$.......
+                           09 24 03 02 04 01 01 01 00 09 05 01 02 40 00 00   .$...........@..
+                           00 00 05 25 01 01 01 09 05 82 02 40 00 00 00 00   ...%.......@....
+                           05 25 01 01 03                                    .%...
+
+        ---------------- Interface Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x04 (Interface Descriptor)
+bInterfaceNumber         : 0x00 (Interface 0)
+bAlternateSetting        : 0x00
+bNumEndpoints            : 0x00 (Default Control Pipe only)
+bInterfaceClass          : 0x01 (Audio)
+bInterfaceSubClass       : 0x01 (Audio Control)
+bInterfaceProtocol       : 0x00
+iInterface               : 0x00 (No String Descriptor)
+Data (HexDump)           : 09 04 00 00 00 01 01 00 00                        .........
+
+        ------ Audio Control Interface Header Descriptor ------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x24 (Audio Interface Descriptor)
+bDescriptorSubtype       : 0x01 (Header)
+bcdADC                   : 0x0100
+wTotalLength             : 0x0009 (9 bytes)
+bInCollection            : 0x01
+baInterfaceNr[1]         : 0x01
+Data (HexDump)           : 09 24 01 00 01 09 00 01 01                        .$.......
+
+        ---------------- Interface Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x04 (Interface Descriptor)
+bInterfaceNumber         : 0x01 (Interface 1)
+bAlternateSetting        : 0x00
+bNumEndpoints            : 0x02 (2 Endpoints)
+bInterfaceClass          : 0x01 (Audio)
+bInterfaceSubClass       : 0x03 (MIDI Streaming)
+bInterfaceProtocol       : 0x00
+iInterface               : 0x00 (No String Descriptor)
+Data (HexDump)           : 09 04 01 00 02 01 03 00 00                        .........
+
+        - MIDI Adapter Class specific MS Interface Descriptor -
+bLength                  : 0x07 (7 bytes)
+bDescriptorType          : 0x24 (Class Specific Interface Descriptor)
+bDescriptorSubtype       : 0x01 (MS Header)
+bcdADC                   : 0x0100
+wTotalLength             : 0x0041 (65 bytes)
+Data (HexDump)           : 07 24 01 00 01 41 00 06 24 02 01 01 00 06 24 02   .$...A..$.....$.
+                           02 02 00 09 24 03 01 03 01 02 01 00 09 24 03 02   ....$........$..
+                           04 01 01 01 00 09 05 01 02 40 00 00 00 00 05 25   .........@.....%
+                           01 01 01 09 05 82 02 40 00 00 00 00 05 25 01 01   .......@.....%..
+                           03                                                .
+
+        ---------------- MIDI IN Jack Descriptor --------------
+bLength                  : 0x06 (6 bytes)
+bDescriptorType          : 0x24 (Class Specific Interface Descriptor)
+bDescriptorSubtype       : 0x02 (MIDI_IN_JACK)
+bJackType                : 0x01 (Embedded)
+bJackID                  : 0x01 (ID=1)
+iJack                    : 0x00 (No String Descriptor)
+Data (HexDump)           : 06 24 02 01 01 00                                 .$....
+
+        ---------------- MIDI IN Jack Descriptor --------------
+bLength                  : 0x06 (6 bytes)
+bDescriptorType          : 0x24 (Class Specific Interface Descriptor)
+bDescriptorSubtype       : 0x02 (MIDI_IN_JACK)
+bJackType                : 0x02 (External)
+bJackID                  : 0x02 (ID=2)
+iJack                    : 0x00 (No String Descriptor)
+Data (HexDump)           : 06 24 02 02 02 00                                 .$....
+
+        --------------- MIDI OUT Jack Descriptor --------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x24 (Class Specific Interface Descriptor)
+bDescriptorSubtype       : 0x03 (MIDI_OUT_JACK)
+bJackType                : 0x01 (Embedded)
+bJackID                  : 0x03 (ID=3)
+bNrInputPins             : 0x01 (1 pin)
+baSourceID[1]            : 0x02 (input pin connected to entity ID=2)
+baSourcePin[1]           : 0x01 (connected to input pin number 1
+iJack                    : 0x00 (No String Descriptor)
+Data (HexDump)           : 09 24 03 01 03 01 02 01 00                        .$.......
+
+        --------------- MIDI OUT Jack Descriptor --------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x24 (Class Specific Interface Descriptor)
+bDescriptorSubtype       : 0x03 (MIDI_OUT_JACK)
+bJackType                : 0x02 (External)
+bJackID                  : 0x04 (ID=4)
+bNrInputPins             : 0x01 (1 pin)
+baSourceID[1]            : 0x01 (input pin connected to entity ID=1)
+baSourcePin[1]           : 0x01 (connected to input pin number 1
+iJack                    : 0x00 (No String Descriptor)
+Data (HexDump)           : 09 24 03 02 04 01 01 01 00                        .$.......
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x01 (Direction=OUT EndpointID=1)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0040 (64 bytes)
+bInterval                : 0x00 (0 ms)
+bRefresh                 : 0x00
+bSynchAddress            : 0x00
+Data (HexDump)           : 09 05 01 02 40 00 00 00 00                        ....@....
+
+        --- Class-Specific MS Bulk Data Endpoint Descriptor ---
+bLength                  : 0x05 (5 bytes)
+bDescriptorType          : 0x25 (Audio Endpoint Descriptor)
+bDescriptorSubtype       : 0x01 (MS General)
+bNumEmbMIDIJack          : 0x01 (1 embedded MIDI jack)
+baAssocJackID(1)         : 0x01 (Jack(1) ID=1)
+Data (HexDump)           : 05 25 01 01 01                                    .%...
+
+        ----------------- Endpoint Descriptor -----------------
+bLength                  : 0x09 (9 bytes)
+bDescriptorType          : 0x05 (Endpoint Descriptor)
+bEndpointAddress         : 0x82 (Direction=IN EndpointID=2)
+bmAttributes             : 0x02 (TransferType=Bulk)
+wMaxPacketSize           : 0x0040 (64 bytes)
+bInterval                : 0x00 (0 ms)
+bRefresh                 : 0x00
+bSynchAddress            : 0x00
+Data (HexDump)           : 09 05 82 02 40 00 00 00 00                        ....@....
+
+        --- Class-Specific MS Bulk Data Endpoint Descriptor ---
+bLength                  : 0x05 (5 bytes)
+bDescriptorType          : 0x25 (Audio Endpoint Descriptor)
+bDescriptorSubtype       : 0x01 (MS General)
+bNumEmbMIDIJack          : 0x01 (1 embedded MIDI jack)
+baAssocJackID(1)         : 0x03 (Jack(1) ID=3)
+Data (HexDump)           : 05 25 01 01 03                                    .%...
+
+    ----------------- Device Qualifier Descriptor -----------------
+Error                    : ERROR_GEN_FAILURE  (*!*ERROR   USB 2.0 devices must provide a Device Qualifier Descriptor)
+
+      -------------------- String Descriptors -------------------
+             ------ String Descriptor 0 ------
+bLength                  : 0x04 (4 bytes)
+bDescriptorType          : 0x03 (String Descriptor)
+Language ID[0]           : 0x0409 (English - United States)
+Data (HexDump)           : 04 03 09 04                                       ....
+             ------ String Descriptor 1 ------
+bLength                  : 0x26 (38 bytes)
+bDescriptorType          : 0x03 (String Descriptor)
+Language 0x0409          : "Waldorf Music GmbH"
+Data (HexDump)           : 26 03 57 00 61 00 6C 00 64 00 6F 00 72 00 66 00   &.W.a.l.d.o.r.f.
+                           20 00 4D 00 75 00 73 00 69 00 63 00 20 00 47 00    .M.u.s.i.c. .G.
+                           6D 00 62 00 48 00                                 m.b.H.
+             ------ String Descriptor 2 ------
+bLength                  : 0x0A (10 bytes)
+bDescriptorType          : 0x03 (String Descriptor)
+Language 0x0409          : "KB37"
+Data (HexDump)           : 0A 03 4B 00 42 00 33 00 37 00                     ..K.B.3.7.
+             ------ String Descriptor 3 ------
+bLength                  : 0x32 (50 bytes)
+bDescriptorType          : 0x03 (String Descriptor)
+Language 0x0409          : "E100D1001075333553336302"
+Data (HexDump)           : 32 03 45 00 31 00 30 00 30 00 44 00 31 00 30 00   2.E.1.0.0.D.1.0.
+                           30 00 31 00 30 00 37 00 35 00 33 00 33 00 33 00   0.1.0.7.5.3.3.3.
+                           35 00 35 00 33 00 33 00 33 00 36 00 33 00 30 00   5.5.3.3.3.6.3.0.
+                           32 00                                             2.

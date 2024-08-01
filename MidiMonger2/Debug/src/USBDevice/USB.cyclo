@@ -1,0 +1,42 @@
+../Drivers/CMSIS/Include/core_cm4.h:1688:22:void __NVIC_EnableIRQ(IRQn_Type)	2
+../Drivers/CMSIS/Include/core_cm4.h:1816:22:void __NVIC_SetPriority(IRQn_Type, uint32_t)	2
+D:/Eurorack/MidiMonger/MidiMonger2/src/GpioPin.h:15:14:static void GpioPin::Init(GPIO_TypeDef*, uint32_t, Type, uint32_t, DriveStrength)	9
+../src/USBDevice/USBHandler.h:16:7:void usbRequest::loadData(const uint8_t*)	1
+../src/USBDevice/USBHandler.h:60:2:EP0Handler::EP0Handler(USB*, uint8_t, uint8_t, int8_t)	1
+../src/USBDevice/CDCHandler.h:12:2:CDCHandler::CDCHandler(USB*, uint8_t, uint8_t, int8_t)	1
+../src/USBDevice/MidiHandler.h:12:2:MidiHandler::MidiHandler(USB*, uint8_t, uint8_t, int8_t)	1
+../src/USBDevice/USB.h:36:8:constexpr USB::USB()	1
+../src/USBDevice/USB.cpp:10:6:void USB::EP0In(const uint8_t*, uint32_t)	1
+../src/USBDevice/USB.cpp:22:6:void USB::InterruptHandler()	65
+../src/USBDevice/USB.cpp:349:6:void USB::Init(bool)	9
+../src/USBDevice/USB.cpp:422:6:void USB::ActivateEndpoint(uint8_t, Direction, EndPointType)	4
+../src/USBDevice/USB.cpp:450:6:void USB::DeactivateEndpoint(uint8_t, Direction)	4
+../src/USBDevice/USB.cpp:482:6:void USB::ReadPacket(const uint32_t*, uint16_t, uint32_t)	2
+../src/USBDevice/USB.cpp:495:6:void USB::WritePacket(const uint8_t*, uint8_t, uint32_t)	2
+../src/USBDevice/USB.cpp:508:6:void USB::GetDescriptor()	14
+../src/USBDevice/USB.cpp:587:10:uint32_t USB::MakeConfigDescriptor()	3
+../src/USBDevice/USB.cpp:619:10:uint32_t USB::StringToUnicode(std::string_view, uint8_t*)	2
+../src/USBDevice/USB.cpp:633:6:void USB::SerialToUnicode()	2
+../src/USBDevice/USB.cpp:649:6:void USB::StdDevReq()	11
+../src/USBDevice/USB.cpp:702:6:void USB::EPStartXfer(Direction, uint8_t, uint32_t)	6
+../src/USBDevice/USB.cpp:743:6:void USB::CtlError()	1
+../src/USBDevice/USB.cpp:752:6:bool USB::ReadInterrupts(uint32_t)	1
+../src/USBDevice/USB.cpp:767:8:size_t USB::SendData(const uint8_t*, uint16_t, uint8_t)	3
+../src/USBDevice/USB.cpp:784:6:void USB::SendString(const char*)	3
+../src/USBDevice/USB.cpp:793:6:void USB::SendString(std::string)	1
+../src/USBDevice/USB.cpp:798:8:size_t USB::SendString(const unsigned char*, size_t)	3
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\basic_string.h:2562:7:constexpr const _CharT* std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::c_str() const [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:206:7:constexpr std::array<_Tp, _Nm>::value_type& std::array<_Tp, _Nm>::operator[](size_type) [with _Tp = USBHandler*; unsigned int _Nm = 3]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:206:7:constexpr std::array<_Tp, _Nm>::value_type& std::array<_Tp, _Nm>::operator[](size_type) [with _Tp = USBHandler*; unsigned int _Nm = 4]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\stl_algobase.h:230:5:constexpr const _Tp& std::min(const _Tp&, const _Tp&) [with _Tp = long unsigned int]	2
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:132:7:constexpr std::array<_Tp, _Nm>::value_type* std::array<_Tp, _Nm>::begin() [with _Tp = USBHandler*; unsigned int _Nm = 3]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:142:7:constexpr std::array<_Tp, _Nm>::value_type* std::array<_Tp, _Nm>::end() [with _Tp = USBHandler*; unsigned int _Nm = 3]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/string_view:182:7:constexpr const std::basic_string_view<_CharT, _Traits>::value_type* std::basic_string_view<_CharT, _Traits>::begin() const [with _CharT = char; _Traits = std::char_traits<char>]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/string_view:186:7:constexpr const std::basic_string_view<_CharT, _Traits>::value_type* std::basic_string_view<_CharT, _Traits>::end() const [with _CharT = char; _Traits = std::char_traits<char>]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\basic_string.h:233:7:constexpr std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::pointer std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::_M_data() const [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:60:7:static constexpr _Tp& std::__array_traits<_Tp, _Nm>::_S_ref(const _Tp (&)[_Nm], std::size_t) [with _Tp = USBHandler*; unsigned int _Nm = 3]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:60:7:static constexpr _Tp& std::__array_traits<_Tp, _Nm>::_S_ref(const _Tp (&)[_Nm], std::size_t) [with _Tp = USBHandler*; unsigned int _Nm = 4]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:283:7:constexpr std::array<_Tp, _Nm>::value_type* std::array<_Tp, _Nm>::data() [with _Tp = USBHandler*; unsigned int _Nm = 3]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:64:7:static constexpr _Tp* std::__array_traits<_Tp, _Nm>::_S_ptr(const _Tp (&)[_Nm]) [with _Tp = USBHandler*; unsigned int _Nm = 3]	1
+../src/USBDevice/USB.cpp:805:1:void __static_initialization_and_destruction_0(int, int)	3
+../src/USBDevice/USB.cpp:805:1:cpp)	1

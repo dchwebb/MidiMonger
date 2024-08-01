@@ -1,0 +1,58 @@
+../Drivers/CMSIS/Include/core_cm4.h:1688:22:void __NVIC_EnableIRQ(IRQn_Type)	2
+../Drivers/CMSIS/Include/core_cm4.h:1816:22:void __NVIC_SetPriority(IRQn_Type, uint32_t)	2
+D:/Eurorack/MidiMonger/MidiMonger2/src/GpioPin.h:8:2:GpioPin::GpioPin(GPIO_TypeDef*, uint32_t, Type, uint32_t, DriveStrength)	1
+D:/Eurorack/MidiMonger/MidiMonger2/src/GpioPin.h:15:14:static void GpioPin::Init(GPIO_TypeDef*, uint32_t, Type, uint32_t, DriveStrength)	9
+D:/Eurorack/MidiMonger/MidiMonger2/src/GpioPin.h:69:7:void GpioPin::SetHigh()	1
+../src/USBHost/USBHost.h:16:7:constexpr USBHost::USBHost()	1
+../src/USBHost/USBHost.cpp:6:6:void USBHost::Init()	4
+../src/USBHost/USBHost.cpp:58:6:void USBHost::Start()	1
+../src/USBHost/USBHost.cpp:66:6:void USBHost::DeInitStateMachine()	3
+../src/USBHost/USBHost.cpp:93:6:void USBHost::Process()	28
+../src/USBHost/USBHost.cpp:231:12:HostStatus USBHost::DoEnumeration()	28
+../src/USBHost/USBHost.cpp:362:6:void USBHost::EnumerationError()	2
+../src/USBHost/USBHost.cpp:379:6:void USBHost::HostChannelInit(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint16_t)	13
+../src/USBHost/USBHost.cpp:451:12:HostStatus USBHost::GetDevDesc(uint16_t)	2
+../src/USBHost/USBHost.cpp:464:12:HostStatus USBHost::GetDescriptor(uint8_t, uint16_t, uint8_t*, uint16_t)	3
+../src/USBHost/USBHost.cpp:478:12:HostStatus USBHost::GetStringDesc(uint8_t, uint8_t*, uint16_t)	2
+../src/USBHost/USBHost.cpp:489:12:HostStatus USBHost::GetConfigDesc(uint16_t)	12
+../src/USBHost/USBHost.cpp:563:6:void USBHost::ParseDevDesc(DeviceDescriptor&, uint8_t*, uint16_t)	6
+../src/USBHost/USBHost.cpp:591:6:void USBHost::ParseStringDesc(uint8_t*, uint8_t*, uint16_t)	3
+../src/USBHost/USBHost.cpp:605:12:HostStatus USBHost::ParseEPDesc(EndpointDescriptor&, uint8_t*)	7
+../src/USBHost/USBHost.cpp:641:12:HostStatus USBHost::ControlCommand(uint8_t, uint16_t, uint16_t)	2
+../src/USBHost/USBHost.cpp:655:12:HostStatus USBHost::ClearFeature(uint8_t)	1
+../src/USBHost/USBHost.cpp:662:22:USBHost::DescHeader* USBHost::GetNextDesc(uint8_t*, uint16_t*)	1
+../src/USBHost/USBHost.cpp:669:12:HostStatus USBHost::CtlReq(uint8_t*, uint16_t)	6
+../src/USBHost/USBHost.cpp:701:12:HostStatus USBHost::HandleControl()	32
+../src/USBHost/USBHost.cpp:840:9:uint8_t USBHost::AllocPipe(uint8_t)	3
+../src/USBHost/USBHost.cpp:852:6:void USBHost::FreePipe(uint8_t)	2
+../src/USBHost/USBHost.cpp:860:31:USBHost::InterfaceDescriptor* USBHost::SelectInterface(uint8_t, uint8_t)	4
+../src/USBHost/USBHost.cpp:877:6:void USBHost::SetToggle(uint8_t, uint8_t)	2
+../src/USBHost/USBHost.cpp:887:19:USBHost::URBState USBHost::GetURBState(uint8_t)	1
+../src/USBHost/USBHost.cpp:893:10:uint32_t USBHost::GetTransferCount(uint8_t)	1
+../src/USBHost/USBHost.cpp:899:10:uint32_t USBHost::GetHostSpeed()	1
+../src/USBHost/USBHost.cpp:905:10:uint32_t USBHost::GetMode()	1
+../src/USBHost/USBHost.cpp:911:6:bool USBHost::TestInterrupt(uint32_t)	1
+../src/USBHost/USBHost.cpp:918:6:bool USBHost::TestClearInterrupt(uint32_t)	2
+../src/USBHost/USBHost.cpp:929:6:void USBHost::IRQHandler()	13
+../src/USBHost/USBHost.cpp:978:6:void USBHost::ConnectHandler()	1
+../src/USBHost/USBHost.cpp:986:6:void USBHost::DisconnectHandler()	1
+../src/USBHost/USBHost.cpp:999:6:void USBHost::InIrqHandler(uint8_t)	24
+../src/USBHost/USBHost.cpp:1090:6:void USBHost::OutIrqHandler(uint8_t)	21
+../src/USBHost/USBHost.cpp:1176:6:void USBHost::RxqLvlIrqHandler()	7
+../src/USBHost/USBHost.cpp:1213:6:void USBHost::PortIrqHandler()	7
+../src/USBHost/USBHost.cpp:1249:6:void USBHost::SofIrqHandler()	1
+../src/USBHost/USBHost.cpp:1255:6:void USBHost::FlushTxFifo(uint32_t)	7
+../src/USBHost/USBHost.cpp:1265:6:void USBHost::FlushRxFifo()	7
+../src/USBHost/USBHost.cpp:1275:6:void USBHost::StartTransfer(uint8_t, pidToken, uint8_t*, uint16_t)	22
+../src/USBHost/USBHost.cpp:1337:6:void USBHost::WritePacket(const uint8_t*, uint8_t, uint32_t)	2
+../src/USBHost/USBHost.cpp:1348:6:void USBHost::ReadPacket(const uint32_t*, uint16_t, uint32_t)	3
+../src/USBHost/USBHost.cpp:1362:6:void USBHost::SetPhyClockSpeed(UsbSpeed)	3
+../src/USBHost/USBHost.cpp:1377:6:void USBHost::ResetPort()	1
+../src/USBHost/USBHost.cpp:1390:6:void USBHost::HaltChannel(uint8_t)	13
+../src/USBHost/USBHost.cpp:1437:6:void USBHost::StopHost()	6
+../src/USBHost/USBHost.cpp:1472:6:void USBHost::Disable()	2
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\stl_algobase.h:230:5:constexpr const _Tp& std::min(const _Tp&, const _Tp&) [with _Tp = short unsigned int]	2
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\stl_algobase.h:230:5:constexpr const _Tp& std::min(const _Tp&, const _Tp&) [with _Tp = unsigned char]	2
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\stl_algobase.h:230:5:constexpr const _Tp& std::min(const _Tp&, const _Tp&) [with _Tp = int]	2
+../src/USBHost/USBHost.cpp:1484:1:void __static_initialization_and_destruction_0(int, int)	3
+../src/USBHost/USBHost.cpp:1484:1:cpp)	1

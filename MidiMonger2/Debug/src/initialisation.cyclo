@@ -1,0 +1,16 @@
+../Drivers/CMSIS/Include/core_cm4.h:1688:22:void __NVIC_EnableIRQ(IRQn_Type)	2
+../Drivers/CMSIS/Include/core_cm4.h:1816:22:void __NVIC_SetPriority(IRQn_Type, uint32_t)	2
+../Drivers/CMSIS/Include/core_cm4.h:1939:34:void __NVIC_SystemReset()	1
+../Drivers/CMSIS/Include/core_cm4.h:2022:26:uint32_t SysTick_Config(uint32_t)	2
+../src/GpioPin.h:8:2:GpioPin::GpioPin(GPIO_TypeDef*, uint32_t, Type, uint32_t, DriveStrength)	1
+../src/GpioPin.h:15:14:static void GpioPin::Init(GPIO_TypeDef*, uint32_t, Type, uint32_t, DriveStrength)	9
+../src/GpioPin.h:91:2:Btn::Btn(GPIO_TypeDef*, uint32_t, GpioPin::Type)	1
+../src/initialisation.cpp:6:6:void InitHardware()	1
+../src/initialisation.cpp:22:6:void InitClocks()	4
+../src/initialisation.cpp:72:6:void InitSysTick()	1
+../src/initialisation.cpp:79:6:void DelayMS(uint32_t)	2
+../src/initialisation.cpp:87:6:void InitMidiUART()	1
+../src/initialisation.cpp:111:6:void Reboot()	1
+../src/initialisation.cpp:134:6:void JumpToBootloader()	2
+../src/initialisation.cpp:160:1:void __static_initialization_and_destruction_0(int, int)	3
+../src/initialisation.cpp:160:1:cpp)	1

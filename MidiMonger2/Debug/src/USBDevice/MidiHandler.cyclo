@@ -1,0 +1,7 @@
+../src/USBDevice/MidiHandler.cpp:5:6:void MidiHandler::SendData(uint8_t*, uint32_t)	1
+../src/USBDevice/MidiHandler.cpp:10:6:virtual void MidiHandler::DataIn()	1
+../src/USBDevice/MidiHandler.cpp:15:6:virtual void MidiHandler::DataOut()	7
+../src/USBDevice/MidiHandler.cpp:40:6:virtual void MidiHandler::ActivateEP()	1
+../src/USBDevice/MidiHandler.cpp:48:6:virtual void MidiHandler::ClassSetup(usbRequest&)	1
+../src/USBDevice/MidiHandler.cpp:53:6:virtual void MidiHandler::ClassSetupData(usbRequest&, const uint8_t*)	1
+../src/USBDevice/MidiHandler.cpp:159:10:virtual uint32_t MidiHandler::GetInterfaceDescriptor(const uint8_t**)	1

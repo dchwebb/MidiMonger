@@ -1,0 +1,14 @@
+D:/Eurorack/MidiMonger/MidiMonger2/src/USBDevice/USBHandler.h:69:11:virtual uint32_t EP0Handler::GetInterfaceDescriptor(const uint8_t**)	1
+../src/USBDevice/USBHandler.cpp:4:1:USBHandler::USBHandler(USB*, uint8_t, uint8_t, int8_t)	2
+../src/USBDevice/USBHandler.cpp:11:6:void USBHandler::EndPointTransfer(Direction, uint8_t, uint32_t)	1
+../src/USBDevice/USBHandler.cpp:17:6:void USBHandler::EndPointActivate(uint8_t, Direction, EndPointType)	1
+../src/USBDevice/USBHandler.cpp:22:6:void USBHandler::SetupIn(uint32_t, const uint8_t*)	1
+../src/USBDevice/USBHandler.cpp:28:6:virtual void EP0Handler::ActivateEP()	1
+../src/USBDevice/USBHandler.cpp:32:6:virtual void EP0Handler::DataIn()	1
+../src/USBDevice/USBHandler.cpp:36:6:virtual void EP0Handler::DataOut()	1
+../src/USBDevice/USBHandler.cpp:40:6:virtual void EP0Handler::ClassSetup(usbRequest&)	1
+../src/USBDevice/USBHandler.cpp:44:6:virtual void EP0Handler::ClassSetupData(usbRequest&, const uint8_t*)	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:206:7:constexpr std::array<_Tp, _Nm>::value_type& std::array<_Tp, _Nm>::operator[](size_type) [with _Tp = USBHandler*; unsigned int _Nm = 4]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:206:7:constexpr std::array<_Tp, _Nm>::value_type& std::array<_Tp, _Nm>::operator[](size_type) [with _Tp = USBHandler*; unsigned int _Nm = 3]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:60:7:static constexpr _Tp& std::__array_traits<_Tp, _Nm>::_S_ref(const _Tp (&)[_Nm], std::size_t) [with _Tp = USBHandler*; unsigned int _Nm = 4]	1
+C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/array:60:7:static constexpr _Tp& std::__array_traits<_Tp, _Nm>::_S_ref(const _Tp (&)[_Nm], std::size_t) [with _Tp = USBHandler*; unsigned int _Nm = 3]	1

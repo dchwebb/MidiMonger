@@ -5,7 +5,7 @@
 
 extern volatile uint32_t SysTickVal;
 
-void SystemClock_Config(void);
+void InitClocks(void);
 void InitIO(void);
 void InitSysTick();
 void InitSampleAcquisition();

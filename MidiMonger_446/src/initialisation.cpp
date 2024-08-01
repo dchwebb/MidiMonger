@@ -1,5 +1,66 @@
 #include "initialisation.h"
 
+
+
+struct PLLDividers {
+	uint32_t M;
+	uint32_t N;
+	uint32_t P;
+	uint32_t Q;
+};
+const PLLDividers mainPLL {4, 180, 2, 7};		// Clock: 8MHz / 4(M) * 168(N) / 2(P) = 180MHz
+const PLLDividers saiPLL {6, 144, 4, 0};		// USB:   8MHz / 6(M) * 144(N) / 4(P) = 48MHz
+
+void InitClocks()
+{
+	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;		// enable system configuration clock
+	[[maybe_unused]] volatile uint32_t dummy = RCC->APB2ENR & RCC_APB2ENR_SYSCFGEN;		// delay
+
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;			// Enable Power Control clock
+	PWR->CR |= PWR_CR_VOS_0;					// Enable VOS voltage scaling - allows maximum clock speed
+
+	SCB->CPACR |= ((3 << 10 * 2) | (3 << 11 * 2));	// CPACR register: set full access privileges for coprocessors
+
+	RCC->CR |= RCC_CR_HSEON;					// HSE ON
+	while ((RCC->CR & RCC_CR_HSERDY) == 0);		// Wait till HSE is ready
+
+	RCC->PLLCFGR = 	(mainPLL.M << RCC_PLLCFGR_PLLM_Pos) |
+					(mainPLL.N << RCC_PLLCFGR_PLLN_Pos) |
+					(((mainPLL.P >> 1) - 1) << RCC_PLLCFGR_PLLP_Pos) |
+					(mainPLL.Q << RCC_PLLCFGR_PLLQ_Pos) |
+					RCC_PLLCFGR_PLLSRC_HSE;
+
+	RCC->CFGR |= RCC_CFGR_HPRE_DIV1 |			// HCLK = SYSCLK / 1
+				 RCC_CFGR_PPRE1_DIV4 |			// PCLK1 = HCLK / 4 (APB1)
+				 RCC_CFGR_PPRE2_DIV2;			// PCLK2 = HCLK / 2 (APB2)
+
+	RCC->CR |= RCC_CR_PLLON;					// Enable the main PLL
+	while ((RCC->CR & RCC_CR_PLLRDY) == 0);		// Wait till the main PLL is ready
+
+	// PLLSAI used for USB
+	RCC->PLLSAICFGR = (saiPLL.M << RCC_PLLSAICFGR_PLLSAIM_Pos) |
+					  (saiPLL.N << RCC_PLLSAICFGR_PLLSAIN_Pos) |
+					  (((saiPLL.P >> 1) - 1) << RCC_PLLSAICFGR_PLLSAIP_Pos);
+
+	RCC->CR |= RCC_CR_PLLSAION;					// Enable the SAI PLL for USB
+
+	// Configure Flash prefetch, Instruction cache, Data cache and wait state
+	FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS;
+
+	// Select the main PLL as system clock source
+	RCC->CFGR &= ~RCC_CFGR_SW;
+	RCC->CFGR |= RCC_CFGR_SW_PLL;
+	while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
+
+	// Enable data and instruction cache
+	FLASH->ACR |= FLASH_ACR_ICEN;
+	FLASH->ACR |= FLASH_ACR_DCEN;
+	FLASH->ACR |= FLASH_ACR_PRFTEN;				// Enable the FLASH prefetch buffer
+
+	SystemCoreClockUpdate();					// Update SystemCoreClock variable
+}
+
+/*
 #define USE_HSE
 #define PLL_M 4
 #define PLL_N 144
@@ -42,6 +103,8 @@ void SystemClock_Config(void) {
 	while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);
 
 }
+
+*/
 
 void InitIO()
 {
