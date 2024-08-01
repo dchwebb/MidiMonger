@@ -50,3 +50,14 @@ Hardware/MidiMonger_panel-backups/
 Hardware/\#auto_saved_files\#
 
 
+/Hardware_v2/MidiMonger_components-backups
+/Hardware_v2/MidiMonger-backups
+/Hardware_v1/QMidiMonger_controls-backups
+/Hardware_v1/QMidiMonger_panel-backups
+*auto_saved_files*
+*autosave*
+Hardware_v1/Panel_PCB_Gerbers/Panel_PCB_Gerbers_1*
+*.lck
+/Hardware_v1/MidiMonger_panel-backups
+/Hardware_v1/MidiMonger_controls-backups
+/Hardware_v1/MidiMonger-backups
