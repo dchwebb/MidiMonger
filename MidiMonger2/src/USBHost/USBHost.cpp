@@ -560,7 +560,7 @@ HostStatus USBHost::GetConfigDesc(const uint16_t length)
 }
 
 
-void USBHost::ParseDevDesc(DeviceDescriptor& devDesc, uint8_t *buf, const uint16_t length)
+void USBHost::ParseDevDesc(DeviceDescriptor& devDesc, uint8_t* buf, const uint16_t length)
 {
 	devDesc.bLength            = *(buf + 0);
 	devDesc.bDescriptorType    = *(buf + 1);

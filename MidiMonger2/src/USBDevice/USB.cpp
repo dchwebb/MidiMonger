@@ -21,7 +21,7 @@ void USB::EP0In(const uint8_t* buff, const uint32_t size)
 
 void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pcd.c
 {
-	uint32_t epnum, ep_intr, epint;
+	uint32_t endpoint, epInterrupts, epInt;
 
 	// Handle spurious interrupt
 	if ((USB_OTG_FS->GINTSTS & USB_OTG_FS->GINTMSK) == 0) {
@@ -33,25 +33,25 @@ void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4
 		USB_OTG_FS->GINTMSK &= ~USB_OTG_GINTSTS_RXFLVL;
 
 		const uint32_t receiveStatus = USB_OTG_FS->GRXSTSP;		// OTG status read and pop register: not shown in SFR, but read only (ie do not pop) register under OTG_FS_GLOBAL->FS_GRXSTSR_Device
-		epnum = receiveStatus & USB_OTG_GRXSTSP_EPNUM;			// Get the endpoint number
+		endpoint = receiveStatus & USB_OTG_GRXSTSP_EPNUM;			// Get the endpoint number
 		const uint16_t packetSize = (receiveStatus & USB_OTG_GRXSTSP_BCNT) >> 4;
 
-		USBUpdateDbg(receiveStatus, {}, epnum, packetSize, {}, nullptr);
+		USBUpdateDbg(receiveStatus, {}, endpoint, packetSize, {}, nullptr);
 
 		if (((receiveStatus & USB_OTG_GRXSTSP_PKTSTS) >> 17) == OutDataReceived && packetSize != 0) {	// 2 = OUT data packet received
-			ReadPacket(classByEP[epnum]->outBuff, packetSize, classByEP[epnum]->outBuffOffset);
-			USBUpdateDbg({}, {}, {}, {}, {}, classByEP[epnum]->outBuff + classByEP[epnum]->outBuffOffset);
-			if (classByEP[epnum]->outBuffPackets > 1) {
-				classByEP[epnum]->outBuffOffset += (packetSize / 4);			// When receiving multiple packets increase buffer offset (packet size in bytes -> 32 bit ints)
+			ReadPacket(classByEP[endpoint]->outBuff, packetSize, classByEP[endpoint]->outBuffOffset);
+			USBUpdateDbg({}, {}, {}, {}, {}, classByEP[endpoint]->outBuff + classByEP[endpoint]->outBuffOffset);
+			if (classByEP[endpoint]->outBuffPackets > 1) {
+				classByEP[endpoint]->outBuffOffset += (packetSize / 4);			// When receiving multiple packets increase buffer offset (packet size in bytes -> 32 bit ints)
 			}
 		} else if (((receiveStatus & USB_OTG_GRXSTSP_PKTSTS) >> 17) == SetupDataReceived) {				// 6 = SETUP data packet received
-			ReadPacket(classByEP[epnum]->outBuff, 8U, 0);
-			USBUpdateDbg({}, {}, {}, {}, {}, classByEP[epnum]->outBuff);
+			ReadPacket(classByEP[endpoint]->outBuff, 8U, 0);
+			USBUpdateDbg({}, {}, {}, {}, {}, classByEP[endpoint]->outBuff);
 		} else if (((receiveStatus & USB_OTG_GRXSTSP_PKTSTS) >> 17) == OutTransferCompleted) {			// 3 = transfer completed
-			classByEP[epnum]->outBuffOffset = 0;
+			classByEP[endpoint]->outBuffOffset = 0;
 		}
 		if (packetSize != 0) {
-			classByEP[epnum]->outBuffCount = packetSize;
+			classByEP[endpoint]->outBuffCount = packetSize;
 		}
 		USB_OTG_FS->GINTMSK |= USB_OTG_GINTSTS_RXFLVL;
 	}
@@ -60,24 +60,21 @@ void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4
 	if (ReadInterrupts(USB_OTG_GINTSTS_OEPINT)) {
 
 		// Read the output endpoint interrupt register to ascertain which endpoint(s) fired an interrupt
-		ep_intr = ((USBx_DEVICE->DAINT & USBx_DEVICE->DAINTMSK) & USB_OTG_DAINTMSK_OEPM_Msk) >> 16;
+		epInterrupts = ((USBx_DEVICE->DAINT & USBx_DEVICE->DAINTMSK) & USB_OTG_DAINTMSK_OEPM_Msk) >> 16;
 
 		// process each endpoint in turn incrementing the epnum and checking the interrupts (ep_intr) if that endpoint fired
-		epnum = 0;
-		while (ep_intr != 0) {
-			if ((ep_intr & 1) != 0) {
-				epint = USBx_OUTEP(epnum)->DOEPINT & USBx_DEVICE->DOEPMSK;
+		endpoint = 0;
+		while (epInterrupts != 0) {
+			if (epInterrupts & 1) {
+				epInt = USBx_OUTEP(endpoint)->DOEPINT & USBx_DEVICE->DOEPMSK;
 
-				USBUpdateDbg(epint, {}, epnum, {}, {}, nullptr);
+				USBUpdateDbg(epInt, {}, endpoint, {}, {}, nullptr);
 
-				if (epint & USB_OTG_DOEPINT_XFRC) {		// 0x01 Transfer completed
-
-					USBx_OUTEP(epnum)->DOEPINT = USB_OTG_DOEPINT_XFRC;				// Clear interrupt
-
-					if (epnum == 0) {
-
+				if (epInt & USB_OTG_DOEPINT_XFRC) {		// 0x01 Transfer completed
+					USBx_OUTEP(endpoint)->DOEPINT = USB_OTG_DOEPINT_XFRC;				// Clear interrupt
+					if (endpoint == 0) {
 						if (devState == DeviceState::Configured && classPendingData) {
-							if ((req.RequestType & USB_REQ_TYPE_MASK) == RequestTypeClass) {
+							if ((req.RequestType & requestTypeMask) == RequestTypeClass) {
 								// Previous OUT interrupt contains instruction (eg host sending CDC LineCoding); next command sends data (Eg LineCoding data)
 								classesByInterface[req.Index]->ClassSetupData(req, (uint8_t*)ep0.outBuff);
 							}
@@ -86,19 +83,19 @@ void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4
 						}
 
 						ep0State = EP0State::Idle;
-						USBx_OUTEP(epnum)->DOEPCTL |= USB_OTG_DOEPCTL_STALL;
+						USBx_OUTEP(endpoint)->DOEPCTL |= USB_OTG_DOEPCTL_STALL;
 					} else {
 						// Call appropriate data handler depending on endpoint of data
-						if (classByEP[epnum]->outBuffPackets <= 1) {
-							EPStartXfer(Direction::out, epnum, classByEP[epnum]->outBuffCount);
+						if (classByEP[endpoint]->outBuffPackets <= 1) {
+							EPStartXfer(Direction::out, endpoint, classByEP[endpoint]->outBuffCount);
 						}
-						classByEP[epnum]->DataOut();
+						classByEP[endpoint]->DataOut();
 					}
 				}
 
-				if (epint & USB_OTG_DOEPINT_STUP) {		// SETUP phase done: the application can decode the received SETUP data packet.
+				if (epInt & USB_OTG_DOEPINT_STUP) {		// SETUP phase done: the application can decode the received SETUP data packet.
 					// Parse Setup Request containing data in outBuff filled by RXFLVL interrupt
-					req.loadData((uint8_t*)classByEP[epnum]->outBuff);
+					req.loadData((uint8_t*)classByEP[endpoint]->outBuff);
 
 					USBUpdateDbg({}, req, {}, {}, {}, nullptr);
 
@@ -110,7 +107,7 @@ void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4
 						break;
 
 					case RequestRecipientInterface:
-						if ((req.RequestType & USB_REQ_TYPE_MASK) == RequestTypeClass) {		// 0xA1 & 0x60 == 0x20
+						if ((req.RequestType & requestTypeMask) == RequestTypeClass) {	// 0xA1 & 0x60 == 0x20
 
 							// req.Index holds interface - locate which handler this relates to
 							if (req.Length > 0) {
@@ -129,21 +126,21 @@ void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4
 						break;
 					}
 
-					USBx_OUTEP(epnum)->DOEPINT = USB_OTG_DOEPINT_STUP;				// Clear interrupt
+					USBx_OUTEP(endpoint)->DOEPINT = USB_OTG_DOEPINT_STUP;				// Clear interrupt
 				}
 
-				if (epint & USB_OTG_DOEPINT_OTEPDIS) {			// OUT token received when endpoint disabled
-					USBx_OUTEP(epnum)->DOEPINT = USB_OTG_DOEPINT_OTEPDIS;			// Clear interrupt
+				if (epInt & USB_OTG_DOEPINT_OTEPDIS) {			// OUT token received when endpoint disabled
+					USBx_OUTEP(endpoint)->DOEPINT = USB_OTG_DOEPINT_OTEPDIS;			// Clear interrupt
 				}
-				if (epint & USB_OTG_DOEPINT_OTEPSPR) {			// Status Phase Received interrupt
-					USBx_OUTEP(epnum)->DOEPINT = USB_OTG_DOEPINT_OTEPSPR;			// Clear interrupt
+				if (epInt & USB_OTG_DOEPINT_OTEPSPR) {			// Status Phase Received interrupt
+					USBx_OUTEP(endpoint)->DOEPINT = USB_OTG_DOEPINT_OTEPSPR;			// Clear interrupt
 				}
-				if (epint & USB_OTG_DOEPINT_NAK) {				// 0x2000 OUT NAK interrupt
-					USBx_OUTEP(epnum)->DOEPINT = USB_OTG_DOEPINT_NAK;				// Clear interrupt
+				if (epInt & USB_OTG_DOEPINT_NAK) {										// 0x2000 OUT NAK interrupt
+					USBx_OUTEP(endpoint)->DOEPINT = USB_OTG_DOEPINT_NAK;				// Clear interrupt
 				}
 			}
-			epnum++;
-			ep_intr >>= 1;
+			endpoint++;
+			epInterrupts >>= 1;
 		}
 
 	}
@@ -152,29 +149,29 @@ void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4
 	if (ReadInterrupts(USB_OTG_GINTSTS_IEPINT)) {
 
 		// Read in the device interrupt bits [initially 1]
-		ep_intr = (USBx_DEVICE->DAINT & USBx_DEVICE->DAINTMSK) & USB_OTG_DAINTMSK_IEPM_Msk;
+		epInterrupts = (USBx_DEVICE->DAINT & USBx_DEVICE->DAINTMSK) & USB_OTG_DAINTMSK_IEPM_Msk;
 
 		// process each endpoint in turn incrementing the epnum and checking the interrupts (ep_intr) if that endpoint fired
-		epnum = 0;
-		while (ep_intr != 0) {
-			if (ep_intr & 1) {
+		endpoint = 0;
+		while (epInterrupts != 0) {
+			if (epInterrupts & 1) {
 
-				epint = USBx_INEP(epnum)->DIEPINT & (USBx_DEVICE->DIEPMSK | (((USBx_DEVICE->DIEPEMPMSK >> (epnum & EP_ADDR_MASK)) & 0x1) << 7));
+				epInt = USBx_INEP(endpoint)->DIEPINT & (USBx_DEVICE->DIEPMSK | (((USBx_DEVICE->DIEPEMPMSK >> (endpoint & epAddressMask)) & 0x1) << 7));
 
-				USBUpdateDbg(epint, {}, epnum, {}, {}, nullptr);
+				USBUpdateDbg(epInt, {}, endpoint, {}, {}, nullptr);
 
-				if (epint & USB_OTG_DIEPINT_XFRC) {						// 0x1 Transfer completed interrupt
-					uint32_t fifoemptymsk = (0x1UL << (epnum & EP_ADDR_MASK));
+				if (epInt & USB_OTG_DIEPINT_XFRC) {						// 0x1 Transfer completed interrupt
+					uint32_t fifoemptymsk = (0x1 << (endpoint & epAddressMask));
 					USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 
-					USBx_INEP(epnum)->DIEPINT = USB_OTG_DIEPINT_XFRC;
+					USBx_INEP(endpoint)->DIEPINT = USB_OTG_DIEPINT_XFRC;
 
-					if (epnum == 0) {
+					if (endpoint == 0) {
 						if (ep0State == EP0State::DataIn && ep0.inBuffRem == 0) {
 							ep0State = EP0State::StatusOut;								// After completing transmission on EP0 send an out packet [HAL_PCD_EP_Receive]
 							EPStartXfer(Direction::out, 0, ep_maxPacket);
 
-						} else if (ep0State == EP0State::DataIn && ep0.inBuffRem > 0) {		// For EP0 long packets are sent separately rather than streamed out of the FIFO
+						} else if (ep0State == EP0State::DataIn && ep0.inBuffRem > 0) {	// For EP0 long packets are sent separately rather than streamed out of the FIFO
 							ep0.inBuffSize = ep0.inBuffRem;
 							ep0.inBuffRem = 0;
 							USBUpdateDbg({}, {}, {}, ep0.inBuffSize, {}, (uint32_t*)ep0.inBuff);
@@ -182,61 +179,61 @@ void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4
 							EPStartXfer(Direction::in, 0, ep0.inBuffSize);
 						}
 					} else {
-						classByEP[epnum]->DataIn();
+						classByEP[endpoint]->DataIn();
 						transmitting = false;
 					}
 				}
 
-				if (epint & USB_OTG_DIEPINT_TXFE) {						// 0x80 Transmit FIFO empty
-					USBUpdateDbg({}, {}, {}, classByEP[epnum]->inBuffSize, {}, (uint32_t*)classByEP[epnum]->inBuff);
+				if (epInt & USB_OTG_DIEPINT_TXFE) {						// 0x80 Transmit FIFO empty
+					USBUpdateDbg({}, {}, {}, classByEP[endpoint]->inBuffSize, {}, (uint32_t*)classByEP[endpoint]->inBuff);
 
-					if (epnum == 0) {
+					if (endpoint == 0) {
 						if (ep0.inBuffSize > ep_maxPacket) {
-							ep0.inBuffRem = classByEP[epnum]->inBuffSize - ep_maxPacket;
+							ep0.inBuffRem = classByEP[endpoint]->inBuffSize - ep_maxPacket;
 							ep0.inBuffSize = ep_maxPacket;
 						}
-						WritePacket(ep0.inBuff, epnum, ep0.inBuffSize);
+						WritePacket(ep0.inBuff, endpoint, ep0.inBuffSize);
 						ep0.inBuff += ep0.inBuffSize;					// Move pointer forwards
 						const uint32_t fifoemptymsk = 1;
 						USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 					} else {
 
 						// For regular endpoints keep writing packets to the FIFO while space available [PCD_WriteEmptyTxFifo]
-						uint16_t len = std::min(classByEP[epnum]->inBuffSize - classByEP[epnum]->inBuffCount, (uint32_t)ep_maxPacket);
+						uint16_t len = std::min(classByEP[endpoint]->inBuffSize - classByEP[endpoint]->inBuffCount, (uint32_t)ep_maxPacket);
 						uint16_t len32b = (len + 3) / 4;				// FIFO size is in 4 byte words
 
 						// INEPTFSAV[15:0]: IN endpoint Tx FIFO space available: 0x0: Endpoint Tx FIFO is full; 0x1: 1 31-bit word available; 0xn: n words available
-						while (((USBx_INEP(epnum)->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV) >= len32b) && (classByEP[epnum]->inBuffCount < classByEP[epnum]->inBuffSize) && (classByEP[epnum]->inBuffSize != 0)) {
-							len = std::min(classByEP[epnum]->inBuffSize - classByEP[epnum]->inBuffCount, (uint32_t)ep_maxPacket);
+						while (((USBx_INEP(endpoint)->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV) >= len32b) && (classByEP[endpoint]->inBuffCount < classByEP[endpoint]->inBuffSize) && (classByEP[endpoint]->inBuffSize != 0)) {
+							len = std::min(classByEP[endpoint]->inBuffSize - classByEP[endpoint]->inBuffCount, (uint32_t)ep_maxPacket);
 							len32b = (len + 3) / 4;
-							WritePacket(classByEP[epnum]->inBuff, epnum, len);
-							classByEP[epnum]->inBuff += len;
-							classByEP[epnum]->inBuffCount += len;
+							WritePacket(classByEP[endpoint]->inBuff, endpoint, len);
+							classByEP[endpoint]->inBuff += len;
+							classByEP[endpoint]->inBuffCount += len;
 						}
 
-						if (classByEP[epnum]->inBuffSize <= classByEP[epnum]->inBuffCount) {
-							const uint32_t fifoemptymsk = (0x1UL << (epnum & EP_ADDR_MASK));
+						if (classByEP[endpoint]->inBuffSize <= classByEP[endpoint]->inBuffCount) {
+							const uint32_t fifoemptymsk = (0x1 << (endpoint & epAddressMask));
 							USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 						}
 					}
 				}
 
-				if (epint & USB_OTG_DIEPINT_TOC) {					// Timeout condition
-					USBx_INEP(epnum)->DIEPINT = USB_OTG_DIEPINT_TOC;
+				if (epInt & USB_OTG_DIEPINT_TOC) {						// Timeout condition
+					USBx_INEP(endpoint)->DIEPINT = USB_OTG_DIEPINT_TOC;
 				}
-				if (epint & USB_OTG_DIEPINT_ITTXFE) {				// IN token received when Tx FIFO is empty
-					USBx_INEP(epnum)->DIEPINT = USB_OTG_DIEPINT_ITTXFE;
+				if (epInt & USB_OTG_DIEPINT_ITTXFE) {					// IN token received when Tx FIFO is empty
+					USBx_INEP(endpoint)->DIEPINT = USB_OTG_DIEPINT_ITTXFE;
 				}
-				if (epint & USB_OTG_DIEPINT_INEPNE) {				// IN endpoint NAK effective
-					USBx_INEP(epnum)->DIEPINT = USB_OTG_DIEPINT_INEPNE;
+				if (epInt & USB_OTG_DIEPINT_INEPNE) {					// IN endpoint NAK effective
+					USBx_INEP(endpoint)->DIEPINT = USB_OTG_DIEPINT_INEPNE;
 				}
-				if (epint & USB_OTG_DIEPINT_EPDISD) {				// Endpoint disabled interrupt
-					USBx_INEP(epnum)->DIEPINT = USB_OTG_DIEPINT_EPDISD;
+				if (epInt & USB_OTG_DIEPINT_EPDISD) {					// Endpoint disabled interrupt
+					USBx_INEP(endpoint)->DIEPINT = USB_OTG_DIEPINT_EPDISD;
 				}
 
 			}
-			epnum++;
-			ep_intr >>= 1;
+			endpoint++;
+			epInterrupts >>= 1;
 		}
 
 	}
@@ -397,6 +394,40 @@ void USB::Init(bool softReset)
 
     USBx_DEVICE->DCTL &= ~USB_OTG_DCTL_SDIS;			// Activate USB
     USB_OTG_FS->GAHBCFG |= USB_OTG_GAHBCFG_GINT;		// Activate USB Interrupts
+}
+
+
+
+void USB::Disable()
+{
+	volatile uint32_t count = 0;
+
+    USBx_DEVICE->DCTL |= USB_OTG_DCTL_SDIS;				// Soft Disconnect
+	DelayMS(50);
+
+	USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_PWRDWN;			// Disable transceiver. When reset transceiver is kept in power-down. 0 = USB FS transceiver disabled; 1 = USB FS transceiver enabled
+	USB_OTG_FS->GUSBCFG &= ~USB_OTG_GUSBCFG_FDMOD;		// Disable USB device mode
+	DelayMS(50);
+
+	// Clear all transmit FIFO address and data lengths - these will be set to correct values below for endpoints 0,1 and 2
+	for (uint8_t i = 0; i < 15; i++) {
+		USB_OTG_FS->DIEPTXF[i] = 0;
+	}
+
+	USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_VBDEN; 			// Disable HW VBUS sensing
+
+	USB_OTG_FS->GRSTCTL |= USB_OTG_GRSTCTL_TXFNUM_4;	// Select buffers to flush. 10000: Flush all the transmit FIFOs in device or host mode
+	USB_OTG_FS->GRSTCTL |= USB_OTG_GRSTCTL_TXFFLSH;		// Flush the TX buffers
+	while (++count < 100000 && (USB_OTG_FS->GRSTCTL & USB_OTG_GRSTCTL_TXFFLSH));
+
+	USB_OTG_FS->GRSTCTL = USB_OTG_GRSTCTL_RXFFLSH;		// Flush the RX buffers
+	count = 0;
+	while (++count < 100000 && (USB_OTG_FS->GRSTCTL & USB_OTG_GRSTCTL_RXFFLSH));
+
+	USB_OTG_FS->GINTSTS = 0xBFFFFFFF;					// Clear pending interrupts (except SRQINT Session request/new session detected)
+	USB_OTG_FS->GINTMSK = 0;							// Disable all interrupts
+
+    USB_OTG_FS->GAHBCFG &= ~USB_OTG_GAHBCFG_GINT;		// Deactivate USB Interrupts
 }
 
 
@@ -596,7 +627,7 @@ uint32_t USB::MakeConfigDescriptor()
 }
 
 
-uint32_t USB::StringToUnicode(const std::string_view desc, uint8_t *unicode)
+uint32_t USB::StringToUnicode(const std::string_view desc, uint8_t* unicode)
 {
 	uint32_t idx = 2;
 	for (auto c: desc) {
@@ -628,7 +659,7 @@ void USB::SerialToUnicode()
 void USB::StdDevReq()
 {
 	uint8_t dev_addr;
-	switch (req.RequestType & USB_REQ_TYPE_MASK)
+	switch (req.RequestType & requestTypeMask)
 	{
 	case RequestTypeClass:
 	case RequestTypeVendor:
@@ -682,7 +713,7 @@ void USB::EPStartXfer(const Direction direction, uint8_t endpoint, uint32_t xfer
 
 	if (direction == Direction::in) {
 
-		endpoint = endpoint & EP_ADDR_MASK;					// Strip out 0x80 if endpoint passed eg as 0x81
+		endpoint = endpoint & epAddressMask;					// Strip out 0x80 if endpoint passed eg as 0x81
 
 		if (endpoint == 0 && xfer_len > ep_maxPacket) {		// If the transfer is larger than the maximum packet size send the maximum size and use the remaining flag to trigger a second send
 			ep0.inBuffRem = xfer_len - ep_maxPacket;
@@ -745,7 +776,7 @@ bool USB::ReadInterrupts(uint32_t interrupt) {
 
 size_t USB::SendData(const uint8_t* data, const uint16_t len, uint8_t endpoint)
 {
-	endpoint &= EP_ADDR_MASK;
+	endpoint &= epAddressMask;
 	if (devState == DeviceState::Configured && !transmitting) {
 		transmitting = true;
 		classByEP[endpoint]->inBuff = data;

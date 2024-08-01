@@ -22,7 +22,7 @@ C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externalt
 ../src/interrupts.h:51:6:void DebugMon_Handler()	1
 ../src/interrupts.h:55:6:void PendSV_Handler()	1
 ../src/main.cpp:15:8:size_t _write(int, const unsigned char*, size_t)	3
-../src/main.cpp:36:5:int main()	5
+../src/main.cpp:35:5:int main()	6
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/bits/allocator.h:156:7:constexpr std::allocator< <template-parameter-1-1> >::allocator() [with _Tp = ConfigSaver*]	1
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/bits/allocator.h:174:7:constexpr std::allocator< <template-parameter-1-1> >::~allocator() [with _Tp = ConfigSaver*]	1
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/bits/stl_vector.h:673:7:constexpr std::vector<_Tp, _Alloc>::vector(std::initializer_list<_Tp>, const allocator_type&) [with _Tp = ConfigSaver*; _Alloc = std::allocator<ConfigSaver*>]	1
@@ -82,6 +82,6 @@ C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externalt
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\stl_algobase.h:380:2:static constexpr _OI std::__copy_move<false, false, std::random_access_iterator_tag>::__copy_m(_II, _II, _OI) [with _II = ConfigSaver* const*; _OI = ConfigSaver**]	2
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\stl_algobase.h:420:2:static constexpr _Tp* std::__copy_move<_IsMove, true, std::random_access_iterator_tag>::__copy_m(const _Tp*, const _Tp*, _Tp*) [with _Tp = ConfigSaver*; bool _IsMove = false]	2
 ../src/configManager.h:15:7:constexpr Config::~Config()	1
-../src/main.cpp:73:1:void __static_initialization_and_destruction_0(int, int)	5
-../src/main.cpp:73:1:cpp)	1
-../src/main.cpp:73:1:cpp)	1
+../src/main.cpp:77:1:void __static_initialization_and_destruction_0(int, int)	5
+../src/main.cpp:77:1:cpp)	1
+../src/main.cpp:77:1:cpp)	1

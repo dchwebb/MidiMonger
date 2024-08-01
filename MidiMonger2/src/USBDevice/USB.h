@@ -22,15 +22,8 @@
 #define USBx_OUTEP(i)	((USB_OTG_OUTEndpointTypeDef *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_OUT_ENDPOINT_BASE + ((i) * USB_OTG_EP_REG_SIZE)))
 #define USBx_DFIFO(i)	*(uint32_t*)(USB_OTG_FS_PERIPH_BASE + USB_OTG_FIFO_BASE + ((i) * USB_OTG_FIFO_SIZE))
 
-#define EP_ADDR_MASK					0xFU
-#define USB_REQ_DIRECTION_MASK			0x80U
-#define USB_REQ_TYPE_MASK				0x60U
-
-#define LOBYTE(x)  ((uint8_t)(x & 0x00FFU))
-#define HIBYTE(x)  ((uint8_t)((x & 0xFF00U) >> 8U))
-
-#define LOBYTE(x)  ((uint8_t)(x & 0x00FFU))
-#define HIBYTE(x)  ((uint8_t)((x & 0xFF00U) >> 8U))
+#define LOBYTE(x)  ((uint8_t)(x & 0x00FF))
+#define HIBYTE(x)  ((uint8_t)((x & 0xFF00) >> 8))
 
 
 struct USB {
@@ -48,10 +41,14 @@ public:
 	enum StringIndex {LangId = 0, Manufacturer = 1, Product = 2, Serial = 3, Configuration = 4, MassStorageClass = 5,
 		CommunicationClass = 6, AudioClass = 7};
 
+	static constexpr uint32_t requestTypeMask = 0x60;
+	static constexpr uint32_t requestDirectionMask = 0x80;
+	static constexpr uint32_t epAddressMask = 0xF;
 	static constexpr uint8_t ep_maxPacket = 0x40;
 
 	void InterruptHandler();
 	void Init(bool softReset);
+	void Disable();
 	size_t SendData(const uint8_t *data, uint16_t len, uint8_t endpoint);
 	void SendString(const char* s);
 	void SendString(const std::string s);
@@ -63,6 +60,7 @@ public:
 	EP0Handler ep0   = EP0Handler(this, 0, 0, NoInterface);
 	MidiHandler midi = MidiHandler(this, USB::Midi_In, USB::Midi_Out, MidiInterface);
 	CDCHandler cdc   = CDCHandler(this,  USB::CDC_In,  USB::CDC_Out,  CDCCmdInterface);
+
 	bool classPendingData = false;			// Set when class setup command received and data pending
 	DeviceState devState;
 

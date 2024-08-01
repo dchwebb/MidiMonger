@@ -43,34 +43,33 @@ void MidiControl::MidiEvent(const uint32_t data)
 				// Gate configuration
 				switch ((ConfigSetting)midiEvent.configType) {
 				case ConfigSetting::type:
-					gateOutputs[midiEvent.cfgChannelOrOutput - 1].type = (GateType)midiEvent.configValue;
+					cfg.gates[midiEvent.cfgChannelOrOutput - 1].type = (GateType)midiEvent.configValue;
 					MatchChannelSetting(OutputType::gate, midiEvent.cfgChannelOrOutput - 1);
 					break;
 				case ConfigSetting::specificNote:
-					gateOutputs[midiEvent.cfgChannelOrOutput - 1].note = midiEvent.configValue;
+					cfg.gates[midiEvent.cfgChannelOrOutput - 1].note = midiEvent.configValue;
 					break;
 				case ConfigSetting::channel:
-					gateOutputs[midiEvent.cfgChannelOrOutput - 1].channel = midiEvent.configValue;
+					cfg.gates[midiEvent.cfgChannelOrOutput - 1].channel = midiEvent.configValue;
 					MatchChannelSetting(OutputType::gate, midiEvent.cfgChannelOrOutput - 1);
 					break;
-				default :
+				default:
 					break;
 				}
-			} else {
-				// CV Configuration
+			} else {																// CV Configuration
 				switch ((ConfigSetting)midiEvent.configType) {
 				case ConfigSetting::type:
-					cvOutputs[midiEvent.cfgChannelOrOutput - 9].type = (CvType)midiEvent.configValue;
+					cfg.cvs[midiEvent.cfgChannelOrOutput - 9].type = (CvType)midiEvent.configValue;
 					MatchChannelSetting(OutputType::cv, midiEvent.cfgChannelOrOutput - 9);
 					break;
 				case ConfigSetting::channel:
-					cvOutputs[midiEvent.cfgChannelOrOutput - 9].channel = midiEvent.configValue;
+					cfg.cvs[midiEvent.cfgChannelOrOutput - 9].channel = midiEvent.configValue;
 					MatchChannelSetting(OutputType::cv, midiEvent.cfgChannelOrOutput - 9);
 					break;
 				case ConfigSetting::controller:
-					cvOutputs[midiEvent.cfgChannelOrOutput - 9].controller = midiEvent.configValue;
+					cfg.cvs[midiEvent.cfgChannelOrOutput - 9].controller = midiEvent.configValue;
 					break;
-				default :
+				default:
 					break;
 				}
 			}
@@ -202,7 +201,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 	// Clock
 	if (midiEvent.db0 == 0xF8) {
 
-		ClockCount++;
+		++ClockCount;
 
 		// MIDI clock triggers at 24 pulses per quarter note
 		if (ClockCount % 6 == 0) {
@@ -263,7 +262,7 @@ void MidiControl::SerialHandler(uint32_t data)
 
 
 inline void MidiControl::QueueInc() {
-	queueCount--;
+	--queueCount;
 	queueRead = (queueRead + 1) % QueueSize;
 }
 
@@ -362,7 +361,7 @@ void MidiControl::CV::sendNote()
 {
 	uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((float)currentNote + midiControl.channelNotes[channel - 1].pitchbend, 24.0f), 96.0f) - 24) / 72;		// limit C1 to C7
 	dacHandler.sendData(WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
-	LedOn(400);										// Turn LED On for 400ms
+	LedOn(400);														// Turn LED On for 400ms
 }
 
 

@@ -25,13 +25,12 @@ size_t _write(int handle, const unsigned char* buf, size_t len)
 	}
 
 }
-
 }
 
-Config config{&midiControl.configSaver};		// Construct config handler with list of configSavers
+Config config{&midiControl.configSaver};	// Construct config handler with list of configSavers
 
 
-
+bool enableUSB = false;						// FIXME - for testing USB device enable/disable
 
 int main(void)
 {
@@ -50,16 +49,21 @@ int main(void)
 	midiControl.LightShow();
 
 	while (1) {
-		midiControl.GateTimer();		// Switches off any pending gates/leds
-		config.SaveConfig();			// Save any scheduled changes
+		midiControl.GateTimer();			// Switches off any pending gates/leds
+		config.SaveConfig();				// Save any scheduled changes
+
+		if (enableUSB) {
+			enableUSB = false;
+			usb.Init(true);
+		}
 
 		if (hostMode) {
 			usbHost.Process();
 		} else {
-			usb.cdc.ProcessCommand();	// Check for incoming USB serial commands
+			usb.cdc.ProcessCommand();		// Check for incoming USB serial commands
 		}
 
-		if (modeBtn.Pressed()) {		// Switch between USB host and device mode
+		if (modeBtn.Pressed()) {			// Switch between USB host and device mode
 			if (hostMode) {
 				printf("Switching to device mode\r\n");
 				usbHost.Disable();

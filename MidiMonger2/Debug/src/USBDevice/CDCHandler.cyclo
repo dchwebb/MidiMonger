@@ -22,16 +22,16 @@ C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externalt
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/string_view:268:7:constexpr const std::basic_string_view<_CharT, _Traits>::value_type* std::basic_string_view<_CharT, _Traits>::data() const [with _CharT = char; _Traits = std::char_traits<char>]	1
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/string_view:413:7:constexpr std::basic_string_view<_CharT, _Traits>::size_type std::basic_string_view<_CharT, _Traits>::find(const _CharT*, size_type) const [with _CharT = char; _Traits = std::char_traits<char>]	1
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/string_view:237:7:constexpr const std::basic_string_view<_CharT, _Traits>::value_type& std::basic_string_view<_CharT, _Traits>::operator[](size_type) const [with _CharT = char; _Traits = std::char_traits<char>]	3
-../src/USBDevice/CDCHandler.cpp:7:6:void CDCHandler::ProcessCommand()	53
-../src/USBDevice/CDCHandler.cpp:226:6:virtual void CDCHandler::DataIn()	3
-../src/USBDevice/CDCHandler.cpp:236:6:virtual void CDCHandler::DataOut()	4
-../src/USBDevice/CDCHandler.cpp:253:6:virtual void CDCHandler::ActivateEP()	1
-../src/USBDevice/CDCHandler.cpp:263:6:virtual void CDCHandler::ClassSetup(usbRequest&)	5
-../src/USBDevice/CDCHandler.cpp:277:6:virtual void CDCHandler::ClassSetupData(usbRequest&, const uint8_t*)	3
+../src/USBDevice/CDCHandler.cpp:7:6:void CDCHandler::ProcessCommand()	54
+../src/USBDevice/CDCHandler.cpp:231:6:virtual void CDCHandler::DataIn()	3
+../src/USBDevice/CDCHandler.cpp:241:6:virtual void CDCHandler::DataOut()	4
+../src/USBDevice/CDCHandler.cpp:258:6:virtual void CDCHandler::ActivateEP()	1
+../src/USBDevice/CDCHandler.cpp:268:6:virtual void CDCHandler::ClassSetup(usbRequest&)	5
+../src/USBDevice/CDCHandler.cpp:282:6:virtual void CDCHandler::ClassSetupData(usbRequest&, const uint8_t*)	3
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\string_view.tcc:80:5:constexpr std::basic_string_view<_CharT, _Traits>::size_type std::basic_string_view<_CharT, _Traits>::find(_CharT, size_type) const [with _CharT = char; _Traits = std::char_traits<char>]	3
-../src/USBDevice/CDCHandler.cpp:286:9:int32_t CDCHandler::ParseInt(std::string_view, char, int32_t, int32_t)	7
-../src/USBDevice/CDCHandler.cpp:300:7:float CDCHandler::ParseFloat(std::string_view, char, float, float)	7
-../src/USBDevice/CDCHandler.cpp:406:10:virtual uint32_t CDCHandler::GetInterfaceDescriptor(const uint8_t**)	1
+../src/USBDevice/CDCHandler.cpp:291:9:int32_t CDCHandler::ParseInt(std::string_view, char, int32_t, int32_t)	7
+../src/USBDevice/CDCHandler.cpp:305:7:float CDCHandler::ParseFloat(std::string_view, char, float, float)	7
+../src/USBDevice/CDCHandler.cpp:411:10:virtual uint32_t CDCHandler::GetInterfaceDescriptor(const uint8_t**)	1
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\stl_construct.h:94:5:) [with _Tp = char; _Args = {const char&}]	1
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/bits/char_traits.h:193:5:static constexpr const __gnu_cxx::char_traits<_CharT>::char_type* __gnu_cxx::char_traits<_CharT>::find(const char_type*, std::size_t, const char_type&) [with _CharT = char]	3
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/bits/char_traits.h:255:5:static constexpr __gnu_cxx::char_traits<_CharT>::char_type* __gnu_cxx::char_traits<_CharT>::copy(char_type*, const char_type*, std::size_t) [with _CharT = char]	4

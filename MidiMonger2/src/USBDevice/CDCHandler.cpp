@@ -210,6 +210,11 @@ void CDCHandler::ProcessCommand()
 		DelayMS(10);
 		Reboot();
 
+
+	} else if (cmd.compare("disableusb") == 0) {				// Disable USB device
+		usb->Disable();
+
+
 	} else {
 		usb->SendString("Unrecognised command. Type 'help' for supported commands\r\n");
 	}
