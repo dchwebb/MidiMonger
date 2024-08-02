@@ -1,5 +1,6 @@
 #include "MidiHostClass.h"
 #include "USBHost.h"
+#include "MidiControl.h"
 
 MidiHostClass midiHostClass(&usbHost, MidiHostClass::name, MidiHostClass::classCode);
 
@@ -88,7 +89,7 @@ HostStatus MidiHostClass::Process()
 	case MidiState::Poll:
 		if (usbHost->GetURBState(inPipe) == USBHost::URBState::Done) {
 			if (usbHost->GetTransferCount(inPipe) > 0) {
-				MidiEvent(midiBuffer, packetSize);
+				MidiEvent((uint32_t*)midiBuffer, packetSize);
 			}
 			state = MidiState::GetData;
 
@@ -107,23 +108,24 @@ HostStatus MidiHostClass::Process()
 }
 
 
-void MidiHostClass::MidiEvent(uint8_t* buff, uint16_t len)
+void MidiHostClass::MidiEvent(uint32_t* buff, uint16_t len)
 {
-	static uint32_t clkCnt = 0;
-
-	uint32_t midiData = *(uint32_t*)buff;
-	if (midiData == 0xF80F) {
-		if (clkCnt == 0) {
-			printf("Clock\r\n");
-		}
-		++clkCnt;
-	} else {
-		if (clkCnt > 0) {
-			printf("Clock: %ld\r\n", clkCnt);
-			clkCnt = 0;
-		}
-		printf("Midi: 0x%08lx\r\n", midiData);
-	}
+	midiControl.MidiEvent(*buff);
+//	static uint32_t clkCnt = 0;
+//
+//	uint32_t midiData = *(uint32_t*)buff;
+//	if (midiData == 0xF80F) {
+//		if (clkCnt == 0) {
+//			printf("Clock\r\n");
+//		}
+//		++clkCnt;
+//	} else {
+//		if (clkCnt > 0) {
+//			printf("Clock: %ld\r\n", clkCnt);
+//			clkCnt = 0;
+//		}
+//		printf("Midi: 0x%08lx\r\n", midiData);
+//	}
 }
 
 

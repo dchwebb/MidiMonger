@@ -59,7 +59,7 @@ void USBHost::Start()
 {
 	USB_HPRT0 |= USB_OTG_HPRT_PPWR;							// Enable port power - not sure why as this should be done via external power supply
 	USB_OTG_FS->GAHBCFG |= USB_OTG_GAHBCFG_GINT;			// Enable global interrupt
-	PowerEnable.SetHigh();
+	PowerEnable.SetHigh();									// Pin PG6 on Nucleo which connects an external 5V output to VBUS - FIXME
 }
 
 

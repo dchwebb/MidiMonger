@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 volatile uint32_t SysTickVal;
-bool hostMode = false;
+bool hostMode = true;
 
 extern "C" {
 #include "interrupts.h"

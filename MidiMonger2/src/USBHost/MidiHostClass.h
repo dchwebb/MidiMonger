@@ -30,7 +30,7 @@ private:
 	uint16_t	poll;			// Not yet used - could be used to limit poll frequency
 	uint32_t	timer;
 
-	void MidiEvent(uint8_t* buff, uint16_t len);
+	void MidiEvent(uint32_t* buff, uint16_t len);
 };
 
 
