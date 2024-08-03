@@ -1,4 +1,5 @@
 (sym_lib_table
-  (lib (name "MidiMonger_controls-rescue")(type "Legacy")(uri "${KIPRJMOD}/MidiMonger_controls-rescue.lib")(options "")(descr ""))
+  (version 7)
+  (lib (name "MidiMonger_controls-rescue")(type "KiCad")(uri "${KIPRJMOD}/MidiMonger_controls-rescue.kicad_sym")(options "")(descr ""))
   (lib (name "MidiMonger-rescue")(type "Legacy")(uri "${KIPRJMOD}/MidiMonger-rescue.lib")(options "")(descr ""))
 )

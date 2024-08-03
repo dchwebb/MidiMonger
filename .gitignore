@@ -61,3 +61,5 @@ Hardware_v1/Panel_PCB_Gerbers/Panel_PCB_Gerbers_1*
 /Hardware_v1/MidiMonger_panel-backups
 /Hardware_v1/MidiMonger_controls-backups
 /Hardware_v1/MidiMonger-backups
+/Hardware_v2/MidiMonger_controls-backups
+Hardware_v1/MidiMonger_controls-rescue.kicad_sym
