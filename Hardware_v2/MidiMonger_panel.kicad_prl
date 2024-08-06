@@ -1,12 +1,10 @@
 {
   "board": {
-    "active_layer": 0,
+    "active_layer": 39,
     "active_layer_preset": "",
-    "auto_track_width": false,
+    "auto_track_width": true,
     "hidden_netclasses": [],
-    "hidden_nets": [
-      "GND"
-    ],
+    "hidden_nets": [],
     "high_contrast_mode": 0,
     "net_color_mode": 1,
     "opacity": {
@@ -21,7 +19,7 @@
       "footprints": true,
       "graphics": true,
       "keepouts": true,
-      "lockedItems": true,
+      "lockedItems": false,
       "otherItems": true,
       "pads": false,
       "text": true,
@@ -67,7 +65,7 @@
       36,
       40
     ],
-    "visible_layers": "0007fff_80000001",
+    "visible_layers": "001ffef_80000001",
     "zone_display_mode": 1
   },
   "git": {
@@ -77,7 +75,7 @@
     "ssh_key": ""
   },
   "meta": {
-    "filename": "MidiMonger_components.kicad_prl",
+    "filename": "MidiMonger_panel.kicad_prl",
     "version": 3
   },
   "project": {
