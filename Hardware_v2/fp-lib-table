@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Graphics")(type "KiCad")(uri "${KIPRJMOD}/Graphics")(options "")(descr ""))
+  (lib (name "Graphics2")(type "KiCad")(uri "D:/Eurorack/Kishoof/Graphics")(options "")(descr ""))
+)
