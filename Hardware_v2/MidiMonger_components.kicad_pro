@@ -548,10 +548,10 @@
       "gencad": "",
       "idf": "",
       "netlist": "MidiMonger.net",
-      "plot": "",
+      "plot": "Gerbers/Components",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "MidiMonger_components.step",
       "svg": "",
       "vrml": ""
     },

@@ -469,7 +469,7 @@
       "plot": "Gerbers/Panel/",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "MidiMonger_panel.step",
       "svg": "",
       "vrml": ""
     },

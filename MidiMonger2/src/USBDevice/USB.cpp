@@ -163,19 +163,16 @@ void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4
 				if (epInt & USB_OTG_DIEPINT_XFRC) {						// 0x1 Transfer completed interrupt
 					uint32_t fifoemptymsk = (0x1 << (endpoint & epAddressMask));
 					USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
-
 					USBx_INEP(endpoint)->DIEPINT = USB_OTG_DIEPINT_XFRC;
 
 					if (endpoint == 0) {
 						if (ep0State == EP0State::DataIn && ep0.inBuffRem == 0) {
 							ep0State = EP0State::StatusOut;								// After completing transmission on EP0 send an out packet [HAL_PCD_EP_Receive]
 							EPStartXfer(Direction::out, 0, ep_maxPacket);
-
 						} else if (ep0State == EP0State::DataIn && ep0.inBuffRem > 0) {	// For EP0 long packets are sent separately rather than streamed out of the FIFO
 							ep0.inBuffSize = ep0.inBuffRem;
 							ep0.inBuffRem = 0;
 							USBUpdateDbg({}, {}, {}, ep0.inBuffSize, {}, (uint32_t*)ep0.inBuff);
-
 							EPStartXfer(Direction::in, 0, ep0.inBuffSize);
 						}
 					} else {
@@ -197,7 +194,6 @@ void USB::InterruptHandler()						// In Drivers\STM32F4xx_HAL_Driver\Src\stm32f4
 						const uint32_t fifoemptymsk = 1;
 						USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;
 					} else {
-
 						// For regular endpoints keep writing packets to the FIFO while space available [PCD_WriteEmptyTxFifo]
 						uint16_t len = std::min(classByEP[endpoint]->inBuffSize - classByEP[endpoint]->inBuffCount, (uint32_t)ep_maxPacket);
 						uint16_t len32b = (len + 3) / 4;				// FIFO size is in 4 byte words
