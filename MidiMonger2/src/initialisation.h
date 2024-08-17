@@ -16,7 +16,7 @@ void InitMidiUART();
 void Reboot();
 void JumpToBootloader();
 
-extern Btn modeBtn;
+extern GpioPin modeSwitch;
 
 #define USBH_DEBUG_LEVEL 3
 

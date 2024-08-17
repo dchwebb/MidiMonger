@@ -95,13 +95,13 @@ private:
 	struct CV {
 		CvType type;
 		uint8_t channel;
-		DacAddress dacChannel;
+		DACHandler::Address dacChannel;
 		GpioPin led;
 		uint32_t offTime;
 		uint8_t controller;
 		uint8_t currentNote;
 		uint8_t nextNote;
-		CV(CvType type,	uint8_t channel, DacAddress dacChannel, GPIO_TypeDef* gpioPort, uint8_t gpioPin) :
+		CV(CvType type,	uint8_t channel, DACHandler::Address dacChannel, GPIO_TypeDef* gpioPort, uint8_t gpioPin) :
 			type(type), channel(channel), dacChannel(dacChannel), led(gpioPort, gpioPin, GpioPin::Type::Output) {};
 		void sendNote();
 		void LedOn(float offMs) {
@@ -109,10 +109,10 @@ private:
 			offTime = SysTickVal + (offMs * 2.5);				// pass gate off time: each tick is around 400us: 2500 x 400us = 1 second
 		}
 	} cvOutputs[4] = {
-			{CvType::channelPitch, 1, ChannelD, GPIOC, 14},
-			{CvType::channelPitch, 2, ChannelC, GPIOC, 13},
-			{CvType::channelPitch, 3, ChannelB, GPIOB, 8},
-			{CvType::channelPitch, 4, ChannelA, GPIOB, 7}
+			{CvType::channelPitch, 1, DACHandler::ChannelD, GPIOC, 14},
+			{CvType::channelPitch, 2, DACHandler::ChannelC, GPIOC, 13},
+			{CvType::channelPitch, 3, DACHandler::ChannelB, GPIOB, 8},
+			{CvType::channelPitch, 4, DACHandler::ChannelA, GPIOB, 7}
 	};
 
 	struct Config {

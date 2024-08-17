@@ -1,7 +1,6 @@
 #include "initialisation.h"
 
-//Btn modeBtn{GPIOC, 13, GpioPin::Type::InputPulldown};
-Btn modeBtn{GPIOC, 2, GpioPin::Type::InputPulldown};		// FIXME - set temporarily as conflicts with CV LED2 on module hardware
+GpioPin modeSwitch{GPIOC, 7, GpioPin::Type::InputPullup};
 
 void InitHardware()
 {

@@ -30,8 +30,6 @@ size_t _write(int handle, const unsigned char* buf, size_t len)
 Config config{&midiControl.configSaver};	// Construct config handler with list of configSavers
 
 
-bool enableUSB = false;						// FIXME - for testing USB device enable/disable
-
 int main(void)
 {
 	InitHardware();
@@ -39,6 +37,7 @@ int main(void)
 	dacHandler.Init();
 	config.RestoreConfig();
 
+	hostMode = modeSwitch.IsHigh();
 	if (hostMode) {
 		usbHost.Init();
 	} else {
@@ -52,19 +51,15 @@ int main(void)
 		midiControl.GateTimer();			// Switches off any pending gates/leds
 		config.SaveConfig();				// Save any scheduled changes
 
-		if (enableUSB) {
-			enableUSB = false;
-			usb.Init(true);
-		}
-
 		if (hostMode) {
 			usbHost.Process();
 		} else {
 			usb.cdc.ProcessCommand();		// Check for incoming USB serial commands
 		}
 
-		if (modeBtn.Pressed()) {			// Switch between USB host and device mode
-			if (hostMode) {
+		if (modeSwitch.IsHigh() != hostMode) {			// Switch between USB host and device mode
+			DelayMS(2);
+			if (modeSwitch.IsHigh()) {
 				printf("Switching to device mode\r\n");
 				usbHost.Disable();
 			} else {
