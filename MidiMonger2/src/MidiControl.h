@@ -82,14 +82,14 @@ private:
 			gateOffTime = offTime;
 		}
 	} gateOutputs[8] = {
-			{GateType::channelNote,  1, 0,   GPIOA, 7},
-			{GateType::channelNote,  2, 0,   GPIOA, 3},
-			{GateType::channelNote,  3, 0,   GPIOA, 5},
-			{GateType::channelNote,  4, 0,   GPIOC, 5},
-			{GateType::specificNote, 10, 36, GPIOC, 1},
-			{GateType::specificNote, 10, 38, GPIOB, 2},
-			{GateType::specificNote, 10, 42, GPIOC, 9},
-			{GateType::specificNote, 10, 46, GPIOC, 7}
+			{GateType::channelNote,  1, 0,   GPIOB, 0},
+			{GateType::channelNote,  2, 0,   GPIOC, 4},
+			{GateType::channelNote,  3, 0,   GPIOB, 2},
+			{GateType::channelNote,  4, 0,   GPIOA, 7},
+			{GateType::specificNote, 10, 36, GPIOB, 12},
+			{GateType::specificNote, 10, 38, GPIOA, 5},
+			{GateType::specificNote, 10, 42, GPIOB, 14},
+			{GateType::specificNote, 10, 46, GPIOC, 3}
 	};;
 
 	struct CV {

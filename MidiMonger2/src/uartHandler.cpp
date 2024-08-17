@@ -7,35 +7,27 @@ volatile bool uartCmdRdy = false;
 // Manages communication to ST Link debugger UART
 
 void InitUART() {
-	// 446 Nucleo uses PD8 (TX) PD9 (RX) for USART3
+	// 446 Nucleo uses PD8 (TX) PD9 (RX) for USART2
 
-	RCC->APB1ENR |= RCC_APB1ENR_USART3EN;			// UART clock enable
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;			// GPIO port enable
+	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;			// UART clock enable
 
-	GPIOD->MODER |= GPIO_MODER_MODER8_1;			// Set alternate function on PA9
-	GPIOD->AFR[1] |= 7 << GPIO_AFRH_AFSEL8_Pos;		// Alternate function on PD8 for UART3_TX is AF7
-	GPIOD->MODER |= GPIO_MODER_MODER9_1;			// Set alternate function on PA10
-	GPIOD->AFR[1] |= 7 << GPIO_AFRH_AFSEL9_Pos;		// Alternate function on PD9 for UART3_RX is AF7
+	GpioPin::Init(GPIOA, 2, GpioPin::Type::AlternateFunction, 7);		// TX
+	GpioPin::Init(GPIOA, 3, GpioPin::Type::AlternateFunction, 7);		// RX
 
 	int Baud = (SystemCoreClock / 4) / (16 * 230400);		// NB must be an integer or timing will be out
 	//int Baud = (SystemCoreClock / 4) / (16 * 31250);
-	USART3->BRR |= Baud << 4;						// Baud Rate (called USART_BRR_DIV_Mantissa) = (Sys Clock: 180MHz / APB1 Prescaler DIV4: 45MHz) / (16 * 31250) = 90
-	USART3->BRR |= 12;								// Fraction: (144MHz / 4) / (16 * 230400) = 9.765625: multiply remainder by 16: 16 * .765625 = 12.25
-	USART3->CR1 &= ~USART_CR1_M;					// Clear bit to set 8 bit word length
-	USART3->CR1 |= USART_CR1_RE;					// Receive enable
-	USART3->CR1 |= USART_CR1_TE;					// Transmitter enable
+	USART2->BRR |= Baud << 4;						// Baud Rate (called USART_BRR_DIV_Mantissa) = (Sys Clock: 180MHz / APB1 Prescaler DIV4: 45MHz) / (16 * 31250) = 90
+	USART2->BRR |= 12;								// Fraction: (144MHz / 4) / (16 * 230400) = 9.765625: multiply remainder by 16: 16 * .765625 = 12.25
+	USART2->CR1 &= ~USART_CR1_M;					// Clear bit to set 8 bit word length
+	USART2->CR1 |= USART_CR1_RE;					// Receive enable
+	USART2->CR1 |= USART_CR1_TE;					// Transmitter enable
 
 	// Set up interrupts
-	USART3->CR1 |= USART_CR1_RXNEIE;
-	NVIC_SetPriority(USART3_IRQn, 3);				// Lower is higher priority
-	NVIC_EnableIRQ(USART3_IRQn);
+	USART2->CR1 |= USART_CR1_RXNEIE;
+	NVIC_SetPriority(USART2_IRQn, 3);				// Lower is higher priority
+	NVIC_EnableIRQ(USART2_IRQn);
 
-	USART3->CR1 |= USART_CR1_UE;					// USART Enable
-
-	// configure GPIO to act as button on nucleo board (as user button is already a cv output)
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-	GPIOB->PUPDR |= GPIO_PUPDR_PUPDR11_0;			// Set pin to pull up:  01 Pull-up; 10 Pull-down; 11 Reserved
-	GPIOB->MODER &= ~GPIO_MODER_MODE11_Msk;
+	USART2->CR1 |= USART_CR1_UE;					// USART Enable
 
 }
 
@@ -66,24 +58,24 @@ std::string HexByte(const uint16_t& v) {
 size_t uartSendStr(const unsigned char* s, size_t len)
 {
 	for (uint32_t i = 0; i < len; ++i) {
-		while ((USART3->SR & USART_SR_TXE) == 0);
-		USART3->DR = s[i];
+		while ((USART2->SR & USART_SR_TXE) == 0);
+		USART2->DR = s[i];
 	}
 	return len;
 }
 
 void uartSendStr(const std::string& s) {
 	for (char c : s) {
-		while ((USART3->SR & USART_SR_TXE) == 0);
-		USART3->DR = c;
+		while ((USART2->SR & USART_SR_TXE) == 0);
+		USART2->DR = c;
 	}
 }
 
 extern "C" {
-// Dev board ST Link UART Handler
-void USART3_IRQHandler(void) {
-	if (USART3->SR | USART_SR_RXNE && !uartCmdRdy) {
-		uartCmd[uartCmdPos] = USART3->DR; 				// accessing DR automatically resets the receive flag
+
+void USART2_IRQHandler(void) {
+	if (USART2->SR | USART_SR_RXNE && !uartCmdRdy) {
+		uartCmd[uartCmdPos] = USART2->DR; 				// accessing DR automatically resets the receive flag
 		if (uartCmd[uartCmdPos] == 10) {
 			uartCmdRdy = true;
 			uartCmdPos = 0;
