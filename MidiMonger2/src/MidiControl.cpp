@@ -127,7 +127,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 
 	//	Note on/note off
 	if (midiEvent.msg == NoteOn || midiEvent.msg == NoteOff) {
-		printf("Note: %d\r\n", midiEvent.db1);
+		//printf("Note: %d\r\n", midiEvent.db1);
 
 		// locate output that will process the request
 		for (auto& gate : gateOutputs) {
@@ -361,7 +361,7 @@ void MidiControl::MatchChannelSetting(OutputType output, uint8_t num)
 
 void MidiControl::CV::sendNote()
 {
-	uint16_t dacOutput = 0xFFFF * (float)(std::min(std::max((float)currentNote + midiControl.channelNotes[channel - 1].pitchbend, 24.0f), 96.0f) - 24) / 72;		// limit C1 to C7
+	uint16_t dacOutput = 0xFFFF * (std::clamp((float)currentNote + midiControl.channelNotes[channel - 1].pitchbend, midiControl.cfg.dacOffset, 96.0f) - midiControl.cfg.dacOffset) / midiControl.cfg.dacScale;		// limit C1 to C7
 	dacHandler.SendData(DACHandler::WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
 	LedOn(400);														// Turn LED On for 400ms
 }

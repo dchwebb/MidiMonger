@@ -2,14 +2,6 @@
 
 #include "initialisation.h"
 
-union DacData {
-	struct {
-		uint8_t addr: 3, cmd: 5;
-		uint16_t data;
-	};
-	uint8_t da[3];
-};
-
 // Handler for MAX5134 4 channel 16 bit DAC
 class DACHandler
 {

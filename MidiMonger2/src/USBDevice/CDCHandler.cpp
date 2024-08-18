@@ -51,6 +51,26 @@ void CDCHandler::ProcessCommand()
 		);
 
 
+	} else 	if (cmd.compare(0, 10, "dacoffset:") == 0) {			// Configure DAC offset
+		float dacOffset = ParseFloat(cmd, ':', 10, 30);
+		if (dacOffset > 0) {
+			midiControl.cfg.dacOffset = dacOffset;
+			printf("DAC offset set to %f\r\n", dacOffset);
+			changed = true;
+		} else {
+			printf("Invalid range\r\n");
+		}
+
+	} else 	if (cmd.compare(0, 10, "dacscale:") == 0) {			// Configure DAC scale
+		float dacScale = ParseFloat(cmd, ':', 10, 30);
+		if (dacScale > 0) {
+			midiControl.cfg.dacScale = dacScale;
+			printf("DAC scale set to %f\r\n", dacScale);
+			changed = true;
+		} else {
+			printf("Invalid range\r\n");
+		}
+
 	} else 	if (cmd.compare(0, 1, "p") == 0) {			// Configure Pitchbend range
 		int16_t pb = ParseInt(cmd, 'p', 0, 25);
 		if (pb > 0) {
@@ -127,7 +147,13 @@ void CDCHandler::ProcessCommand()
 	} else if (cmd.compare("info") == 0) {			// Print current configuration
 		auto buffPos = buf;
 		buffPos += sprintf(buffPos, "Configuration:\r\n"
+				"DAC offset: %f\r\n"
+				"DAC scale: %f\r\n"
+				"Pitchbend range: %f semitones\r\n"
 				"Config sector: %lu; address: %p\r\n",
+				midiControl.cfg.dacOffset,
+				midiControl.cfg.dacScale,
+				midiControl.cfg.pitchBendSemiTones,
 				config.currentSector,
 				config.flashConfigAddr + config.currentSettingsOffset / 4);
 
@@ -167,7 +193,7 @@ void CDCHandler::ProcessCommand()
 			}
 			buffPos += sprintf(buffPos, ". Channel: %d", cv.channel);
 		}
-		buffPos += sprintf(buffPos, "\r\n\r\nPitchbend range: %f semitones\r\n", midiControl.cfg.pitchBendSemiTones);
+		buffPos += sprintf(buffPos, "\r\n\r\n");
 		usb->SendString(buf);
 
 

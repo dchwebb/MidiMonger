@@ -129,6 +129,9 @@ private:
 		} cvs[4];
 
 		float pitchBendSemiTones = 12.0f;						// Number of semitones for a full pitchbend
+
+		float dacOffset = 25.3f;
+		float dacScale = 74.0f;
 	} cfg;
 
 	static constexpr uint32_t QueueSize = 50;
