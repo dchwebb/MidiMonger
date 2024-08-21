@@ -12,6 +12,12 @@ void OTG_FS_IRQHandler(void)
 	}
 }
 
+// MIDI Decoder
+void UART4_IRQHandler(void) {
+	if (UART4->SR | USART_SR_RXNE) {
+		midiControl.SerialHandler(UART4->DR); 				// accessing DR automatically resets the receive flag
+	}
+}
 
 void NMI_Handler(void)
 {

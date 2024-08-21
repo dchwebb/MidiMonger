@@ -14,16 +14,15 @@ extern "C" {
 
 size_t _write(int handle, const unsigned char* buf, size_t len)
 {
-	if (hostMode) {
-		return uartSendStr(buf, len);							// Logging via UART
+	uartSendStr(buf, len);									// Logging via UART
+
+	if (usb.devState == USB::DeviceState::Configured) {		// Logging via USB
+		return usb.SendString(buf, len);
 	} else {
-		if (usb.devState == USB::DeviceState::Configured) {		// Logging via USB
-			return usb.SendString(buf, len);
-		} else {
-			return 0;
-		}
+		return 0;
 	}
 
+	return len;
 }
 }
 
@@ -37,7 +36,7 @@ int main(void)
 	dacHandler.Init();
 	config.RestoreConfig();
 
-	hostMode = modeSwitch.IsHigh();
+	hostMode = modeSwitch.IsLow();
 	if (hostMode) {
 		usbHost.Init();
 	} else {
@@ -57,16 +56,21 @@ int main(void)
 			usb.cdc.ProcessCommand();		// Check for incoming USB serial commands
 		}
 
-		if (modeSwitch.IsHigh() != hostMode) {			// Switch between USB host and device mode
+		if (modeSwitch.IsLow() != hostMode) {			// Switch between USB host and device mode
 			DelayMS(2);
 			if (modeSwitch.IsHigh()) {
 				printf("Switching to device mode\r\n");
 				usbHost.Disable();
+				DelayMS(10);
+				hostMode = false;
+				usb.Init(false);
 			} else {
 				printf("Switching to host mode\r\n");
+				usb.Disable();
+				DelayMS(10);
+				hostMode = true;
 				usbHost.Init();
 			}
-			hostMode = !hostMode;
 		}
 	}
 }

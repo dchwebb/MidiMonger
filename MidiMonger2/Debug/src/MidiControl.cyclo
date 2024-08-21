@@ -20,15 +20,15 @@ D:/Eurorack/MidiMonger/MidiMonger2/src/MidiControl.h:64:9:MidiControl::ChannelNo
 D:/Eurorack/MidiMonger/MidiMonger2/src/MidiControl.h:64:9:MidiControl::ChannelNote::~ChannelNote()	1
 D:/Eurorack/MidiMonger/MidiMonger2/src/MidiControl.h:118:9:constexpr MidiControl::Config::Config()	1
 ../src/MidiControl.cpp:7:1:MidiControl::MidiControl()	2
-../src/MidiControl.cpp:12:6:void MidiControl::MidiEvent(uint32_t)	60
-../src/MidiControl.cpp:220:6:void MidiControl::SerialHandler(uint32_t)	19
-../src/MidiControl.cpp:266:13:void MidiControl::QueueInc()	1
-../src/MidiControl.cpp:273:6:void MidiControl::GateTimer()	9
-../src/MidiControl.cpp:289:6:void MidiControl::GatesOff()	2
-../src/MidiControl.cpp:297:6:static void MidiControl::SetConfig()	20
-../src/MidiControl.cpp:335:6:void MidiControl::MatchChannelSetting(OutputType, uint8_t)	11
-../src/MidiControl.cpp:362:6:void MidiControl::CV::sendNote()	1
-../src/MidiControl.cpp:370:6:void MidiControl::LightShow()	4
+../src/MidiControl.cpp:13:6:void MidiControl::MidiEvent(uint32_t)	60
+../src/MidiControl.cpp:221:6:void MidiControl::SerialHandler(uint32_t)	19
+../src/MidiControl.cpp:267:13:void MidiControl::QueueInc()	1
+../src/MidiControl.cpp:274:6:void MidiControl::GateTimer()	9
+../src/MidiControl.cpp:292:6:void MidiControl::GatesOff()	2
+../src/MidiControl.cpp:301:6:static void MidiControl::SetConfig()	20
+../src/MidiControl.cpp:347:6:void MidiControl::MatchChannelSetting(OutputType, uint8_t)	11
+../src/MidiControl.cpp:373:6:void MidiControl::CV::sendNote()	1
+../src/MidiControl.cpp:381:6:void MidiControl::LightShow()	4
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/bits/stl_list.h:455:2:std::__cxx11::_List_base<_Tp, _Alloc>::_List_impl::_List_impl() [with _Tp = unsigned char; _Alloc = std::allocator<unsigned char>]	1
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/bits/allocator.h:174:7:constexpr std::allocator< <template-parameter-1-1> >::~allocator() [with _Tp = std::_List_node<unsigned char>]	1
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/bits/stl_list.h:574:7:std::__cxx11::_List_base<_Tp, _Alloc>::~_List_base() [with _Tp = unsigned char; _Alloc = std::allocator<unsigned char>]	1
@@ -104,6 +104,6 @@ C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externalt
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\new_allocator.h:112:7:_Tp* std::__new_allocator<_Tp>::allocate(size_type, const void*) [with _Tp = std::_List_node<unsigned char>]	1
 C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\new_allocator.h:210:7:constexpr std::__new_allocator<_Tp>::size_type std::__new_allocator<_Tp>::_M_max_size() const [with _Tp = std::_List_node<unsigned char>]	1
 D:/Eurorack/MidiMonger/MidiMonger2/src/MidiControl.h:10:7:MidiControl::~MidiControl()	3
-../src/MidiControl.cpp:378:1:void __static_initialization_and_destruction_0(int, int)	5
-../src/MidiControl.cpp:378:1:cpp)	1
-../src/MidiControl.cpp:378:1:cpp)	1
+../src/MidiControl.cpp:390:1:void __static_initialization_and_destruction_0(int, int)	5
+../src/MidiControl.cpp:390:1:cpp)	1
+../src/MidiControl.cpp:390:1:cpp)	1

@@ -6,6 +6,7 @@ void InitHardware()
 {
 	InitClocks();
 	InitSysTick();
+	InitMidiUART();
 }
 
 
@@ -85,7 +86,6 @@ void DelayMS(uint32_t ms)
 
 void InitMidiUART() {
 	// PC11 UART4_RX 79
-	// [PA1  UART4_RX 24 (AF8) ** NB Dev board seems to have something pulling this pin to ground so can't use]
 
 	RCC->APB1ENR |= RCC_APB1ENR_UART4EN;			// UART4 clock enable
 

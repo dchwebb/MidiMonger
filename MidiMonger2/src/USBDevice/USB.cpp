@@ -333,7 +333,7 @@ void USB::Init(bool softReset)
 		RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;			// USB OTG FS clock enable
 		RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;			// Enable system configuration clock: used to manage external interrupt line connection to GPIOs
 
-		NVIC_SetPriority(OTG_FS_IRQn, 0);
+		NVIC_SetPriority(OTG_FS_IRQn, 2);
 		NVIC_EnableIRQ(OTG_FS_IRQn);
 	}
 
@@ -390,6 +390,8 @@ void USB::Init(bool softReset)
 
     USBx_DEVICE->DCTL &= ~USB_OTG_DCTL_SDIS;			// Activate USB
     USB_OTG_FS->GAHBCFG |= USB_OTG_GAHBCFG_GINT;		// Activate USB Interrupts
+
+    transmitting = false;
 }
 
 

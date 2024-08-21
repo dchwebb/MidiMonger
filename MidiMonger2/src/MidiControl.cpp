@@ -9,6 +9,7 @@ MidiControl::MidiControl()
 	SetConfig();
 }
 
+
 void MidiControl::MidiEvent(const uint32_t data)
 {
 	auto midiEvent = MidiData(data);
@@ -263,14 +264,16 @@ void MidiControl::SerialHandler(uint32_t data)
 }
 
 
-inline void MidiControl::QueueInc() {
+inline void MidiControl::QueueInc()
+{
 	--queueCount;
 	queueRead = (queueRead + 1) % QueueSize;
 }
 
 
-//	Switches off clock ticks after specified time
-void MidiControl::GateTimer() {
+void MidiControl::GateTimer()
+{
+	//	Switches off clock ticks after specified time
 	for (auto& gate : gateOutputs) {
 		if (gate.gateOffTime > 0 && SysTickVal > gate.gateOffTime) {
 			gate.output.SetLow();
@@ -285,9 +288,10 @@ void MidiControl::GateTimer() {
 	}
 }
 
-//	Switch off all gates
-void MidiControl::GatesOff() {
-	for (auto& gate : gateOutputs) {
+
+void MidiControl::GatesOff()
+{
+	for (auto& gate : gateOutputs) {		//	Switch off all gates
 		gate.output.SetLow();
 		gate.gateOffTime = 0;
 	}
@@ -305,6 +309,10 @@ void MidiControl::SetConfig()
 			midiControl.gateOutputs[i].type = gate.type;
 			midiControl.gateOutputs[i].channel = gate.channel;
 			midiControl.gateOutputs[i].note = gate.note;
+		} else {								// If settings invalid, set to defaults
+			gate.type = midiControl.gateOutputs[i].type;
+			gate.channel = midiControl.gateOutputs[i].channel;
+			gate.note = midiControl.gateOutputs[i].note;
 		}
 
 		auto& cv = midiControl.cfg.cvs[i];
@@ -314,6 +322,10 @@ void MidiControl::SetConfig()
 			midiControl.cvOutputs[i].type = cv.type;
 			midiControl.cvOutputs[i].channel = cv.channel;
 			midiControl.cvOutputs[i].controller = cv.controller;
+		} else {
+			cv.type = midiControl.cvOutputs[i].type;
+			cv.channel = midiControl.cvOutputs[i].channel;
+			cv.controller = midiControl.cvOutputs[i].controller;
 		}
 	}
 
@@ -354,7 +366,6 @@ void MidiControl::MatchChannelSetting(OutputType output, uint8_t num)
 			g.type = GateType::channelNote;
 			g.channel = c.channel;
 		}
-
 	}
 }
 
@@ -367,7 +378,8 @@ void MidiControl::CV::sendNote()
 }
 
 
-void MidiControl::LightShow() {
+void MidiControl::LightShow()
+{
 	for (uint8_t c = 0; c < 8; ++c) {
 		midiControl.cvOutputs[c > 3 ? 3 - c % 4 : c].LedOn(60);
 		uint32_t delay = SysTickVal + 110;
