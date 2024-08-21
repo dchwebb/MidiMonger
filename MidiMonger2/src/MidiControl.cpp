@@ -374,7 +374,7 @@ void MidiControl::CV::sendNote()
 {
 	uint16_t dacOutput = 0xFFFF * (std::clamp((float)currentNote + midiControl.channelNotes[channel - 1].pitchbend, midiControl.cfg.dacOffset, 96.0f) - midiControl.cfg.dacOffset) / midiControl.cfg.dacScale;		// limit C1 to C7
 	dacHandler.SendData(DACHandler::WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
-	LedOn(400);														// Turn LED On for 400ms
+	LedOn(400);																	// Turn LED On for 400ms
 }
 
 

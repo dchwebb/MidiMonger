@@ -1,1 +1,0 @@
-../src/USBHost/USBClass.cpp:4:1:USBClass::USBClass(USBHost*, const char*, uint8_t)	1

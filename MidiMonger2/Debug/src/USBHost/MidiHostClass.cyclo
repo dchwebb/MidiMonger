@@ -1,8 +1,0 @@
-../src/USBHost/MidiHostClass.h:14:2:MidiHostClass::MidiHostClass(USBHost*, const char*, uint8_t)	1
-../src/USBHost/MidiHostClass.cpp:7:12:virtual HostStatus MidiHostClass::InterfaceInit()	4
-../src/USBHost/MidiHostClass.cpp:52:6:virtual void MidiHostClass::InterfaceDeInit()	3
-../src/USBHost/MidiHostClass.cpp:72:12:virtual HostStatus MidiHostClass::Process()	10
-../src/USBHost/MidiHostClass.cpp:111:6:void MidiHostClass::MidiEvent(uint32_t*, uint16_t)	1
-C:\ST\STM32CubeIDE_1.0.2\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.200.202406191623\tools\arm-none-eabi\include\c++\12.3.1\bits\stl_algobase.h:230:5:constexpr const _Tp& std::min(const _Tp&, const _Tp&) [with _Tp = unsigned char]	2
-../src/USBHost/MidiHostClass.cpp:129:1:void __static_initialization_and_destruction_0(int, int)	3
-../src/USBHost/MidiHostClass.cpp:129:1:cpp)	1
