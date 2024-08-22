@@ -10,6 +10,7 @@ void CDCHandler::ProcessCommand()
 		return;
 	}
 
+	bool changed = false;
 	std::string_view cmd {comCmd};
 
 	// Provide option to switch to USB DFU mode - this allows the MCU to be programmed with STM32CubeProgrammer in DFU mode
@@ -23,14 +24,11 @@ void CDCHandler::ProcessCommand()
 			state = serialState::pending;
 			usb->SendString("Upgrade cancelled\r\n");
 		}
-	}
-
-	bool changed = false;
-
-	if (cmd.compare("help") == 0) {
+	} else if (cmd.compare("help") == 0) {
 		usb->SendString("Mountjoy MIDI Monger - supported commands:\r\n\r\n"
 				"help        -  Shows this information\r\n"
 				"info        -  Shows current control configuration\r\n"
+				"dfu         -  USB firmware upgrade\r\n"
 				"kill        -  Kill all gates\r\n"
 				"lights      -  Light display\r\n"
 				"clearconfig -  Erase configuration and restart\r\n"
@@ -50,8 +48,11 @@ void CDCHandler::ProcessCommand()
 				"               Eg v3m2c12n7 to configure cv 3, mode controller, channel 12, controller 7\r\n"
 		);
 
+	} else if (cmd.compare("dfu") == 0) {					// USB DFU firmware upgrade
+		printf("Start DFU upgrade mode? Press 'y' to confirm.\r\n");
+		state = serialState::dfuConfirm;
 
-	} else 	if (cmd.compare(0, 10, "dacoffset:") == 0) {			// Configure DAC offset
+	} else 	if (cmd.compare(0, 10, "dacoffset:") == 0) {	// Configure DAC offset
 		float dacOffset = ParseFloat(cmd, ':', 10, 30);
 		if (dacOffset > 0) {
 			midiControl.cfg.dacOffset = dacOffset;
@@ -61,7 +62,7 @@ void CDCHandler::ProcessCommand()
 			printf("Invalid range\r\n");
 		}
 
-	} else 	if (cmd.compare(0, 10, "dacscale:") == 0) {			// Configure DAC scale
+	} else 	if (cmd.compare(0, 10, "dacscale:") == 0) {		// Configure DAC scale
 		float dacScale = ParseFloat(cmd, ':', 10, 30);
 		if (dacScale > 0) {
 			midiControl.cfg.dacScale = dacScale;
@@ -71,7 +72,7 @@ void CDCHandler::ProcessCommand()
 			printf("Invalid range\r\n");
 		}
 
-	} else 	if (cmd.compare(0, 1, "p") == 0) {			// Configure Pitchbend range
+	} else 	if (cmd.compare(0, 1, "p") == 0) {				// Configure Pitchbend range
 		int16_t pb = ParseInt(cmd, 'p', 0, 25);
 		if (pb > 0) {
 			midiControl.cfg.pitchBendSemiTones = pb;
@@ -82,7 +83,7 @@ void CDCHandler::ProcessCommand()
 		}
 
 
-	} else 	if (cmd.compare(0, 1, "v") == 0) {			// Configure CVs
+	} else 	if (cmd.compare(0, 1, "v") == 0) {				// Configure CVs
 		int16_t cv = ParseInt(cmd, 'v') - 1;
 		int16_t mode = ParseInt(cmd, 'm');
 		int8_t channel = ParseInt(cmd, 'c');
@@ -111,9 +112,9 @@ void CDCHandler::ProcessCommand()
 		changed = true;
 
 
-	} else 	if (cmd.compare(0, 1, "g") == 0) {			// Configure gates
+	} else 	if (cmd.compare(0, 1, "g") == 0) {				// Configure gates
 		int16_t gate = ParseInt(cmd, 'g') - 1;
-		int16_t mode = ParseInt(cmd, 'm');				// locate position of mode code
+		int16_t mode = ParseInt(cmd, 'm');					// locate position of mode code
 		if (gate < 0 || gate > 7 || mode < 1 || mode > 3) {
 			return;
 		}
@@ -144,9 +145,12 @@ void CDCHandler::ProcessCommand()
 		changed = true;
 
 
-	} else if (cmd.compare("info") == 0) {			// Print current configuration
+	} else if (cmd.compare("info") == 0) {					// Print current configuration
 		auto buffPos = buf;
 		buffPos += sprintf(buffPos, "Configuration:\r\n"
+#ifdef V1_HARDWARE
+				"V1 Hardware\r\n"
+#endif
 				"DAC offset: %f\r\n"
 				"DAC scale: %f\r\n"
 				"Pitchbend range: %f semitones\r\n"

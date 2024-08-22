@@ -1,4 +1,6 @@
 #include "initialisation.h"
+#include "usb.h"
+#include "USBHost.h"
 
 GpioPin modeSwitch{GPIOC, 7, GpioPin::Type::InputPullup};
 
@@ -133,6 +135,14 @@ void Reboot()
 void JumpToBootloader()
 {
 	volatile uint32_t bootAddr = 0x1FFF0000;	// Set the address of the entry point to bootloader
+
+	if (hostMode) {
+		usbHost.Disable();
+	} else {
+		usb.Disable();
+	}
+	DelayMS(10);
+
 	__disable_irq();							// Disable all interrupts
 	SysTick->CTRL = 0;							// Disable Systick timer
 

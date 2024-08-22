@@ -105,12 +105,15 @@ void MidiControl::MidiEvent(const uint32_t data)
 		}
 	}
 
-	// Pitch Bend
+	// Pitch Bend - 14 bit controller
 	if (midiEvent.msg == PitchBend) {
 		for (auto& cv : cvOutputs) {
 			if (cv.type == CvType::channelPitch && cv.channel == midiEvent.chn + 1) {
 				channelNotes[midiEvent.chn].pitchbend = (float)((midiEvent.db1 + (midiEvent.db2 << 7) - 8192) / 8192.0f) * cfg.pitchBendSemiTones;
 				cv.sendNote();
+			} else if (cv.type == CvType::pitchBend && cv.channel == midiEvent.chn + 1) {
+				uint16_t dacOutput = (midiEvent.db1 + (midiEvent.db2 << 7)) << 2;		// convert 14 to 16 bit value
+				dacHandler.SendData(DACHandler::WriteChannel | cv.dacChannel, dacOutput);
 			}
 		}
 	}
@@ -314,7 +317,9 @@ void MidiControl::SetConfig()
 			gate.channel = midiControl.gateOutputs[i].channel;
 			gate.note = midiControl.gateOutputs[i].note;
 		}
+	}
 
+	for (uint32_t i = 0; i < 4; ++i) {
 		auto& cv = midiControl.cfg.cvs[i];
 		if ((cv.type == CvType::channelPitch && cv.channel > 0 && cv.channel <= 16) ||
 			(cv.type == CvType::controller && cv.controller < 128) ||
