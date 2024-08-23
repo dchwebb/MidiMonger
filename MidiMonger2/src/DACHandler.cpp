@@ -36,4 +36,6 @@ void DACHandler::Init()
 	SendData(Linearity, (1 << 9));
 	DelayMS(10);
 	SendData(Linearity, 0);
+
+	ready = true;
 }

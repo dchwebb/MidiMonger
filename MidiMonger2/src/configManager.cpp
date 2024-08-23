@@ -170,7 +170,7 @@ void Config::FlashUnlock()
 
 void Config::FlashLock()
 {
-	FLASH->CR |= FLASH_CR_LOCK;						// Lock the FLASH Registers access
+	FLASH->CR |= FLASH_CR_LOCK;							// Lock the FLASH Registers access
 }
 
 
@@ -179,10 +179,13 @@ void Config::FlashEraseSector(uint8_t sector)
 	FlashUnlock();										// Unlock Flash memory for writing
 	FLASH->SR = flashAllErrors;							// Clear error flags in Status Register
 
-	FLASH->CR &= ~FLASH_CR_SNB_Msk;
-	FLASH->CR |= (sector - 1) << FLASH_CR_SNB_Pos;		// Sector number selection
+	FLASH->CR &= ~FLASH_CR_PSIZE_Msk;
+	FLASH->CR |= FLASH_CR_PSIZE_1;						// Set the erase programming size to 32bit (corresponds to voltage level 3 - ie 3.3V with no external programming voltage)
+	FLASH->CR &= ~FLASH_CR_SNB_Msk;						// Clear Sector number
+	FLASH->CR |= sector << FLASH_CR_SNB_Pos;			// Sector number selection
 	FLASH->CR |= FLASH_CR_SER;							// Sector erase
 	FLASH->CR |= FLASH_CR_STRT;
+
 	FlashWaitForLastOperation();
 	FLASH->CR &= ~FLASH_CR_SER;
 
@@ -213,7 +216,7 @@ bool Config::FlashProgram(uint32_t* dest_addr, uint32_t* src_addr, size_t size)
 		return false;
 	}
 	FLASH->CR |= FLASH_CR_PG;
-	FLASH->CR |= FLASH_CR_PSIZE_1;					// Program size one word
+	FLASH->CR |= FLASH_CR_PSIZE_1;						// Program size one word
 
 	__ISB();
 	__DSB();
@@ -227,7 +230,7 @@ bool Config::FlashProgram(uint32_t* dest_addr, uint32_t* src_addr, size_t size)
 		//}
 
 		if (!FlashWaitForLastOperation()) {
-			FLASH->CR &= ~FLASH_CR_PG;				// Clear programming flag
+			FLASH->CR &= ~FLASH_CR_PG;					// Clear programming flag
 			return false;
 		}
 	}
@@ -235,7 +238,7 @@ bool Config::FlashProgram(uint32_t* dest_addr, uint32_t* src_addr, size_t size)
 	__ISB();
 	__DSB();
 
-	FLASH->CR &= ~FLASH_CR_PG;						// Clear programming flag
+	FLASH->CR &= ~FLASH_CR_PG;							// Clear programming flag
 	return true;
 }
 

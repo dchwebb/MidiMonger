@@ -9,6 +9,8 @@ public:
 	enum Command : uint8_t {WriteChannel = 0b0011 << 4, Clear = 0b0010, Linearity = 0b101};
 	enum Address : uint8_t {ChannelA = 1, ChannelB = 2, ChannelC = 4, ChannelD = 8};
 
+	bool ready = false;
+
 	void Init();
 	void SendData(uint8_t cmd, uint16_t data);
 private:

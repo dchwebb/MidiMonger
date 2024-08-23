@@ -332,6 +332,10 @@ void MidiControl::SetConfig()
 			cv.channel = midiControl.cvOutputs[i].channel;
 			cv.controller = midiControl.cvOutputs[i].controller;
 		}
+
+		if (cv.type == CvType::pitchBend && dacHandler.ready) {			// Set pitchbend to mid level
+			dacHandler.SendData(DACHandler::WriteChannel | midiControl.cvOutputs[i].dacChannel, 0x7FFF);
+		}
 	}
 
 	// Calculate number of voices available for each channel

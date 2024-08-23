@@ -108,9 +108,21 @@ void InitMidiUART() {
 
 }
 
+void DisableUSB()
+{
+	if (hostMode) {
+		usbHost.Disable();
+	} else {
+		usb.Disable();
+	}
+	DelayMS(10);
+}
+
 
 void Reboot()
 {
+	DisableUSB();
+
 	__disable_irq();
 	__DSB();
 
@@ -136,12 +148,7 @@ void JumpToBootloader()
 {
 	volatile uint32_t bootAddr = 0x1FFF0000;	// Set the address of the entry point to bootloader
 
-	if (hostMode) {
-		usbHost.Disable();
-	} else {
-		usb.Disable();
-	}
-	DelayMS(10);
+	DisableUSB();
 
 	__disable_irq();							// Disable all interrupts
 	SysTick->CTRL = 0;							// Disable Systick timer
