@@ -2,7 +2,11 @@
 #include "usb.h"
 #include "USBHost.h"
 
+#ifdef V1_HARDWARE
+GpioPin modeSwitch{GPIOC, 0, GpioPin::Type::InputPullup};		// Set to dummy pin
+#else
 GpioPin modeSwitch{GPIOC, 7, GpioPin::Type::InputPullup};
+#endif
 
 void InitHardware()
 {
