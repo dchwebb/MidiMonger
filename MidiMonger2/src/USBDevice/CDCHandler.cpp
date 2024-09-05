@@ -31,6 +31,8 @@ void CDCHandler::ProcessCommand()
 				"dfu         -  USB firmware upgrade\r\n"
 				"kill        -  Kill all gates\r\n"
 				"lights      -  Light display\r\n"
+				"dacoffset:xx.x Starting pitch (default 25.3)\r\n"
+				"dacScale:xx.x  PItch scaling (default 74.0)\r\n"
 				"clearconfig -  Erase configuration and restart\r\n"
 				"saveconfig  -  Immediately save config\r\n"
 				"nVcC        -  Play note value V on channel C. Eg \'n60c1\' is middle C on channel 1\r\n"

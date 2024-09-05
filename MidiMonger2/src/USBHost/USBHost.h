@@ -29,12 +29,48 @@ public:
 		RequestGetDescriptor = 6, RequestSetDescriptor = 7, RequestGetConfiguration = 8, RequestSetConfiguration = 9,
 		RequestGetInterface = 10, RequestSetInterface = 11, RequestSynchFrame = 12 };
 
+	static constexpr uint32_t devResetTimeout = 1000;
+	static constexpr uint32_t deviceAddress = 1;
+	static constexpr uint32_t epTypeMask = 3;
+
+	static constexpr uint32_t deviceDescriptorSize = 18;
+	static constexpr uint32_t configurationDescriptorSize = 9;
+	static constexpr uint32_t interfaceDescriptorSize = 9;
+	static constexpr uint32_t endpointDescriptorSize = 7;
+	static constexpr uint32_t setupPacketSize = 8;
+
+	//// bmRequestType :D7 Data Phase Transfer Direction
+	static constexpr uint32_t requestDirectionMask = 0x80;
+	static constexpr uint32_t HostToDevice = 0x00;
+	static constexpr uint32_t DeviceToHost = 0x80;
+
+	// bmRequestType D4..0 Recipient
+	static constexpr uint32_t requestRecipientDevice = 0;
+	static constexpr uint32_t requestRecipientInterface = 1;
+	static constexpr uint32_t requestRecipientEndpoint = 2;
+	static constexpr uint32_t requestRecipientOther = 3;
+
+	// bmRequestType D6..5 Type
+	static constexpr uint32_t requestTypeStandard = 0x00;
+	static constexpr uint32_t RequestTypeClass    = 0x20;
+	static constexpr uint32_t requestTypeVendor   = 0x40;
+	static constexpr uint32_t requestTypeReserved = 0x60;
+
+	// Table 9-5. Descriptor Types of USB Specifications
+	static constexpr uint32_t descriptorTypeString = 3;
+	static constexpr uint32_t descriptorTypeInterface = 4;
+	static constexpr uint32_t descriptorTypeEndpoint = 5;
+
+	// Descriptor Type and Descriptor Index: for calling the function USBH_GetDescriptor
+	static constexpr uint32_t descriptorDevice = 0x100;
+	static constexpr uint32_t descriptorConfiguration = 0x200;
+	static constexpr uint32_t descriptorString = 0x300;
 
 	static constexpr uint32_t maxDataBuffer	= 1024;
 	static constexpr uint32_t maxEpPacketSize = 1024;
-	static constexpr uint8_t maxNumEndpoints = 2;
+	static constexpr uint8_t  maxNumEndpoints = 2;
 	static constexpr uint32_t maxNumInterfaces = 2;
-	static constexpr uint32_t maxNumSupportedClass = 1;
+	static constexpr uint32_t maxNumSupportedClass = 2;
 	static constexpr uint32_t maxSizeConfiguration = 256;
 	static constexpr uint32_t maxNumPipes = 16;
 	static constexpr uint32_t maxErrorCount = 2;
@@ -122,46 +158,11 @@ public:
 	URBState GetURBState(uint8_t channel);
 	void HaltChannel(uint8_t hc_num);
 	void Disable();
+	HostStatus ClassRequest(const uint8_t reqType, const uint8_t request, const uint16_t value, const uint16_t index, uint8_t* buff, const uint16_t length);
 
 private:
 
 
-	static constexpr uint32_t devResetTimeout = 1000;
-	static constexpr uint32_t deviceAddress = 1;
-	static constexpr uint32_t epTypeMask = 3;
-
-	static constexpr uint32_t deviceDescriptorSize = 18;
-	static constexpr uint32_t configurationDescriptorSize = 9;
-	static constexpr uint32_t interfaceDescriptorSize = 9;
-	static constexpr uint32_t endpointDescriptorSize = 7;
-	static constexpr uint32_t setupPacketSize = 8;
-
-	//// bmRequestType :D7 Data Phase Transfer Direction
-	static constexpr uint32_t requestDirectionMask = 0x80;
-	static constexpr uint32_t HostToDevice = 0x00;
-	static constexpr uint32_t DeviceToHost = 0x80;
-
-	// bmRequestType D4..0 Recipient
-	static constexpr uint32_t requestRecipientDevice = 0;
-	static constexpr uint32_t requestRecipientInterface = 1;
-	static constexpr uint32_t requestRecipientEndpoint = 2;
-	static constexpr uint32_t requestRecipientOther = 3;
-
-	// bmRequestType D6..5 Type
-	static constexpr uint32_t requestTypeStandard = 0x00;
-	static constexpr uint32_t RequestTypeClass    = 0x20;
-	static constexpr uint32_t requestTypeVendor   = 0x40;
-	static constexpr uint32_t requestTypeReserved = 0x60;
-
-	// Table 9-5. Descriptor Types of USB Specifications
-	static constexpr uint32_t descriptorTypeString = 3;
-	static constexpr uint32_t descriptorTypeInterface = 4;
-	static constexpr uint32_t descriptorTypeEndpoint = 5;
-
-	// Descriptor Type and Descriptor Index: for calling the function USBH_GetDescriptor
-	static constexpr uint32_t descriptorDevice = 0x100;
-	static constexpr uint32_t descriptorConfiguration = 0x200;
-	static constexpr uint32_t descriptorString = 0x300;
 
 	struct DescHeader {
 		uint8_t  bLength;

@@ -12,7 +12,9 @@ void InitUART() {
 	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;			// UART clock enable
 
 	GpioPin::Init(GPIOA, 2, GpioPin::Type::AlternateFunction, 7);		// TX
+#ifndef V1_HARDWARE
 	GpioPin::Init(GPIOA, 3, GpioPin::Type::AlternateFunction, 7);		// RX
+#endif
 
 	int Baud = (SystemCoreClock / 4) / (16 * 230400);		// NB must be an integer or timing will be out
 	//int Baud = (SystemCoreClock / 4) / (16 * 31250);

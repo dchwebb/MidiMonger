@@ -1,5 +1,6 @@
 #include "USBHost.h"
 #include "MidiHostClass.h"
+#include "HidHostClass.h"
 
 USBHost usbHost;
 
@@ -50,6 +51,7 @@ void USBHost::Init()
 	timer = USB_HOST->HFNUM & USB_OTG_HFNUM_FRNUM;			// Host frame number
 
 	classes[classNumber++] = &midiHostClass;				// link the class to the USB Host handle
+	classes[classNumber++] = &hidHostClass;
 
 	Start();
 }
@@ -164,11 +166,14 @@ void USBHost::Process()
 
 			if (status == HostStatus::OK) {
 				USBH_UsrLog("Device remote wakeup enabled");
+				gState = HostState::CheckClass;
 			} else if (status == HostStatus::NotSupported) {
 				USBH_UsrLog("Remote wakeup not supported by the device");
+				gState = HostState::CheckClass;
 			}
+		} else {
+			gState = HostState::CheckClass;
 		}
-		gState = HostState::CheckClass;
 		break;
 
 	case HostState::CheckClass:
@@ -468,6 +473,20 @@ HostStatus USBHost::GetDescriptor(const uint8_t reqType, const uint16_t valueIdx
 		control.setup.bRequest      = RequestGetDescriptor;
 		control.setup.wValue        = valueIdx;
 		control.setup.wIndex        = ((valueIdx & 0xFF00) == descriptorString) ? 0x0409 : 0;
+		control.setup.wLength       = length;
+	}
+
+	return CtlReq(buff, length);
+}
+
+
+HostStatus USBHost::ClassRequest(const uint8_t reqType, const uint8_t request, const uint16_t value, const uint16_t index, uint8_t* buff, const uint16_t length)
+{
+	if (requestState == StateType::Send) {
+		control.setup.bmRequestType = DeviceToHost | reqType;
+		control.setup.bRequest      = request;
+		control.setup.wValue        = value;
+		control.setup.wIndex        = index;
 		control.setup.wLength       = length;
 	}
 
