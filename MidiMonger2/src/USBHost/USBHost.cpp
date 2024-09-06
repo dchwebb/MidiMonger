@@ -25,7 +25,7 @@ void USBHost::Init()
 	NVIC_EnableIRQ(OTG_FS_IRQn);
 
 	USB_OTG_FS->GAHBCFG &= ~USB_OTG_GAHBCFG_GINT;			// Disable global interrupts
-	USB_OTG_FS->GUSBCFG |= USB_OTG_GUSBCFG_PHYSEL;			// Select FS Embedded PHY
+	USB_OTG_FS->GUSBCFG |= USB_OTG_GUSBCFG_PHYSEL;			// Select FS Embedded PHY (0=external ULPI high-speed PHY)
 
 	// Reset USB Core
 	while ((USB_OTG_FS->GRSTCTL & USB_OTG_GRSTCTL_AHBIDL) == 0) {};
@@ -133,7 +133,7 @@ void USBHost::Process()
 	case HostState::DevAttached:
 		DelayMS(100);		// Wait for 100 ms after Reset
 		device.speed = GetHostSpeed();
-		USBH_UsrLog("Device Attached. Speed: %d", device.speed);
+		USBH_UsrLog("Device Attached. Speed: %s", device.speed == 2 ? "LS" : "FS");
 		gState = HostState::Enumeration;
 		control.pipeOut = AllocPipe(0x00);
 		control.pipeIn  = AllocPipe(0x80);

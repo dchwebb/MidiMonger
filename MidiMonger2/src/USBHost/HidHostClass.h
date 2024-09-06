@@ -3,6 +3,7 @@
 
 class USBHost;
 
+#define  USB_DESC_HID_REPORT                ((0x22 << 8) & 0xFF00U)
 
 class HidHostClass : public USBClass {
 public:
@@ -17,10 +18,14 @@ public:
 	void InterfaceDeInit() override;
 	HostStatus Process() override;
 private:
-	enum class HidState { Init, GetReport, Idle, SendData, Busy, GetData, Synch, Poll, Wait, Error };
+	enum class HidState { Init, GetReportDesc, Idle, SendData, Busy, GetData, Synch, Poll, Wait, Error };
 	static constexpr uint8_t hidMinPoll = 1;
 
-	uint8_t		hidBuffer[64];
+	static constexpr uint32_t hidDescSize = 256;
+	uint8_t		hidDesc[hidDescSize];
+
+	static constexpr uint32_t hidBufferSize = 64;
+	uint8_t		hidBuffer[hidBufferSize];
 	uint8_t		outPipe;
 	uint8_t		inPipe;
 	HidState	state;
@@ -31,8 +36,9 @@ private:
 	uint16_t	poll;			// Not yet used - could be used to limit poll frequency
 	uint32_t	timer;
 
+	bool GetReportDesc();
 	bool GetReport(uint8_t reportType, uint8_t reportId);
-	void HidEvent(uint32_t* buff, uint16_t len);
+	void HidEvent(uint8_t* buff, uint16_t len);
 };
 
 

@@ -73,16 +73,31 @@ HostStatus HidHostClass::Process()
 	// Manages state machine for Hid data transfers
 	switch (state) {
 	case HidState::Init:
-		if (usbHost->timer & 1) {		// Sync with start of Even Frame
+		if (usbHost->timer & 1) {			// Sync with start of Even Frame
 			USBH_DbgLog("HID Class Process: Init");
-			//state = HidState::GetData;
-			state = HidState::GetReport;
+			state = HidState::GetReportDesc;
 		}
 		break;
 
-	case HidState::GetReport:
-		if (GetReport(1, 0)) {		// Get HID Report
-			printf("Hid: 0x%08lx\r\n", *(uint32_t*)hidBuffer);
+	case HidState::GetReportDesc:			// Get HID Report Descriptor
+		if (GetReportDesc()) {
+			// print HID report descriptor
+			printf("Hid Report Descriptor: \r\n");
+			uint32_t collections = 0;			// End printing when number of end collections matches number of collections
+			for (uint32_t i = 0; i < hidDescSize; ++i) {
+				printf("%02X ", hidDesc[i]);
+
+				if (hidDesc[i] == 0xA1) {
+					++collections;
+				}
+				if (hidDesc[i] == 0xC0) {
+					--collections;
+					if (collections == 0) {
+						break;
+					}
+				}
+			}
+			printf("\r\n");
 			state = HidState::GetData;
 		}
 		break;
@@ -97,13 +112,13 @@ HostStatus HidHostClass::Process()
 	case HidState::Poll:
 		if (usbHost->GetURBState(inPipe) == USBHost::URBState::Done) {
 			if (usbHost->GetTransferCount(inPipe) > 0) {
-				HidEvent((uint32_t*)hidBuffer, packetSize);
+				HidEvent(hidBuffer, packetSize);
 			}
 			state = HidState::Wait;
 
 		} else if (usbHost->GetURBState(inPipe) == USBHost::URBState::Stall) {
 			if (usbHost->ClearFeature(epAddr) == HostStatus::OK) {		// Issue Clear Feature on interrupt IN endpoint
-				state = HidState::Wait;								// Change state to issue next IN token
+				state = HidState::Wait;									// Change state to issue next IN token
 			}
 		}
 		break;
@@ -119,6 +134,22 @@ HostStatus HidHostClass::Process()
 	}
 
 	return HostStatus::OK;
+}
+
+
+bool HidHostClass::GetReportDesc()
+{
+	HostStatus status = usbHost->ClassRequest(USBHost::requestRecipientInterface | USBHost::requestTypeStandard,
+			USBHost::RequestGetDescriptor,
+			USB_DESC_HID_REPORT,
+			0,
+			hidDesc,
+			hidDescSize);
+
+	if (status == HostStatus::OK) {		// Commands successfully sent and Response Received
+		return true;
+	}
+	return false;
 }
 
 
@@ -139,9 +170,10 @@ bool HidHostClass::GetReport(uint8_t reportType, uint8_t reportId)
 }
 
 
-void HidHostClass::HidEvent(uint32_t* buff, uint16_t len)
+void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)
 {
-	printf("Hid: 0x%08lx\r\n", *(uint32_t*)buff);
+	// Moving mouse forwards = negative y
+	printf("Hid X: %d Y: %d; Wheel: %d; Buttons: %d\r\n", (int8_t)buff[1], (int8_t)buff[2], (int8_t)buff[3], (int8_t)buff[0]);
 
 }
 
