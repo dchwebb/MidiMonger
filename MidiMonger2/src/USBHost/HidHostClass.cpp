@@ -81,23 +81,7 @@ HostStatus HidHostClass::Process()
 
 	case HidState::GetReportDesc:			// Get HID Report Descriptor
 		if (GetReportDesc()) {
-			// print HID report descriptor
-			printf("Hid Report Descriptor: \r\n");
-			uint32_t collections = 0;			// End printing when number of end collections matches number of collections
-			for (uint32_t i = 0; i < hidDescSize; ++i) {
-				printf("%02X ", hidDesc[i]);
-
-				if (hidDesc[i] == 0xA1) {
-					++collections;
-				}
-				if (hidDesc[i] == 0xC0) {
-					--collections;
-					if (collections == 0) {
-						break;
-					}
-				}
-			}
-			printf("\r\n");
+			ParseReportDesc();
 			state = HidState::GetData;
 		}
 		break;
@@ -143,7 +127,7 @@ bool HidHostClass::GetReportDesc()
 			USBHost::RequestGetDescriptor,
 			USB_DESC_HID_REPORT,
 			0,
-			hidDesc,
+			hidDescriptor.rawDesc,
 			hidDescSize);
 
 	if (status == HostStatus::OK) {		// Commands successfully sent and Response Received
@@ -152,6 +136,49 @@ bool HidHostClass::GetReportDesc()
 	return false;
 }
 
+
+void HidHostClass::ParseReportDesc()
+{
+	// print HID report descriptor
+	printf("Hid Report Descriptor: \r\n");
+	uint32_t collections = 0;			// End printing when number of end collections matches number of collections
+	for (uint32_t i = 0; i < hidDescSize; ++i) {
+		printf("%02X ", hidDescriptor.rawDesc[i]);
+
+		if (hidDescriptor.rawDesc[i] == 0xA1) {
+			++collections;
+		}
+		if (hidDescriptor.rawDesc[i] == 0xC0) {
+			--collections;
+			if (collections == 0) {
+				break;
+			}
+		}
+	}
+	printf("\r\n");
+
+
+
+	uint32_t i = 0;
+	while (i < hidDescSize) {
+		if (hidDescriptor.rawDesc[i] == 0xA1) {
+			uint16_t coll = *(uint16_t*)&hidDescriptor.rawDesc[i];
+			if (coll == 0x00A1) {					// Collection (Physical)
+				while (hidDescriptor.rawDesc[i] != 0xC0) {		// End of collection
+					i += 2;
+
+					if (*(uint16_t*)&hidDescriptor.rawDesc[i] == 0x0905) {			// Usage Page (Button)
+						hidDescriptor.ParseButtons(i);
+					}
+					if (*(uint16_t*)&hidDescriptor.rawDesc[i] == 0x0105) {			// Usage Page (Generic Desktop Controls)
+						hidDescriptor.ParseControls(i);
+					}
+				}
+			}
+		}
+		++i;
+	}
+}
 
 bool HidHostClass::GetReport(uint8_t reportType, uint8_t reportId)
 {
