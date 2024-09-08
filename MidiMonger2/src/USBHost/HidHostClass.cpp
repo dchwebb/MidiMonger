@@ -81,8 +81,10 @@ HostStatus HidHostClass::Process()
 
 	case HidState::GetReportDesc:			// Get HID Report Descriptor
 		if (GetReportDesc()) {
-			ParseReportDesc();
+			hidDescriptor.PrintReportDesc();
+			hidDescriptor.ParseReportDesc();
 			state = HidState::GetData;
+			USBH_DbgLog("HID Report Descriptor Parsed");
 		}
 		break;
 
@@ -128,7 +130,7 @@ bool HidHostClass::GetReportDesc()
 			USB_DESC_HID_REPORT,
 			0,
 			hidDescriptor.rawDesc,
-			hidDescSize);
+			hidDescriptor.hidDescSize);
 
 	if (status == HostStatus::OK) {		// Commands successfully sent and Response Received
 		return true;
@@ -136,49 +138,6 @@ bool HidHostClass::GetReportDesc()
 	return false;
 }
 
-
-void HidHostClass::ParseReportDesc()
-{
-	// print HID report descriptor
-	printf("Hid Report Descriptor: \r\n");
-	uint32_t collections = 0;			// End printing when number of end collections matches number of collections
-	for (uint32_t i = 0; i < hidDescSize; ++i) {
-		printf("%02X ", hidDescriptor.rawDesc[i]);
-
-		if (hidDescriptor.rawDesc[i] == 0xA1) {
-			++collections;
-		}
-		if (hidDescriptor.rawDesc[i] == 0xC0) {
-			--collections;
-			if (collections == 0) {
-				break;
-			}
-		}
-	}
-	printf("\r\n");
-
-
-
-	uint32_t i = 0;
-	while (i < hidDescSize) {
-		if (hidDescriptor.rawDesc[i] == 0xA1) {
-			uint16_t coll = *(uint16_t*)&hidDescriptor.rawDesc[i];
-			if (coll == 0x00A1) {					// Collection (Physical)
-				while (hidDescriptor.rawDesc[i] != 0xC0) {		// End of collection
-					i += 2;
-
-					if (*(uint16_t*)&hidDescriptor.rawDesc[i] == 0x0905) {			// Usage Page (Button)
-						hidDescriptor.ParseButtons(i);
-					}
-					if (*(uint16_t*)&hidDescriptor.rawDesc[i] == 0x0105) {			// Usage Page (Generic Desktop Controls)
-						hidDescriptor.ParseControls(i);
-					}
-				}
-			}
-		}
-		++i;
-	}
-}
 
 bool HidHostClass::GetReport(uint8_t reportType, uint8_t reportId)
 {
@@ -197,10 +156,54 @@ bool HidHostClass::GetReport(uint8_t reportType, uint8_t reportId)
 }
 
 
+uint32_t HidHostClass::ParseReport(uint8_t* buff, uint32_t offset, uint32_t size)
+{
+	// Parses HID report using bit offsets (which can cross byte boundaries)
+	uint32_t firstByte = (offset >> 3);		// Get first byte
+	uint32_t bitOffset = offset - (firstByte << 3);
+	uint32_t data = buff[firstByte];
+	if (bitOffset == 4) {
+		data &= 0b1111;
+		data = data << (size - bitOffset);
+	} else {
+		data = data << (size - 8);
+	}
+
+	uint32_t remainingBits = size - (8 - bitOffset);
+
+	while (remainingBits) {
+		++firstByte;
+		if (remainingBits == 4) {
+			data |= (buff[firstByte] >> 4);
+			remainingBits = 0;
+		} else {
+			remainingBits -= 8;
+			data |= (buff[firstByte] << remainingBits);
+		}
+
+	}
+	return data;
+
+
+}
+
 void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)
 {
 	// Moving mouse forwards = negative y
-	printf("Hid X: %d Y: %d; Wheel: %d; Buttons: %d\r\n", (int8_t)buff[1], (int8_t)buff[2], (int8_t)buff[3], (int8_t)buff[0]);
+	int32_t mouse[hidDescriptor.ControlsCount] = {0};
+	uint32_t buttons = 0;
+
+	for (uint32_t i = 0; i < hidDescriptor.ControlsCount; ++i) {
+		if (hidDescriptor.controls[i].Offset + hidDescriptor.controls[i].Size) {
+			//mouse[i] = (hidDescriptor.controls[i].Size == 2) ? *(int16_t*)&buff[hidDescriptor.controls[i].Offset] : (int8_t)buff[hidDescriptor.controls[i].Offset];
+			mouse[i] = ParseReport(buff, hidDescriptor.controls[i].Offset, hidDescriptor.controls[i].Size);
+		}
+	}
+
+	if (hidDescriptor.buttonOffset + hidDescriptor.buttonCount) {
+		buttons = buff[hidDescriptor.buttonOffset];
+	}
+	printf("Hid X: %ld Y: %ld; Wheel: %ld; Buttons: %lu\r\n", mouse[HidDescriptor::X], mouse[HidDescriptor::Y], mouse[HidDescriptor::Wheel], buttons);
 
 }
 
