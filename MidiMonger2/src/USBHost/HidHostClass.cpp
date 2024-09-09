@@ -156,35 +156,24 @@ bool HidHostClass::GetReport(uint8_t reportType, uint8_t reportId)
 }
 
 
-uint32_t HidHostClass::ParseReport(uint8_t* buff, uint32_t offset, uint32_t size)
+int32_t HidHostClass::ParseReport(uint8_t* buff, uint32_t offset, uint32_t size)
 {
-	// Parses HID report using bit offsets (which can cross byte boundaries)
-	uint32_t firstByte = (offset >> 3);		// Get first byte
-	uint32_t bitOffset = offset - (firstByte << 3);
-	uint32_t data = buff[firstByte];
-	if (bitOffset == 4) {
-		data &= 0b1111;
-		data = data << (size - bitOffset);
-	} else {
-		data = data << (size - 8);
-	}
-
-	uint32_t remainingBits = size - (8 - bitOffset);
-
-	while (remainingBits) {
-		++firstByte;
-		if (remainingBits == 4) {
-			data |= (buff[firstByte] >> 4);
-			remainingBits = 0;
-		} else {
-			remainingBits -= 8;
-			data |= (buff[firstByte] << remainingBits);
+	if (offset + size <= 64) {
+		uint64_t data = *(uint64_t*)buff;
+		if (size == 12) {
+			// sign extend
+			uint16_t u12 = (data >> offset) & 0xFFF;
+			if (u12 & (1 << 11)) { // if signed, bit 11 set
+				u12 |= 0xFF << 12; // "sign extend"
+			}
+			return (int16_t)u12;
 		}
-
+		return (data >> offset) & ((1 << size) - 1);
+	} else if (size == 8) {
+		return (int8_t)buff[offset >> 3];
+	} else {
+		return 0;
 	}
-	return data;
-
-
 }
 
 void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)

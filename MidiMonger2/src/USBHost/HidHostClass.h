@@ -24,7 +24,7 @@ private:
 
 
 	static constexpr uint32_t hidBufferSize = 64;
-	uint8_t		hidBuffer[hidBufferSize];
+	uint8_t		hidBuffer[hidBufferSize] __attribute__((__aligned__(8)));
 	uint8_t		outPipe;
 	uint8_t		inPipe;
 	HidState	state;
@@ -38,7 +38,7 @@ private:
 	HidDescriptor hidDescriptor;
 
 	bool GetReportDesc();
-	uint32_t ParseReport(uint8_t* buff, uint32_t offset, uint32_t size);
+	int32_t ParseReport(uint8_t* buff, uint32_t offset, uint32_t size);
 	bool GetReport(uint8_t reportType, uint8_t reportId);
 	void HidEvent(uint8_t* buff, uint16_t len);
 };
