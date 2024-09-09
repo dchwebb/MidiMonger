@@ -1,5 +1,7 @@
 #include "HidHostClass.h"
 #include "USBHost.h"
+#include "MidiControl.h"
+#include <limits>
 
 HidHostClass hidHostClass(&usbHost, HidHostClass::name, HidHostClass::classCode);
 
@@ -81,8 +83,8 @@ HostStatus HidHostClass::Process()
 
 	case HidState::GetReportDesc:			// Get HID Report Descriptor
 		if (GetReportDesc()) {
-			hidDescriptor.PrintReportDesc();
 			hidDescriptor.ParseReportDesc();
+			hidDescriptor.PrintReportDesc();
 			state = HidState::GetData;
 			USBH_DbgLog("HID Report Descriptor Parsed");
 		}
@@ -158,17 +160,22 @@ bool HidHostClass::GetReport(uint8_t reportType, uint8_t reportId)
 
 int32_t HidHostClass::ParseReport(uint8_t* buff, uint32_t offset, uint32_t size)
 {
-	if (offset + size <= 64) {
+	if (offset + size <= 64) {				// useful for fiddly lengths such as 12 bit values
 		uint64_t data = *(uint64_t*)buff;
 		if (size == 12) {
-			// sign extend
 			uint16_t u12 = (data >> offset) & 0xFFF;
-			if (u12 & (1 << 11)) { // if signed, bit 11 set
-				u12 |= 0xFF << 12; // "sign extend"
+			if (u12 & (1 << 11)) {			// if signed, bit 11 set
+				u12 |= 0xFF << 12;			// sign extend
 			}
 			return (int16_t)u12;
+		} else if (size == 8) {
+			return (int8_t)((data >> offset) & 0xFF);
+		} else if (size == 16) {
+			return (int16_t)((data >> offset) & 0xFFFF);
 		}
 		return (data >> offset) & ((1 << size) - 1);
+	} else if (size == 16) {
+		return *(int16_t*)&buff[offset];
 	} else if (size == 8) {
 		return (int8_t)buff[offset >> 3];
 	} else {
@@ -184,13 +191,18 @@ void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)
 
 	for (uint32_t i = 0; i < hidDescriptor.ControlsCount; ++i) {
 		if (hidDescriptor.controls[i].Offset + hidDescriptor.controls[i].Size) {
-			//mouse[i] = (hidDescriptor.controls[i].Size == 2) ? *(int16_t*)&buff[hidDescriptor.controls[i].Offset] : (int8_t)buff[hidDescriptor.controls[i].Offset];
 			mouse[i] = ParseReport(buff, hidDescriptor.controls[i].Offset, hidDescriptor.controls[i].Size);
+			hidValues.controls[i] = std::clamp(hidValues.controls[i] + (mouse[i] * mouseScale), 0L, (int32_t)std::numeric_limits<uint16_t>::max());
+
+			dacHandler.SendData(DACHandler::WriteChannel | cv.dacChannel, dacOutput);
 		}
 	}
 
 	if (hidDescriptor.buttonOffset + hidDescriptor.buttonCount) {
-		buttons = buff[hidDescriptor.buttonOffset];
+		buttons = buff[hidDescriptor.buttonOffset >> 3];
+		if (buttons != hidValues.buttons) {
+			hidValues.buttons = buttons;
+		}
 	}
 	printf("Hid X: %ld Y: %ld; Wheel: %ld; Buttons: %lu\r\n", mouse[HidDescriptor::X], mouse[HidDescriptor::Y], mouse[HidDescriptor::Wheel], buttons);
 

@@ -22,9 +22,8 @@ private:
 	enum class HidState { Init, GetReportDesc, Idle, SendData, Busy, GetData, Synch, Poll, Wait, Error };
 	static constexpr uint8_t hidMinPoll = 1;
 
-
 	static constexpr uint32_t hidBufferSize = 64;
-	uint8_t		hidBuffer[hidBufferSize] __attribute__((__aligned__(8)));
+	uint8_t		hidBuffer[hidBufferSize] __attribute__((__aligned__(8)));		// Aligned to 64 bits to make report parsing easier
 	uint8_t		outPipe;
 	uint8_t		inPipe;
 	HidState	state;
@@ -36,6 +35,14 @@ private:
 	uint32_t	timer;
 
 	HidDescriptor hidDescriptor;
+
+	struct {
+		uint16_t controls[3] = {0};
+		uint32_t buttons = {0};
+
+	} hidValues;
+
+	int32_t mouseScale = 20;
 
 	bool GetReportDesc();
 	int32_t ParseReport(uint8_t* buff, uint32_t offset, uint32_t size);

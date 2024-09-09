@@ -84,9 +84,9 @@ struct HidDescriptor
 	}
 
 
-	void ParseControls()
+	uint32_t GetReportSize()
 	{
-		// Get size and count of report FIXME: currently assuming all reports are the same size
+		// Get size and count (unused) of report
 		uint32_t reportSize = 0;			// Size of report in bits
 		uint32_t reportCount = 0;			// Number of reports
 		uint32_t oldParsePos = parsePos;
@@ -99,14 +99,20 @@ struct HidDescriptor
 			}
 		}
 		parsePos = oldParsePos;				// Reset parsePos now report size is known
+		return reportSize;
+	}
 
-		while (IncPos() && rawDesc[parsePos] != UsagePage) {		// Continue until end of descriptor or next Usage Page
-			if (rawDesc[parsePos] == 0x09) {			// Usage
-				if (rawDesc[parsePos + 1] == UsageX) {		// Usage (X)
+
+	void ParseControls()
+	{
+		while (IncPos() && rawDesc[parsePos] != UsagePage) {	// Continue until end of descriptor or next Usage Page
+			if (rawDesc[parsePos] == 0x09) {					// Usage
+				uint32_t reportSize = GetReportSize();
+				if (rawDesc[parsePos + 1] == UsageX) {			// Usage (X)
 					controls[X].Offset = currentOffset;
 					controls[X].Size = reportSize;
 				}
-				if (rawDesc[parsePos + 1] == UsageY) {		// Usage (Y)
+				if (rawDesc[parsePos + 1] == UsageY) {			// Usage (Y)
 					controls[Y].Offset = currentOffset;
 					controls[Y].Size = reportSize;
 				}
@@ -139,6 +145,17 @@ struct HidDescriptor
 			}
 		}
 		printf("\r\n");
+
+		// Print parsed offsets
+		printf("Buttons - Offset: %ld Count %ld\r"
+			   "Mouse X - Offset: %ld Size %ld\r"
+			   "Mouse Y - Offset: %ld Size %ld\r"
+			   "Mouse Wheel - Offset: %ld Size %ld\r\n ",
+			   buttonOffset, buttonCount,
+			   controls[X].Offset, controls[X].Size,
+			   controls[Y].Offset, controls[Y].Size,
+			   controls[Wheel].Offset, controls[Wheel].Size);
+
 	}
 };
 
