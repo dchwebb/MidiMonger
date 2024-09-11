@@ -5,6 +5,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/CommandHandler.cpp \
 ../src/DACHandler.cpp \
 ../src/MidiControl.cpp \
 ../src/configManager.cpp \
@@ -29,6 +30,7 @@ C_DEPS += \
 ./src/system_stm32f4xx.d 
 
 OBJS += \
+./src/CommandHandler.o \
 ./src/DACHandler.o \
 ./src/MidiControl.o \
 ./src/configManager.o \
@@ -41,6 +43,7 @@ OBJS += \
 ./src/uartHandler.o 
 
 CPP_DEPS += \
+./src/CommandHandler.d \
 ./src/DACHandler.d \
 ./src/MidiControl.d \
 ./src/configManager.d \
@@ -60,7 +63,7 @@ src/%.o src/%.su src/%.cyclo: ../src/%.c src/subdir.mk
 clean: clean-src
 
 clean-src:
-	-$(RM) ./src/DACHandler.cyclo ./src/DACHandler.d ./src/DACHandler.o ./src/DACHandler.su ./src/MidiControl.cyclo ./src/MidiControl.d ./src/MidiControl.o ./src/MidiControl.su ./src/configManager.cyclo ./src/configManager.d ./src/configManager.o ./src/configManager.su ./src/initialisation.cyclo ./src/initialisation.d ./src/initialisation.o ./src/initialisation.su ./src/main.cyclo ./src/main.d ./src/main.o ./src/main.su ./src/startup_stm32f446zetx.d ./src/startup_stm32f446zetx.o ./src/syscalls.cyclo ./src/syscalls.d ./src/syscalls.o ./src/syscalls.su ./src/sysmem.cyclo ./src/sysmem.d ./src/sysmem.o ./src/sysmem.su ./src/system_stm32f4xx.cyclo ./src/system_stm32f4xx.d ./src/system_stm32f4xx.o ./src/system_stm32f4xx.su ./src/uartHandler.cyclo ./src/uartHandler.d ./src/uartHandler.o ./src/uartHandler.su
+	-$(RM) ./src/CommandHandler.cyclo ./src/CommandHandler.d ./src/CommandHandler.o ./src/CommandHandler.su ./src/DACHandler.cyclo ./src/DACHandler.d ./src/DACHandler.o ./src/DACHandler.su ./src/MidiControl.cyclo ./src/MidiControl.d ./src/MidiControl.o ./src/MidiControl.su ./src/configManager.cyclo ./src/configManager.d ./src/configManager.o ./src/configManager.su ./src/initialisation.cyclo ./src/initialisation.d ./src/initialisation.o ./src/initialisation.su ./src/main.cyclo ./src/main.d ./src/main.o ./src/main.su ./src/startup_stm32f446zetx.d ./src/startup_stm32f446zetx.o ./src/syscalls.cyclo ./src/syscalls.d ./src/syscalls.o ./src/syscalls.su ./src/sysmem.cyclo ./src/sysmem.d ./src/sysmem.o ./src/sysmem.su ./src/system_stm32f4xx.cyclo ./src/system_stm32f4xx.d ./src/system_stm32f4xx.o ./src/system_stm32f4xx.su ./src/uartHandler.cyclo ./src/uartHandler.d ./src/uartHandler.o ./src/uartHandler.su
 
 .PHONY: clean-src
 

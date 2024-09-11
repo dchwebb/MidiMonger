@@ -19,6 +19,12 @@ void UART4_IRQHandler(void) {
 	}
 }
 
+void USART2_IRQHandler(void) {
+	if (USART2->SR & USART_SR_RXNE) {
+		uart.DataIn(USART2->DR); 							// accessing DR automatically resets the receive flag
+	}
+}
+
 void NMI_Handler(void)
 {
 	while (1) {

@@ -100,7 +100,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 			if (cv.type == CvType::controller && cv.channel == midiEvent.chn + 1 && cv.controller == midiEvent.db1) {
 				uint16_t dacOutput = 0xFFFF * (float)midiEvent.db2 / 128;		// controller values are from 0 to 127
 				dacHandler.SendData(DACHandler::WriteChannel | cv.dacChannel, dacOutput);
-				cv.LedOn(200);													// Turn LED On for 100ms
+				cv.LedOn(200);
 			}
 		}
 	}
@@ -110,7 +110,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 		for (auto& cv : cvOutputs) {
 			if (cv.type == CvType::channelPitch && cv.channel == midiEvent.chn + 1) {
 				channelNotes[midiEvent.chn].pitchbend = (float)((midiEvent.db1 + (midiEvent.db2 << 7) - 8192) / 8192.0f) * cfg.pitchBendSemiTones;
-				cv.sendNote();
+				cv.SendNote();
 			} else if (cv.type == CvType::pitchBend && cv.channel == midiEvent.chn + 1) {
 				uint16_t dacOutput = (midiEvent.db1 + (midiEvent.db2 << 7)) << 2;		// convert 14 to 16 bit value
 				dacHandler.SendData(DACHandler::WriteChannel | cv.dacChannel, dacOutput);
@@ -192,7 +192,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 							cvOutputs[c].currentNote = 0;
 						} else {
 							cvOutputs[c].currentNote = cvOutputs[c].nextNote;
-							cvOutputs[c].sendNote();
+							cvOutputs[c].SendNote();
 							gateOutputs[c].output.SetHigh();
 						}
 					}
@@ -213,7 +213,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 		if (ClockCount % 6 == 0) {
 			for (auto& gate : gateOutputs) {
 				if (gate.type == GateType::clock) {
-					gate.gateOn(SysTickVal + 13);		// pass gate off time: each tick is around 400us: 15 x 400us = 6ms (less a bit from testing)
+					gate.GateOn(SysTickVal + 13);		// pass gate off time: each tick is around 400us: 15 x 400us = 6ms (less a bit from testing)
 				}
 			}
 		}
@@ -349,7 +349,18 @@ void MidiControl::SetConfig()
 		}
 		midiControl.channelNotes[c].voiceCount = voices;
 	}
-	return;
+
+
+	// validate config settings
+	if (midiControl.cfg.dacOffset < 0.00001f) {
+		midiControl.cfg.dacOffset = dacOffsetDefault;
+	}
+	if (midiControl.cfg.dacScale < 0.00001f) {
+		midiControl.cfg.dacScale = dacScaleDefault;
+	}
+	if (midiControl.cfg.pitchBendSemiTones < 0.00001f) {
+		midiControl.cfg.pitchBendSemiTones = pitchBendSemiTonesDefault;
+	}
 }
 
 
@@ -379,7 +390,14 @@ void MidiControl::MatchChannelSetting(OutputType output, uint8_t num)
 }
 
 
-void MidiControl::CV::sendNote()
+void MidiControl::SendCV(uint16_t dacOutput, uint8_t channel)
+{
+	dacHandler.SendData(DACHandler::WriteChannel | cvOutputs[channel].dacChannel, dacOutput);		// Send pitch to DAC
+	cvOutputs[channel].LedOn(200);																// Turn LED On for 200ms
+}
+
+
+void MidiControl::CV::SendNote()
 {
 	uint16_t dacOutput = 0xFFFF * (std::clamp((float)currentNote + midiControl.channelNotes[channel - 1].pitchbend, midiControl.cfg.dacOffset, 96.0f) - midiControl.cfg.dacOffset) / midiControl.cfg.dacScale;		// limit C1 to C7
 	dacHandler.SendData(DACHandler::WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC

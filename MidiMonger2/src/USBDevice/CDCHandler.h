@@ -19,12 +19,11 @@ public:
 	void ClassSetup(usbRequest& req) override;
 	void ClassSetupData(usbRequest& req, const uint8_t* data) override;
 	uint32_t GetInterfaceDescriptor(const uint8_t** buffer) override;
-	int32_t ParseInt(const std::string_view cmd, const char precedingChar, const int32_t low = 0, const int32_t high = 0);
 
 	void ProcessCommand();			// Processes command received during interrupt
 
 	bool cmdPending = false;
-	static constexpr uint32_t maxCmdLen = 40;
+	static constexpr uint32_t maxCmdLen = 255;
 	char comCmd[maxCmdLen];
 
 
@@ -40,8 +39,6 @@ private:
 	uint32_t xfer_buff[64];
 	uint32_t buffPos = 0;
 
-	static constexpr uint32_t bufSize = 1024;
-	char buf[bufSize];
 
 	// State machine for multi-stage commands
 	enum class serialState { pending, dfuConfirm };
@@ -49,5 +46,4 @@ private:
 
 	static const uint8_t Descriptor[];
 
-	float ParseFloat(const std::string_view cmd, const char precedingChar, const float low, const float high);
 };

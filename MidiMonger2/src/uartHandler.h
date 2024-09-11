@@ -3,13 +3,19 @@
 #include <sstream>
 #include <iomanip>
 
-extern volatile uint8_t uartCmdPos;
-extern volatile char uartCmd[100];
-extern volatile bool uartCmdRdy;
+class UARTHandler {
+public:
+	void Init();
+	void ProcessCommand();
+	void DataIn(char data);
+	size_t SendString(const unsigned char* s, size_t len);
+	void SendString(const std::string& s);
 
-std::string IntToString(const int32_t& v);
-std::string HexToString(const uint32_t& v, const bool& spaces);
-std::string HexByte(const uint16_t& v);
-size_t uartSendStr(const unsigned char* s, size_t len);
-void uartSendStr(const std::string& s);
-void InitUART();
+private:
+	bool cmdPending = false;
+	uint32_t cmdPos = 0;
+	static constexpr uint32_t maxCmdLen = 255;
+	char command[maxCmdLen];
+};
+
+extern UARTHandler uart;

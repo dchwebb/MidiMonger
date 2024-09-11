@@ -13,7 +13,7 @@ struct ConfigSaver {
 
 
 class Config {
-	friend class CDCHandler;					// Allow the serial handler access to private data for printing
+	friend class CommandHandler;					// Allow the serial handler access to private data for printing
 public:
 	static constexpr uint8_t configVersion = 2;
 	

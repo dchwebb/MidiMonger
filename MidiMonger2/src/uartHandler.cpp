@@ -1,14 +1,11 @@
 #include "uartHandler.h"
+#include "CommandHandler.h"
 
-volatile uint8_t uartCmdPos = 0;
-volatile char uartCmd[100];
-volatile bool uartCmdRdy = false;
+UARTHandler uart;
 
-// Manages communication to ST Link debugger UART
 
-void InitUART() {
-	// 446 Nucleo uses PD8 (TX) PD9 (RX) for USART2
-
+void UARTHandler::Init()
+{
 	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;			// UART clock enable
 
 	GpioPin::Init(GPIOA, 2, GpioPin::Type::AlternateFunction, 7);		// TX
@@ -16,10 +13,12 @@ void InitUART() {
 	GpioPin::Init(GPIOA, 3, GpioPin::Type::AlternateFunction, 7);		// RX
 #endif
 
-	int Baud = (SystemCoreClock / 4) / (16 * 230400);		// NB must be an integer or timing will be out
-	//int Baud = (SystemCoreClock / 4) / (16 * 31250);
-	USART2->BRR |= Baud << 4;						// Baud Rate (called USART_BRR_DIV_Mantissa) = (Sys Clock: 180MHz / APB1 Prescaler DIV4: 45MHz) / (16 * 31250) = 90
-	USART2->BRR |= 12;								// Fraction: (144MHz / 4) / (16 * 230400) = 9.765625: multiply remainder by 16: 16 * .765625 = 12.25
+	const float baud = (float)(SystemCoreClock / 4) / (16.0f * 230400.0f);		// NB must be an integer or timing will be out
+	const uint32_t mantissa = (uint32_t)baud;									// Baud rate integer part
+	const uint32_t fraction = (uint32_t)((baud - mantissa) * 16.0f);			// Fraction: baud rate fractional part * 16
+
+	USART2->BRR |= (mantissa << USART_BRR_DIV_Mantissa_Pos) |
+				   (fraction << USART_BRR_DIV_Fraction_Pos);
 	USART2->CR1 &= ~USART_CR1_M;					// Clear bit to set 8 bit word length
 	USART2->CR1 |= USART_CR1_RE;					// Receive enable
 	USART2->CR1 |= USART_CR1_TE;					// Transmitter enable
@@ -33,31 +32,20 @@ void InitUART() {
 
 }
 
-std::string IntToString(const int32_t& v) {
-	std::stringstream ss;
-	ss << v;
-	return ss.str();
-}
 
-std::string HexToString(const uint32_t& v, const bool& spaces) {
-	std::stringstream ss;
-	ss << std::uppercase << std::setfill('0') << std::setw(8) << std::hex << v;
-	if (spaces) {
-		//std::string s = ss.str();
-		return ss.str().insert(2, " ").insert(5, " ").insert(8, " ");
+void UARTHandler::ProcessCommand()
+{
+	if (!cmdPending) {
+		return;
 	}
-	return ss.str();
-}
 
-std::string HexByte(const uint16_t& v) {
-	std::stringstream ss;
-	ss << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << v;
-	return ss.str();
+	std::string_view cmd {command};
+	commandHandler.ProcessCommand(cmd);
+	cmdPending = false;
 }
 
 
-
-size_t uartSendStr(const unsigned char* s, size_t len)
+size_t UARTHandler::SendString(const unsigned char* s, size_t len)
 {
 	for (uint32_t i = 0; i < len; ++i) {
 		while ((USART2->SR & USART_SR_TXE) == 0);
@@ -66,26 +54,26 @@ size_t uartSendStr(const unsigned char* s, size_t len)
 	return len;
 }
 
-void uartSendStr(const std::string& s) {
+
+void UARTHandler::SendString(const std::string& s)
+{
 	for (char c : s) {
 		while ((USART2->SR & USART_SR_TXE) == 0);
 		USART2->DR = c;
 	}
 }
 
-extern "C" {
 
-void USART2_IRQHandler(void) {
-	if (USART2->SR | USART_SR_RXNE && !uartCmdRdy) {
-		uartCmd[uartCmdPos] = USART2->DR; 				// accessing DR automatically resets the receive flag
-		if (uartCmd[uartCmdPos] == 10) {
-			uartCmdRdy = true;
-			uartCmdPos = 0;
+void UARTHandler::DataIn(char data)
+{
+	if (!cmdPending) {
+		command[cmdPos] = data;
+		if (command[cmdPos] == 13 || command[cmdPos] == 10 || cmdPos == maxCmdLen - 1) {
+			command[cmdPos] = 0;
+			cmdPending = true;
+			cmdPos = 0;
 		} else {
-			uartCmdPos++;
+			++cmdPos;
 		}
 	}
-}
-
-
 }

@@ -194,7 +194,9 @@ void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)
 			mouse[i] = ParseReport(buff, hidDescriptor.controls[i].Offset, hidDescriptor.controls[i].Size);
 			hidValues.controls[i] = std::clamp(hidValues.controls[i] + (mouse[i] * mouseScale), 0L, (int32_t)std::numeric_limits<uint16_t>::max());
 
-			dacHandler.SendData(DACHandler::WriteChannel | cv.dacChannel, dacOutput);
+			if (i < 4) {
+				midiControl.SendCV(hidValues.controls[i], i);
+			}
 		}
 	}
 

@@ -1,6 +1,7 @@
 #include "initialisation.h"
 #include "USBHost.h"
 #include "USB.h"
+#include "CommandHandler.h"
 #include "uartHandler.h"
 #include "configManager.h"
 #include "MidiControl.h"
@@ -11,20 +12,8 @@ bool hostMode = true;
 
 extern "C" {
 #include "interrupts.h"
-
-size_t _write(int handle, const unsigned char* buf, size_t len)
-{
-	uartSendStr(buf, len);									// Logging via UART
-
-	if (usb.devState == USB::DeviceState::Configured) {		// Logging via USB
-		return usb.SendString(buf, len);
-	} else {
-		return 0;
-	}
-
-	return len;
 }
-}
+
 
 Config config{&midiControl.configSaver};	// Construct config handler with list of configSavers
 
@@ -32,7 +21,7 @@ Config config{&midiControl.configSaver};	// Construct config handler with list o
 int main(void)
 {
 	InitHardware();
-	InitUART();
+	uart.Init();
 	dacHandler.Init();
 	config.RestoreConfig();
 
@@ -49,11 +38,10 @@ int main(void)
 	while (1) {
 		midiControl.GateTimer();			// Switches off any pending gates/leds
 		config.SaveConfig();				// Save any scheduled changes
+		commandHandler.CheckCommands();		// Check if any commands received via USB serial or UART
 
 		if (hostMode) {
 			usbHost.Process();
-		} else {
-			usb.cdc.ProcessCommand();		// Check for incoming USB serial commands
 		}
 
 		if (modeSwitch.IsLow() != hostMode) {			// Switch between USB host and device mode

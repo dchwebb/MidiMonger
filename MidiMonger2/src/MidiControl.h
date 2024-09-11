@@ -8,7 +8,7 @@
 
 
 class MidiControl {
-	friend class CDCHandler;
+	friend class CommandHandler;
 public:
 	enum MIDIType { Unknown = 0, NoteOn = 0x9, NoteOff = 0x8, PolyPressure = 0xA, ControlChange = 0xB,
 		ProgramChange = 0xC, ChannelPressure = 0xD, PitchBend = 0xE, System = 0xF };
@@ -23,6 +23,7 @@ public:
 	static void SetConfig();
 	void GateTimer();
 	void LightShow();
+	void SendCV(uint16_t dacOutput, uint8_t channel);
 
 	ConfigSaver configSaver = {
 		.settingsAddress = &cfg,
@@ -77,7 +78,7 @@ private:
 		Gate(GateType type, uint8_t channel, uint8_t note, GPIO_TypeDef* gpioPort, uint8_t gpioPin) :
 			type(type), channel(channel), note(note), output(gpioPort, gpioPin, GpioPin::Type::Output) {};
 
-		void gateOn(const uint32_t offTime) {					// Gate on also setting off time for use with clocks
+		void GateOn(const uint32_t offTime) {					// Gate on also setting off time for use with clocks
 			output.SetHigh();
 			gateOffTime = offTime;
 		}
@@ -118,7 +119,7 @@ private:
 		uint8_t nextNote;
 		CV(CvType type,	uint8_t channel, DACHandler::Address dacChannel, GPIO_TypeDef* gpioPort, uint8_t gpioPin) :
 			type(type), channel(channel), dacChannel(dacChannel), led(gpioPort, gpioPin, GpioPin::Type::Output) {};
-		void sendNote();
+		void SendNote();
 		void LedOn(float offMs) {
 			led.SetHigh();
 			offTime = SysTickVal + (offMs * 2.5);				// pass gate off time: each tick is around 400us: 2500 x 400us = 1 second
@@ -130,6 +131,9 @@ private:
 			{CvType::channelPitch, 4, DACHandler::ChannelA, GPIOB, 7}
 	};
 
+	static constexpr float dacOffsetDefault = 25.3f;
+	static constexpr float dacScaleDefault = 74.0f;
+	static constexpr float pitchBendSemiTonesDefault = 12.0f;						// Number of semitones for a full pitchbend
 	struct Config {
 		struct GateConfig {
 			GateType type;
@@ -143,10 +147,10 @@ private:
 			uint8_t controller;
 		} cvs[4];
 
-		float pitchBendSemiTones = 12.0f;						// Number of semitones for a full pitchbend
+		float pitchBendSemiTones = pitchBendSemiTonesDefault;						// Number of semitones for a full pitchbend
 
-		float dacOffset = 25.3f;
-		float dacScale = 74.0f;
+		float dacOffset = dacOffsetDefault;
+		float dacScale = dacScaleDefault;
 	} cfg;
 
 	static constexpr uint32_t QueueSize = 50;
