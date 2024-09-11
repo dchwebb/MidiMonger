@@ -194,8 +194,8 @@ void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)
 			mouse[i] = ParseReport(buff, hidDescriptor.controls[i].Offset, hidDescriptor.controls[i].Size);
 			hidValues.controls[i] = std::clamp(hidValues.controls[i] + (mouse[i] * mouseScale), 0L, (int32_t)std::numeric_limits<uint16_t>::max());
 
-			if (i < 4) {
-				midiControl.SendCV(hidValues.controls[i], i);
+			if (mouse[i] && i < 4) {
+				midiControl.SendCV(hidValues.controls[i], i, 100);
 			}
 		}
 	}
@@ -203,10 +203,18 @@ void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)
 	if (hidDescriptor.buttonOffset + hidDescriptor.buttonCount) {
 		buttons = buff[hidDescriptor.buttonOffset >> 3];
 		if (buttons != hidValues.buttons) {
+			for (uint8_t i = 0; i < 4; ++i) {
+				if (buttons & (1 << i) && (hidValues.buttons & (1 << i)) == 0) {
+					midiControl.SendGate(i + 4, true);
+				} else if ((buttons & (1 << i)) == 0 && hidValues.buttons & (1 << i)) {
+					midiControl.SendGate(i + 4, false);
+				}
+
+			}
 			hidValues.buttons = buttons;
 		}
 	}
-	printf("Hid X: %ld Y: %ld; Wheel: %ld; Buttons: %lu\r\n", mouse[HidDescriptor::X], mouse[HidDescriptor::Y], mouse[HidDescriptor::Wheel], buttons);
+	//printf("Hid X: %ld Y: %ld; Wheel: %ld; Buttons: %lu\r\n", mouse[HidDescriptor::X], mouse[HidDescriptor::Y], mouse[HidDescriptor::Wheel], buttons);
 
 }
 

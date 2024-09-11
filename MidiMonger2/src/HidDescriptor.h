@@ -147,9 +147,9 @@ struct HidDescriptor
 		printf("\r\n");
 
 		// Print parsed offsets
-		printf("Buttons - Offset: %ld Count %ld\r"
-			   "Mouse X - Offset: %ld Size %ld\r"
-			   "Mouse Y - Offset: %ld Size %ld\r"
+		printf("Buttons - Offset: %ld Count %ld\r\n"
+			   "Mouse X - Offset: %ld Size %ld\r\n"
+			   "Mouse Y - Offset: %ld Size %ld\r\n"
 			   "Mouse Wheel - Offset: %ld Size %ld\r\n ",
 			   buttonOffset, buttonCount,
 			   controls[X].Offset, controls[X].Size,

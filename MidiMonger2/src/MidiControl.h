@@ -23,7 +23,10 @@ public:
 	static void SetConfig();
 	void GateTimer();
 	void LightShow();
-	void SendCV(uint16_t dacOutput, uint8_t channel);
+
+	// Commands allowing external classes (eg USB HID) to output data
+	void SendCV(uint16_t dacOutput, uint8_t channel, uint32_t ledTimoutMS);
+	void SendGate(uint8_t gate, bool on);
 
 	ConfigSaver configSaver = {
 		.settingsAddress = &cfg,

@@ -390,10 +390,20 @@ void MidiControl::MatchChannelSetting(OutputType output, uint8_t num)
 }
 
 
-void MidiControl::SendCV(uint16_t dacOutput, uint8_t channel)
+void MidiControl::SendGate(uint8_t gate, bool on)
+{
+	if (on) {
+		gateOutputs[gate].output.SetHigh();
+	} else {
+		gateOutputs[gate].output.SetLow();
+	}
+}
+
+
+void MidiControl::SendCV(uint16_t dacOutput, uint8_t channel, uint32_t ledTimoutMS)
 {
 	dacHandler.SendData(DACHandler::WriteChannel | cvOutputs[channel].dacChannel, dacOutput);		// Send pitch to DAC
-	cvOutputs[channel].LedOn(200);																// Turn LED On for 200ms
+	cvOutputs[channel].LedOn(ledTimoutMS);
 }
 
 
