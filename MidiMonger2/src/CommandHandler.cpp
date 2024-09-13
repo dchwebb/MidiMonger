@@ -32,7 +32,7 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 {
 	bool changed = false;
 
-	if (cmd.compare("help") == 0) {
+	if (cmd.starts_with("help")) {
 		printf("Mountjoy MIDI Monger - supported commands:\r\n\r\n"
 				"help        -  Shows this information\r\n"
 				"info        -  Shows current control configuration\r\n"
@@ -44,7 +44,8 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				"clearconfig -  Erase configuration and restart\r\n"
 				"saveconfig  -  Immediately save config\r\n"
 				"nVcC        -  Play note value V on channel C. Eg \'n60c1\' is middle C on channel 1\r\n"
-				"pS          -  Set pitchbend range to S semitones Eg \'p2\' sets pitchbend range to 2 semitones\r\n"
+				"pb:S        -  Set pitchbend range to S semitones Eg \'p2\' sets pitchbend range to 2 semitones\r\n"
+				"porta:N     -  Set portamento amount to N for monophonic channels (0-100)\r\n"
 				"\r\n"
 				"gGmMcCnN    -  Configure gate G (1-8) mode M (1=specific note, 2=channel gate, 3=clock)\r\n"
 				"               Optional: channel C (1-16) note N (from 24=C1 to 96=C7)\r\n"
@@ -65,7 +66,7 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		);
 
 
-	} else 	if (cmd.compare(0, 10, "dacoffset:") == 0) {	// Configure DAC offset
+	} else 	if (cmd.starts_with("dacoffset:")) {			// Configure DAC offset
 		float dacOffset = ParseFloat(cmd, ':', 10, 30);
 		if (dacOffset > 0) {
 			midiControl.cfg.dacOffset = dacOffset;
@@ -75,7 +76,8 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 			printf("Invalid range\r\n");
 		}
 
-	} else 	if (cmd.compare(0, 9, "dacscale:") == 0) {		// Configure DAC scale
+
+	} else 	if (cmd.starts_with("dacscale:")) {				// Configure DAC scale
 		float dacScale = ParseFloat(cmd, ':', 50, 100);
 		if (dacScale > 0) {
 			midiControl.cfg.dacScale = dacScale;
@@ -85,8 +87,9 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 			printf("Invalid range\r\n");
 		}
 
-	} else 	if (cmd.compare(0, 1, "p") == 0) {				// Configure Pitchbend range
-		int16_t pb = ParseInt(cmd, 'p', 0, 25);
+
+	} else 	if (cmd.starts_with("pb:")) {					// Configure Pitchbend range
+		int16_t pb = ParseInt(cmd, ':', 0, 25);
 		if (pb > 0) {
 			midiControl.cfg.pitchBendSemiTones = pb;
 			printf("Pitchbend set to %d semitones\r\n", pb);
@@ -96,7 +99,18 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		}
 
 
-	} else 	if (cmd.compare(0, 2, "mb") == 0) {				// Mouse buttons (Eg mb2:7 to output mouse button 2 to Gate 7)
+	} else 	if (cmd.starts_with("porta:")) {				// Configure portamento amount
+		int16_t p = ParseInt(cmd, ':', 0, 100);
+		if (p > 0) {
+			midiControl.cfg.portamento = p;
+			printf("Portamento set to %d\r\n", p);
+			changed = true;
+		} else {
+			printf("Invalid range\r\n");
+		}
+
+
+	} else 	if (cmd.starts_with("mb")) {					// Mouse buttons (Eg mb2:7 to output mouse button 2 to Gate 7)
 		int16_t button = ParseInt(cmd, 'b', 1, 8);
 		int16_t gate = ParseInt(cmd, ':', 1, 8);
 		if (button && gate) {
@@ -105,7 +119,8 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 			config.ScheduleSave();
 		}
 
-	} else 	if (cmd.compare(0, 2, "mc") == 0) {				// Mouse control (Eg mcW:2 to output mouse wheel to CV 2)
+
+	} else 	if (cmd.starts_with("mc")) {					// Mouse control (Eg mcW:2 to output mouse wheel to CV 2)
 		auto control =	cmd[2] == 'X' ? HidHostClass::CVSource::mouseX :
 						cmd[2] == 'Y' ? HidHostClass::CVSource::mouseY :
 						cmd[2] == 'W' ? HidHostClass::CVSource::mouseWheel :
@@ -117,7 +132,8 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 			config.ScheduleSave();
 		}
 
-	} else 	if (cmd.compare(0, 1, "v") == 0) {				// Configure CVs
+
+	} else 	if (cmd.starts_with("v")) {						// Configure CVs
 		int16_t cv = ParseInt(cmd, 'v') - 1;
 		int16_t mode = ParseInt(cmd, 'm');
 		int8_t channel = ParseInt(cmd, 'c');
@@ -146,14 +162,15 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		changed = true;
 
 
-	} else 	if (cmd.compare(0, 1, "g") == 0) {				// Configure gates
+	} else if (cmd.starts_with("g")) {					// Configure gates
 		int16_t gate = ParseInt(cmd, 'g') - 1;
-		int16_t mode = ParseInt(cmd, 'm');					// locate position of mode code
+		int16_t mode = ParseInt(cmd, 'm');
 		if (gate < 0 || gate > 7 || mode < 1 || mode > 3) {
 			return;
 		}
 
-		if ((MidiControl::GateType)mode == MidiControl::GateType::clock) {		// gateType {specificNote = 1, channelNote = 2, clock = 3};
+		// gateType {specificNote = 1, channelNote = 2, clock = 3};
+		if ((MidiControl::GateType)mode == MidiControl::GateType::clock) {
 			midiControl.cfg.gates[gate].type = MidiControl::GateType::clock;
 		} else {
 			int8_t channel = ParseInt(cmd, 'c');
@@ -179,7 +196,7 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		changed = true;
 
 
-	} else if (cmd.compare("info") == 0) {					// Print current configuration
+	} else if (cmd.starts_with("info")) {					// Print current configuration
 		auto buffPos = buf;
 		buffPos += sprintf(buffPos, "Configuration:\r\n"
 #ifdef V1_HARDWARE
@@ -188,10 +205,12 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				"DAC offset: %f\r\n"
 				"DAC scale: %f\r\n"
 				"Pitchbend range: %f semitones\r\n"
+				"Portamento amount: %d\r\n"
 				"Config sector: %lu; address: %p\r\n",
 				midiControl.cfg.dacOffset,
 				midiControl.cfg.dacScale,
 				midiControl.cfg.pitchBendSemiTones,
+				midiControl.cfg.portamento,
 				config.currentSector,
 				config.flashConfigAddr + config.currentSettingsOffset / 4);
 
@@ -242,16 +261,16 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		printf(buf);
 
 
-	} else if (cmd.compare("lights") == 0) {
+	} else if (cmd.starts_with("lights")) {
 		midiControl.LightShow();
 
 
-	} else if (cmd.compare("kill") == 0) {
+	} else if (cmd.starts_with("kill")) {
 		midiControl.GatesOff();
 
 
-	} else 	if (cmd.compare(0, 1, "n") == 0) {			// Play note: Eg 'n60c1' is middle C on channel 1
-		int8_t cpos = cmd.find("c");					// locate position of channel code
+	} else 	if (cmd.starts_with("n")) {	// Play note: Eg 'n60c1' is middle C on channel 1
+		int8_t cpos = cmd.find("c");
 		// Check that command is correctly formed - note that stoi can throw exceptions which breaks program
 		if (cpos > 1 && std::strspn(&cmd[1], "0123456789") > 0 && std::strspn(&cmd[cpos + 1], "0123456789") > 0) {
 			uint8_t noteVal = std::stoi(cmd.substr(1, cpos).data());
@@ -271,18 +290,18 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		}
 
 
-	} else if (cmd.compare("saveconfig") == 0) {				// Immediate config save
+	} else if (cmd.starts_with("saveconfig")) {					// Immediate config save
 		config.SaveConfig(true);
 
 
-	} else if (cmd.compare("clearconfig") == 0) {				// Erase config from internal flash
+	} else if (cmd.starts_with("clearconfig")) {				// Erase config from internal flash
 		printf("Clearing config and restarting ...\r\n");
 		config.EraseConfig();
 		DelayMS(10);
 		Reboot();
 
 
-	} else if (cmd.compare("disableusb") == 0) {				// Disable USB device
+	} else if (cmd.starts_with("disableusb")) {					// Disable USB device
 		usb.Disable();
 
 
@@ -296,9 +315,11 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 	}
 }
 
-int32_t CommandHandler::ParseInt(const std::string_view cmd, const char precedingChar, const int32_t low, const int32_t high) {
+
+int32_t CommandHandler::ParseInt(const std::string_view cmd, const char precedingChar, const int32_t low, const int32_t high)
+{
 	int32_t val = -1;
-	const int8_t pos = cmd.find(precedingChar);		// locate position of character preceding
+	const int8_t pos = cmd.find(precedingChar);
 	if (pos >= 0 && std::strspn(&cmd[pos + 1], "0123456789-") > 0) {
 		val = std::stoi(&cmd[pos + 1]);
 	}
@@ -310,9 +331,10 @@ int32_t CommandHandler::ParseInt(const std::string_view cmd, const char precedin
 }
 
 
-float CommandHandler::ParseFloat(const std::string_view cmd, const char precedingChar, const float low = 0.0f, const float high = 0.0f) {
+float CommandHandler::ParseFloat(const std::string_view cmd, const char precedingChar, const float low = 0.0f, const float high = 0.0f)
+{
 	float val = -1.0f;
-	const int8_t pos = cmd.find(precedingChar);		// locate position of character preceding
+	const int8_t pos = cmd.find(precedingChar);
 	if (pos >= 0 && std::strspn(&cmd[pos + 1], "0123456789.") > 0) {
 		val = std::stof(&cmd[pos + 1]);
 	}

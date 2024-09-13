@@ -120,6 +120,12 @@ private:
 		uint8_t controller;
 		uint8_t currentNote;
 		uint8_t nextNote;
+
+		// Portamento settings
+		bool portamento;
+		float currentOutput;
+		float targetOutput;
+
 		CV(CvType type,	uint8_t channel, DACHandler::Address dacChannel, GPIO_TypeDef* gpioPort, uint8_t gpioPin) :
 			type(type), channel(channel), dacChannel(dacChannel), led(gpioPort, gpioPin, GpioPin::Type::Output) {};
 		void SendNote();
@@ -151,11 +157,14 @@ private:
 		} cvs[4];
 
 		float pitchBendSemiTones = pitchBendSemiTonesDefault;						// Number of semitones for a full pitchbend
+		uint8_t portamento = 0;
 
 		float dacOffset = dacOffsetDefault;
 		float dacScale = dacScaleDefault;
 	} cfg;
 
+
+	float dacScaleCalc;							// dac scaling adjusted for 16 bit output
 	static constexpr uint32_t QueueSize = 50;
 	uint32_t ClockCount = 0;
 

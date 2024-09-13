@@ -1,6 +1,7 @@
 #include <MidiControl.h>
 #include "DACHandler.h"
 #include "USB.h"
+#include <cmath>
 
 MidiControl midiControl;
 
@@ -358,6 +359,8 @@ void MidiControl::SetConfig()
 	if (midiControl.cfg.dacScale < 0.00001f) {
 		midiControl.cfg.dacScale = dacScaleDefault;
 	}
+	midiControl.dacScaleCalc = 65535.0f / midiControl.cfg.dacScale;
+
 	if (midiControl.cfg.pitchBendSemiTones < 0.00001f) {
 		midiControl.cfg.pitchBendSemiTones = pitchBendSemiTonesDefault;
 	}
@@ -409,7 +412,8 @@ void MidiControl::SendCV(uint16_t dacOutput, uint8_t channel, uint32_t ledTimout
 
 void MidiControl::CV::SendNote()
 {
-	uint16_t dacOutput = 0xFFFF * (std::clamp((float)currentNote + midiControl.channelNotes[channel - 1].pitchbend, midiControl.cfg.dacOffset, 96.0f) - midiControl.cfg.dacOffset) / midiControl.cfg.dacScale;		// limit C1 to C7
+	targetOutput = std::clamp((midiControl.channelNotes[channel - 1].pitchbend + currentNote - midiControl.cfg.dacOffset) * midiControl.dacScaleCalc, 0.0f, 65535.0f);		// limit C1 to C7
+	uint16_t dacOutput = (uint16_t)std::round(targetOutput);
 	dacHandler.SendData(DACHandler::WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
 	LedOn(400);																	// Turn LED On for 400ms
 }

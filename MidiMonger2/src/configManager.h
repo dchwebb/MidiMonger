@@ -15,7 +15,7 @@ struct ConfigSaver {
 class Config {
 	friend class CommandHandler;					// Allow the serial handler access to private data for printing
 public:
-	static constexpr uint8_t configVersion = 3;
+	static constexpr uint8_t configVersion = 4;
 	
 	// STM32F446 has up to 7 sectors of flash organized as: 16K (sector 0-3), 64k (sector 4), 128k (sector 5-7)
 	// Allow saving in pages 5-7 (Use page 5 to support STM32F446RCT which only has 256kB Flash)
