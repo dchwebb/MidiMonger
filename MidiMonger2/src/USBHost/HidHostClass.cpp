@@ -192,10 +192,17 @@ void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)
 	for (uint32_t i = 0; i < hidDescriptor.ControlsCount; ++i) {
 		if (hidDescriptor.controls[i].Offset + hidDescriptor.controls[i].Size) {
 			mouse[i] = ParseReport(buff, hidDescriptor.controls[i].Offset, hidDescriptor.controls[i].Size);
-			hidValues.controls[i] = std::clamp(hidValues.controls[i] + (mouse[i] * mouseScale), 0L, (int32_t)std::numeric_limits<uint16_t>::max());
+			hidValues.controls[i] = std::clamp(hidValues.controls[i] + (mouse[i] * cfg.mouseScale[i]), 0L, (int32_t)std::numeric_limits<uint16_t>::max());
 
 			if (mouse[i] && i < 4) {
-				midiControl.SendCV(hidValues.controls[i], i, 100);
+				for (uint32_t cv = 0; cv < 4; ++cv) {								// Check if mouse control is linked to each CV output
+					if ((cfg.cvSource[cv] == mouseX && i == HidDescriptor::X) ||
+						(cfg.cvSource[cv] == mouseY && i == HidDescriptor::Y) ||
+						(cfg.cvSource[cv] == mouseWheel && i == HidDescriptor::Wheel)) {
+						midiControl.SendCV(hidValues.controls[i], cv, 100);
+					}
+				}
+
 			}
 		}
 	}
@@ -203,12 +210,23 @@ void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)
 	if (hidDescriptor.buttonOffset + hidDescriptor.buttonCount) {
 		buttons = buff[hidDescriptor.buttonOffset >> 3];
 		if (buttons != hidValues.buttons) {
-			for (uint8_t i = 0; i < 4; ++i) {
+			for (uint8_t i = 0; i < 8; ++i) {
+				uint8_t buttonChanged = 2;		// State unchanged
+
 				if (buttons & (1 << i) && (hidValues.buttons & (1 << i)) == 0) {
-					midiControl.SendGate(i + 4, true);
+					buttonChanged = 1;				// Button pressed
+
 				} else if ((buttons & (1 << i)) == 0 && hidValues.buttons & (1 << i)) {
-					midiControl.SendGate(i + 4, false);
+					buttonChanged = 0;				// Button released
 				}
+				if (buttonChanged < 2) {
+					for (uint8_t g = 0; g < 8; ++g) {
+						if (cfg.gateSource[g] == (GateSource)(i + 1)) {
+							midiControl.SendGate(g, buttonChanged);
+						}
+					}
+				}
+
 
 			}
 			hidValues.buttons = buttons;
@@ -219,3 +237,7 @@ void HidHostClass::HidEvent(uint8_t* buff, uint16_t len)
 }
 
 
+void HidHostClass::SetConfig()
+{
+
+}

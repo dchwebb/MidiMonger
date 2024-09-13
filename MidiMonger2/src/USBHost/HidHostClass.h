@@ -1,12 +1,15 @@
 #pragma once
 #include "USBClass.h"
 #include "HidDescriptor.h"
+#include "configManager.h"
+#include "CommandHandler.h"
 
 class USBHost;
 
 #define  USB_DESC_HID_REPORT                ((0x22 << 8) & 0xFF00U)
 
 class HidHostClass : public USBClass {
+	friend CommandHandler;
 public:
 	static constexpr uint8_t usbHidClass = 0x03;
 	static constexpr uint8_t usbBootSubclass = 0x01;
@@ -18,6 +21,14 @@ public:
 	HostStatus InterfaceInit() override;
 	void InterfaceDeInit() override;
 	HostStatus Process() override;
+	static void SetConfig();
+
+	ConfigSaver configSaver = {
+		.settingsAddress = &cfg,
+		.settingsSize = sizeof(cfg),
+		.validateSettings = SetConfig
+	};
+
 private:
 	enum class HidState { Init, GetReportDesc, Idle, SendData, Busy, GetData, Synch, Poll, Wait, Error };
 	static constexpr uint8_t hidMinPoll = 1;
@@ -42,7 +53,16 @@ private:
 
 	} hidValues;
 
-	int32_t mouseScale = 20;
+	enum CVSource {noCV = 0, mouseX, mouseY, mouseWheel};
+	enum GateSource {noGate = 0, mouseBtn1, mouseBtn2, mouseBtn3, mouseBtn4, mouseBtn5, mouseBtn6, mouseBtn7, mouseBtn8};
+	struct {
+		CVSource cvSource[4];
+		GateSource gateSource[8];
+		int32_t mouseScale[3];
+	} cfg = {mouseX, mouseY, mouseWheel, noCV,
+			mouseBtn5, mouseBtn6, mouseBtn7, mouseBtn8,
+			mouseBtn1, mouseBtn2, mouseBtn3, mouseBtn4,
+			20, 20, 1000};
 
 	bool GetReportDesc();
 	int32_t ParseReport(uint8_t* buff, uint32_t offset, uint32_t size);

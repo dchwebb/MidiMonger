@@ -25,7 +25,7 @@ void UARTHandler::Init()
 
 	// Set up interrupts
 	USART2->CR1 |= USART_CR1_RXNEIE;
-	NVIC_SetPriority(USART2_IRQn, 3);				// Lower is higher priority
+	NVIC_SetPriority(USART2_IRQn, 1);				// Lower is higher priority
 	NVIC_EnableIRQ(USART2_IRQn);
 
 	USART2->CR1 |= USART_CR1_UE;					// USART Enable

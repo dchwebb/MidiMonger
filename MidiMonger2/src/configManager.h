@@ -15,7 +15,7 @@ struct ConfigSaver {
 class Config {
 	friend class CommandHandler;					// Allow the serial handler access to private data for printing
 public:
-	static constexpr uint8_t configVersion = 2;
+	static constexpr uint8_t configVersion = 3;
 	
 	// STM32F446 has up to 7 sectors of flash organized as: 16K (sector 0-3), 64k (sector 4), 128k (sector 5-7)
 	// Allow saving in pages 5-7 (Use page 5 to support STM32F446RCT which only has 256kB Flash)
@@ -29,11 +29,7 @@ public:
 
 	// Constructor taking multiple config savers: Get total config block size from each saver
 	Config(std::initializer_list<ConfigSaver*> initList) : configSavers(initList) {
-		for (auto saver : configSavers) {
-			settingsSize += saver->settingsSize;
-		}
-		// Ensure config size (+ 4 byte header + 1 byte index) is aligned to 8 byte boundary
-		settingsSize = AlignTo16Bytes(settingsSize + headerSize);
+
 	}
 
 	void ScheduleSave();				// called whenever a config setting is changed to schedule a save after waiting to see if any more changes are being made

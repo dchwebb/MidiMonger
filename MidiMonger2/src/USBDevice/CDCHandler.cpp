@@ -1,9 +1,7 @@
 #include "USB.h"
 #include "CDCHandler.h"
-
 #include "CommandHandler.h"
 
-void LilLightShow();
 
 void CDCHandler::ProcessCommand()
 {

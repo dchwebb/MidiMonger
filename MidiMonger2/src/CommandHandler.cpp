@@ -3,6 +3,7 @@
 #include "uartHandler.h"
 #include "MidiControl.h"
 #include "HidDescriptor.h"
+#include "HidHostClass.h"
 
 CommandHandler commandHandler;
 
@@ -11,7 +12,7 @@ size_t _write(int handle, const unsigned char* buf, size_t len)
 {
 	uart.SendString(buf, len);									// Logging via UART
 
-	if (usb.devState == USB::DeviceState::Configured) {		// Logging via USB
+	if (usb.devState == USB::DeviceState::Configured) {			// Logging via USB
 		usb.SendString(buf, len);
 	}
 
@@ -55,6 +56,12 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				"               Optional: channel C (1-16) controller N (0-127)\r\n"
 				"               Eg v1m1c3 to configure cv 1, mode Channel Pitch, channel 3\r\n"
 				"               Eg v3m2c12n7 to configure cv 3, mode controller, channel 12, controller 7\r\n"
+				"\r\n"
+				"mcC:N       -  Configure mouse control X/Y/wheel: control c (X,Y,W) CV output N (1-4) \r\n"
+				"               Eg mcW:2 to output mouse wheel to CV 2\r\n"
+				"\r\n"
+				"mbB:N       -  Configure mouse button B (1-8) Gate output N (1-8) \r\n"
+				"               Eg mb2:7 to output mouse button 2 to Gate 7\r\n"
 		);
 
 
@@ -88,6 +95,27 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 			printf("Invalid range\r\n");
 		}
 
+
+	} else 	if (cmd.compare(0, 2, "mb") == 0) {				// Mouse buttons (Eg mb2:7 to output mouse button 2 to Gate 7)
+		int16_t button = ParseInt(cmd, 'b', 1, 8);
+		int16_t gate = ParseInt(cmd, ':', 1, 8);
+		if (button && gate) {
+			hidHostClass.cfg.gateSource[gate - 1] = (HidHostClass::GateSource)button;
+			printf("Configured: %s\r\n", cmd.data());
+			config.ScheduleSave();
+		}
+
+	} else 	if (cmd.compare(0, 2, "mc") == 0) {				// Mouse control (Eg mcW:2 to output mouse wheel to CV 2)
+		auto control =	cmd[2] == 'X' ? HidHostClass::CVSource::mouseX :
+						cmd[2] == 'Y' ? HidHostClass::CVSource::mouseY :
+						cmd[2] == 'W' ? HidHostClass::CVSource::mouseWheel :
+						HidHostClass::CVSource::noCV;
+		int16_t cv = ParseInt(cmd, ':', 1, 8);
+		if (control && cv) {
+			hidHostClass.cfg.cvSource[cv - 1] = control;
+			printf("Configured: %s\r\n", cmd.data());
+			config.ScheduleSave();
+		}
 
 	} else 	if (cmd.compare(0, 1, "v") == 0) {				// Configure CVs
 		int16_t cv = ParseInt(cmd, 'v') - 1;
@@ -181,6 +209,7 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				buffPos += sprintf(buffPos, "Clock");
 				break;
 			}
+			buffPos += sprintf(buffPos, " [Mouse Button: %d]", hidHostClass.cfg.gateSource[gate - 1]);
 		}
 		buffPos += sprintf(buffPos, "\r\n");
 
@@ -202,7 +231,13 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				break;
 			}
 			buffPos += sprintf(buffPos, ". Channel: %d", cv.channel);
+			auto src = hidHostClass.cfg.cvSource[c - 1];
+			buffPos += sprintf(buffPos, " [Mouse: %s]",
+					src == HidHostClass::CVSource::mouseX ? "X" :
+					src == HidHostClass::CVSource::mouseY ? "Y" :
+					src == HidHostClass::CVSource::mouseWheel ? "Wheel" : "");
 		}
+
 		buffPos += sprintf(buffPos, "\r\n\r\n");
 		printf(buf);
 

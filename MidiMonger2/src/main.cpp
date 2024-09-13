@@ -1,6 +1,7 @@
 #include "initialisation.h"
 #include "USBHost.h"
 #include "USB.h"
+#include "HidHostClass.h"
 #include "CommandHandler.h"
 #include "uartHandler.h"
 #include "configManager.h"
@@ -14,8 +15,7 @@ extern "C" {
 #include "interrupts.h"
 }
 
-
-Config config{&midiControl.configSaver};	// Construct config handler with list of configSavers
+Config config{&midiControl.configSaver, &hidHostClass.configSaver};		// Construct config handler with list of configSavers
 
 
 int main(void)

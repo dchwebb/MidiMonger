@@ -64,6 +64,12 @@ bool Config::SaveConfig(const bool forceSave)
 
 void Config::RestoreConfig()
 {
+	for (auto saver : configSavers) {
+		settingsSize += saver->settingsSize;
+	}
+	// Ensure config size (+ 4 byte header + 1 byte index) is aligned to 8 byte boundary
+	settingsSize = AlignTo16Bytes(settingsSize + headerSize);
+
 	// Initialise sector array - used to manage which sector contains current config, and which sectors are available for writing when current sector full
 	for (uint32_t i = 0; i < configSectorCount; ++i) {
 		sectors[i].sector = flashConfigSector + i;
