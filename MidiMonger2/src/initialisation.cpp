@@ -13,6 +13,7 @@ void InitHardware()
 	InitClocks();
 	InitSysTick();
 	InitMidiUART();
+	InitTimer();
 }
 
 
@@ -120,6 +121,23 @@ void DisableUSB()
 		usb.Disable();
 	}
 	DelayMS(10);
+}
+
+
+
+//	Setup Timer 3 on an interrupt to trigger portamento calculations
+void InitTimer()
+{
+	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;				// Enable Timer 3
+	TIM3->PSC = 0;									// Set prescaler: 90MHz (APB1 Timer Clock) / 1 (PSC + 1) = 90 MHz
+	TIM3->ARR = 7000; 								// Set auto reload register (90 MHz / 7000 = 12 kHz)
+
+	TIM3->DIER |= TIM_DIER_UIE;						// DMA/interrupt enable register
+	NVIC_EnableIRQ(TIM3_IRQn);
+	NVIC_SetPriority(TIM3_IRQn, 0);					// Lower is higher priority
+
+	TIM3->CR1 |= TIM_CR1_CEN;
+	TIM3->EGR |= TIM_EGR_UG;						// Re-initializes counter and generates update of registers
 }
 
 

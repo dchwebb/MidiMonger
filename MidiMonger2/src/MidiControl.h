@@ -22,6 +22,7 @@ public:
 	void SerialHandler(uint32_t data);
 	static void SetConfig();
 	void GateTimer();
+	void CalcPortamento();
 	void LightShow();
 
 	// Commands allowing external classes (eg USB HID) to output data
@@ -165,6 +166,8 @@ private:
 
 
 	float dacScaleCalc;							// dac scaling adjusted for 16 bit output
+	float portamentoCalc;						// Calculated speed of portamento effect
+
 	static constexpr uint32_t QueueSize = 50;
 	uint32_t ClockCount = 0;
 

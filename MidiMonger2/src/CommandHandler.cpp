@@ -45,7 +45,7 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				"saveconfig  -  Immediately save config\r\n"
 				"nVcC        -  Play note value V on channel C. Eg \'n60c1\' is middle C on channel 1\r\n"
 				"pb:S        -  Set pitchbend range to S semitones Eg \'p2\' sets pitchbend range to 2 semitones\r\n"
-				"porta:N     -  Set portamento amount to N for monophonic channels (0-100)\r\n"
+				"porta:N     -  Set portamento amount to N for monophonic channels (0-255)\r\n"
 				"\r\n"
 				"gGmMcCnN    -  Configure gate G (1-8) mode M (1=specific note, 2=channel gate, 3=clock)\r\n"
 				"               Optional: channel C (1-16) note N (from 24=C1 to 96=C7)\r\n"
@@ -100,7 +100,7 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 
 
 	} else 	if (cmd.starts_with("porta:")) {				// Configure portamento amount
-		int16_t p = ParseInt(cmd, ':', 0, 100);
+		int16_t p = ParseInt(cmd, ':', 0, 255);
 		if (p > 0) {
 			midiControl.cfg.portamento = p;
 			printf("Portamento set to %d\r\n", p);

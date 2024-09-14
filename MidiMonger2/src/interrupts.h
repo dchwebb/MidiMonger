@@ -25,6 +25,12 @@ void USART2_IRQHandler(void) {
 	}
 }
 
+void TIM3_IRQHandler(void)
+{
+	TIM3->SR &= ~TIM_SR_UIF;								// clear UIF flag
+	midiControl.CalcPortamento();
+}
+
 void NMI_Handler(void)
 {
 	while (1) {

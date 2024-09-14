@@ -13,6 +13,7 @@ void InitClocks();
 void InitSysTick();
 void DelayMS(uint32_t ms);
 void InitMidiUART();
+void InitTimer();
 void Reboot();
 void JumpToBootloader();
 

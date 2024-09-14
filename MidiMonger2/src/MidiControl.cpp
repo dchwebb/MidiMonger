@@ -214,7 +214,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 		if (ClockCount % 6 == 0) {
 			for (auto& gate : gateOutputs) {
 				if (gate.type == GateType::clock) {
-					gate.GateOn(SysTickVal + 13);		// pass gate off time: each tick is around 400us: 15 x 400us = 6ms (less a bit from testing)
+					gate.GateOn(SysTickVal + 6);		// pass gate off time in 6ms
 				}
 			}
 		}
@@ -364,6 +364,12 @@ void MidiControl::SetConfig()
 	if (midiControl.cfg.pitchBendSemiTones < 0.00001f) {
 		midiControl.cfg.pitchBendSemiTones = pitchBendSemiTonesDefault;
 	}
+
+	// Check portamento for monophonic voices
+	midiControl.portamentoCalc = midiControl.cfg.portamento ? 1.0f / (midiControl.cfg.portamento * 4.0f): 1.0f;
+	for (auto& cv : midiControl.cvOutputs) {
+		cv.portamento = (midiControl.cfg.portamento && cv.type == CvType::channelPitch && midiControl.channelNotes[cv.channel].voiceCount == 1);
+	}
 }
 
 
@@ -413,9 +419,27 @@ void MidiControl::SendCV(uint16_t dacOutput, uint8_t channel, uint32_t ledTimout
 void MidiControl::CV::SendNote()
 {
 	targetOutput = std::clamp((midiControl.channelNotes[channel - 1].pitchbend + currentNote - midiControl.cfg.dacOffset) * midiControl.dacScaleCalc, 0.0f, 65535.0f);		// limit C1 to C7
-	uint16_t dacOutput = (uint16_t)std::round(targetOutput);
-	dacHandler.SendData(DACHandler::WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
+	if (!portamento) {
+		uint16_t dacOutput = (uint16_t)std::round(targetOutput);
+		dacHandler.SendData(DACHandler::WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
+	}
 	LedOn(400);																	// Turn LED On for 400ms
+}
+
+
+void MidiControl::CalcPortamento()
+{
+	for (auto& cv : cvOutputs) {
+		if (cv.portamento && cv.targetOutput != cv.currentOutput) {
+			float diff = cv.targetOutput - cv.currentOutput;
+			if (diff > 0) {		// Add linear offset to avoid very slow roll-off at end of log slpoe
+				cv.currentOutput = std::min(cv.currentOutput + portamentoCalc * (diff + 500.0f), cv.targetOutput);
+			} else {
+				cv.currentOutput = std::max(cv.currentOutput + portamentoCalc * (diff - 500.0f), cv.targetOutput);
+			}
+			dacHandler.SendData(DACHandler::WriteChannel | cv.dacChannel, cv.currentOutput);		// Send pitch to DAC
+		}
+	}
 }
 
 
