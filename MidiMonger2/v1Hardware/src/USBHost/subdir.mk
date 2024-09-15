@@ -5,16 +5,19 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/USBHost/HidHostClass.cpp \
 ../src/USBHost/MidiHostClass.cpp \
 ../src/USBHost/USBClass.cpp \
 ../src/USBHost/USBHost.cpp 
 
 OBJS += \
+./src/USBHost/HidHostClass.o \
 ./src/USBHost/MidiHostClass.o \
 ./src/USBHost/USBClass.o \
 ./src/USBHost/USBHost.o 
 
 CPP_DEPS += \
+./src/USBHost/HidHostClass.d \
 ./src/USBHost/MidiHostClass.d \
 ./src/USBHost/USBClass.d \
 ./src/USBHost/USBHost.d 
@@ -27,7 +30,7 @@ src/USBHost/%.o src/USBHost/%.su src/USBHost/%.cyclo: ../src/USBHost/%.cpp src/U
 clean: clean-src-2f-USBHost
 
 clean-src-2f-USBHost:
-	-$(RM) ./src/USBHost/MidiHostClass.cyclo ./src/USBHost/MidiHostClass.d ./src/USBHost/MidiHostClass.o ./src/USBHost/MidiHostClass.su ./src/USBHost/USBClass.cyclo ./src/USBHost/USBClass.d ./src/USBHost/USBClass.o ./src/USBHost/USBClass.su ./src/USBHost/USBHost.cyclo ./src/USBHost/USBHost.d ./src/USBHost/USBHost.o ./src/USBHost/USBHost.su
+	-$(RM) ./src/USBHost/HidHostClass.cyclo ./src/USBHost/HidHostClass.d ./src/USBHost/HidHostClass.o ./src/USBHost/HidHostClass.su ./src/USBHost/MidiHostClass.cyclo ./src/USBHost/MidiHostClass.d ./src/USBHost/MidiHostClass.o ./src/USBHost/MidiHostClass.su ./src/USBHost/USBClass.cyclo ./src/USBHost/USBClass.d ./src/USBHost/USBClass.o ./src/USBHost/USBClass.su ./src/USBHost/USBHost.cyclo ./src/USBHost/USBHost.d ./src/USBHost/USBHost.o ./src/USBHost/USBHost.su
 
 .PHONY: clean-src-2f-USBHost
 

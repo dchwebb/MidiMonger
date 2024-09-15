@@ -101,7 +101,7 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 
 	} else 	if (cmd.starts_with("porta:")) {				// Configure portamento amount
 		int16_t p = ParseInt(cmd, ':', 0, 255);
-		if (p > 0) {
+		if (p >= 0) {
 			midiControl.cfg.portamento = p;
 			printf("Portamento set to %d\r\n", p);
 			changed = true;
@@ -228,7 +228,9 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				buffPos += sprintf(buffPos, "Clock");
 				break;
 			}
+#ifndef V1_HARDWARE
 			buffPos += sprintf(buffPos, " [Mouse Button: %d]", hidHostClass.cfg.gateSource[gate - 1]);
+#endif
 		}
 		buffPos += sprintf(buffPos, "\r\n");
 
@@ -250,11 +252,14 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				break;
 			}
 			buffPos += sprintf(buffPos, ". Channel: %d", cv.channel);
+
+#ifndef V1_HARDWARE
 			auto src = hidHostClass.cfg.cvSource[c - 1];
 			buffPos += sprintf(buffPos, " [Mouse: %s]",
 					src == HidHostClass::CVSource::mouseX ? "X" :
 					src == HidHostClass::CVSource::mouseY ? "Y" :
 					src == HidHostClass::CVSource::mouseWheel ? "Wheel" : "");
+#endif
 		}
 
 		buffPos += sprintf(buffPos, "\r\n\r\n");

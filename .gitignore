@@ -37,7 +37,6 @@ Hardware/MidiMonger_panel-backups/
 *.exe
 *.out
 *.app
-*.elf
 *.hex
 *.list
 *.map

@@ -134,16 +134,21 @@ void MidiControl::MidiEvent(const uint32_t data)
 	if (midiEvent.msg == NoteOn || midiEvent.msg == NoteOff) {
 		//printf("Note: %d\r\n", midiEvent.db1);
 
-		// locate output that will process the request
+		// Check if any specific notes are triggered (or channel notes with no associated pitch)
 		for (auto& gate : gateOutputs) {
-			if (gate.channel == midiEvent.chn + 1 && gate.type == GateType::specificNote && gate.note == midiEvent.db1) {
+			if (gate.channel == midiEvent.chn + 1 && ((gate.type == GateType::specificNote && gate.note == midiEvent.db1) ||
+					(gate.type == GateType::channelNote && channelNotes[gate.channel - 1].voiceCount == 0))) {
 				if (midiEvent.msg == NoteOn) {
 					gate.output.SetHigh();
 				} else {
 					gate.output.SetLow();
 				}
+			}
+		}
 
-			} else if (gate.channel == midiEvent.chn + 1 && gate.type == GateType::channelNote) {
+		// Check channel notes
+		for (auto& gate : gateOutputs) {
+			if (gate.channel == midiEvent.chn + 1 && gate.type == GateType::channelNote) {
 
 				// Delete note if already playing and add to latest position in list
 				activeNote& noteList = channelNotes[gate.channel - 1].activeNotes;
@@ -366,9 +371,9 @@ void MidiControl::SetConfig()
 	}
 
 	// Check portamento for monophonic voices
-	midiControl.portamentoCalc = midiControl.cfg.portamento ? 1.0f / (midiControl.cfg.portamento * 4.0f): 1.0f;
+	midiControl.portamentoCalc = midiControl.cfg.portamento ? 1.0f / (midiControl.cfg.portamento * 10.0f): 1.0f;
 	for (auto& cv : midiControl.cvOutputs) {
-		cv.portamento = (midiControl.cfg.portamento && cv.type == CvType::channelPitch && midiControl.channelNotes[cv.channel].voiceCount == 1);
+		cv.portamento = (midiControl.cfg.portamento && cv.type == CvType::channelPitch && midiControl.channelNotes[cv.channel - 1].voiceCount == 1);
 	}
 }
 
