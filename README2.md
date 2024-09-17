@@ -48,7 +48,8 @@ The module is constructed using three PCBs: a component board, a control board a
 
 # Version 1 Hardware
 ![Image](https://github.com/dchwebb/MidiMonger/raw/master/pictures/midimonger_front.jpg "icon")
-The original version of the module works with the latest firmware using the build in [Hardware folder](https://github.com/dchwebb/MidiMonger/tree/master/MidiMonger2/v1Hardware). The main differences are that the v1 hardware does not support USB host mode, uses a full size MIDI DIN connector and a USB B socket.
+
+The original version of the module works with the latest firmware using the build in [V1 Hardware folder](https://github.com/dchwebb/MidiMonger/tree/master/MidiMonger2/v1Hardware). The main differences are that the v1 hardware does not support USB host mode, uses a full size MIDI DIN connector and a USB B socket.
 
 
 Sponsorship
