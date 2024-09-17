@@ -36,9 +36,9 @@ Serial MIDI is supplied via a 1/8" TRS jack using the MIDI standard wiring.
 
 The module is constructed using three PCBs: a component board, a control board and a panel. Schematics and PCB layout created in KiCad v8 and available in [Hardware folder](https://github.com/dchwebb/MidiMonger/tree/master/Hardware_v2).
 
-[Components schematic](Hardware/MidiMonger_Components.pdf)
+[Components schematic](Hardware_v2/MidiMonger_Components.pdf)
 
-[Controls schematic](Hardware/MidiMonger_Controls.pdf)
+[Controls schematic](Hardware_v2/MidiMonger_Controls.pdf)
 
 # Errata (v2 hardware)
 - The 3.3v linear regulator runs quite warm - some passive PCB cooling would be a good idea or possibly the use of a switched mode power supply (no analog voltages are supplied from this rail).
