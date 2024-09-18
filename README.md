@@ -16,7 +16,7 @@ Configuration is carried out from a [web interface](https://htmlpreview.github.i
 ![Image](https://github.com/dchwebb/MidiMonger/raw/master/pictures/console.png "icon")
 
 # USB
-MidiMonger can act as either a USB device (typically for connection to a computer) or a USB Host (allowing USB Midi controllers to be connected). The mode is selected using a switch on the front panel and USB connection is via a USB C socket.
+MidiMonger can act as either a USB device (typically for connection to a computer) or a USB Host (allowing USB Midi controllers to be connected). The mode is selected using a switch on the front panel and is connected with a USB-C socket.
 
 In USB device mode USB MIDI data is merged with MIDI Serial data and sent to the CV and gate outputs as configured. In host mode USB devices can be connected directly to the module. This is typically used for MIDI keyboards and controllers that output via USB, but experimental support is also provided for USB HID devices - mouse support is currently implemented, but joysticks etc could be implemented in the future.
 
@@ -26,13 +26,15 @@ In host mode the device will output 5v to power connected devices, but it is not
 
 # Technical
 ![Image](https://github.com/dchwebb/MidiMonger/raw/master/pictures/midimonger2_back3.jpg "icon")
-MIDI Monger is controlled by an ARM STM32F446 Microcontroller. The MCU manages USB (device and host modes) and serial MIDI. Control voltages are output via a Maxim MAX5134 16 bit DAC.
+MIDI Monger is controlled by an ARM STM32F446 Microcontroller. The MCU manages USB (device and host modes) and serial MIDI. Control voltages are output from a Maxim MAX5134 16 bit DAC controlled by SPI.
 
 Gate outputs are converted to Eurorack standard of 5V using a SN74HCT244 Octal buffer as a level shifter. MIDI Serial signals are buffered through a 6N137 Optocoupler.
 
 A UART connection is also provided to the module allowing access to the serial console when operating in USB host mode.
 
 Serial MIDI is supplied via a 1/8" TRS jack using the MIDI standard wiring.
+
+Digital power is supplied from a 3.3v linear regulator. An additional 5v regulator is used to supply a reference voltage to the DAC, as power for the octal buffer and also to provide power to USB devices when operating in USB Host mode.
 
 The module is constructed using three PCBs: a component board, a control board and a panel. Schematics and PCB layout created in KiCad v8 and available in [Hardware folder](https://github.com/dchwebb/MidiMonger/tree/master/Hardware_v2).
 
