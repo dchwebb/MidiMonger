@@ -261,9 +261,10 @@ void MidiControl::SerialHandler(uint32_t data)
 	}
 
 	// Clock
-	if (queueCount > 0 && queue[queueRead] == 0xF8) {
+	while (queueCount > 0 && queue[queueRead] == 0xF8) {
 		MidiEvent(0xF800);
 		QueueInc();
+		type = static_cast<MIDIType>(queue[queueRead] >> 4);
 	}
 
 	//	handle unknown data in queue
