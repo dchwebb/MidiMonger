@@ -236,7 +236,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "8e3b718e-2abb-43c9-b8fc-0de5001bf5ba")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -388,7 +388,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "d5b7796c-16fd-4cef-b1db-18928a566e7c")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -540,7 +540,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "161d1ae9-03df-4c43-a9a1-5331988b0a88")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -692,7 +692,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "49e9355d-bfb3-4c98-a0e2-53a261d87ac6")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -844,7 +844,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "d64ed18c-e71e-41a1-b111-b62f4ac9003b")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -996,7 +996,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "3d88aeb2-7292-4d92-9a4a-dc54d3d594ff")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -1148,7 +1148,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "40b1659c-eb2b-4b91-b12c-3546b426473a")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -1300,7 +1300,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "11bf0379-8205-4f39-bfbd-8fb79a9cbae5")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -1452,7 +1452,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "e08e6549-d543-4929-9ed6-8c98800a4e83")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -1604,7 +1604,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "b4392cdc-3b39-4cd7-8e07-d14f1acb4b79")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -1756,7 +1756,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "0d30bf43-9765-408d-bac1-683c8ef21e1e")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -1908,7 +1908,7 @@
 		(zone
 			(net 0)
 			(net_name "")
-			(layers "*.Cu")
+			(layers "F&B.Cu")
 			(uuid "91f82fcd-99ad-40d9-b42e-19594da5f461")
 			(name "LED_Window")
 			(hatch edge 0.5)
@@ -3856,7 +3856,7 @@
 	(footprint "Graphics:piano"
 		(layer "F.Cu")
 		(uuid "8a2309e5-e17b-47c1-99f2-08e984fc7a1c")
-		(at 131.5 153.4)
+		(at 131.5 139.4)
 		(property "Reference" "G***"
 			(at 0 0 0)
 			(layer "F.SilkS")
@@ -5156,7 +5156,7 @@
 	(footprint "Graphics:computer"
 		(layer "F.Cu")
 		(uuid "cfbc2f07-c126-4084-ae57-9d40d78f7514")
-		(at 131.5 139.4)
+		(at 131.5 153.4)
 		(property "Reference" "G***"
 			(at 0 0 0)
 			(layer "F.SilkS")
@@ -6561,7 +6561,7 @@
 		(layer "Edge.Cuts")
 		(uuid "ffc91004-9180-494c-9309-957d22522f26")
 	)
-	(gr_text "Mountjoy Modular\nMIDI Monger Panel v2.0"
+	(gr_text "Mountjoy Modular\nMIDI Monger Panel v2.1"
 		(at 120.2 38 0)
 		(layer "B.SilkS")
 		(uuid "49c66486-f0ee-4b05-9877-590c8e1ac8e9")
