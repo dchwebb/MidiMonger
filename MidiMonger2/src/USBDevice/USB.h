@@ -8,7 +8,7 @@
 #include <cstring>
 
 // Enables capturing of debug data for output over STLink UART on dev boards
-#define USB_DEBUG false
+#define USB_DEBUG true
 #if (USB_DEBUG)
 #include "uartHandler.h"
 #define USB_DEBUG_COUNT 400
@@ -67,12 +67,12 @@ public:
 private:
 	enum class EP0State {Idle, Setup, DataIn, DataOut, StatusIn, StatusOut, Stall};
 
-	static constexpr std::string_view USBD_MANUFACTURER_STRING = "Mountjoy Modular";
-	static constexpr std::string_view USBD_PRODUCT_STRING = "Mountjoy MidiMonger";
-	static constexpr std::string_view USBD_CFG_STRING = "Mountjoy MidiMonger Config";
-	static constexpr std::string_view USBD_MSC_STRING = "Mountjoy MidiMonger Storage";
-	static constexpr std::string_view USBD_CDC_STRING = "Mountjoy MidiMonger Serial";
-	static constexpr std::string_view USBD_MIDI_STRING	= "Mountjoy MidiMonger MIDI";
+	static constexpr std::string_view manufacturerString 	= "Mountjoy Modular";
+	static constexpr std::string_view productString 		= "Mountjoy MidiMonger";
+	static constexpr std::string_view cfgString 			= "Mountjoy MidiMonger Config";
+	static constexpr std::string_view cdcString 			= "Mountjoy MidiMonger Serial";
+	static constexpr std::string_view midiString			= "Mountjoy MidiMonger MIDI";
+	static constexpr uint8_t selfPowered = 0;				// Set to 1 if self powered
 	static constexpr uint8_t usbSerialNoSize = 24;
 	static constexpr uint32_t usbTimeout = 0xF000000;
 
@@ -152,14 +152,14 @@ private:
 	const uint8_t deviceQualifierDescr[10] = {
 			10,
 			DeviceQualifierDescriptor,
-			0x00,
+			0x01,			// bcdUSB
 			0x02,
-			0x01,
-			0x00,
-			0x00,
-			0x40,
-			0x01,
-			0x00,
+			0xEF,			// bDeviceClass
+			0x02,			// bDeviceSubClass
+			0x01,			// bDeviceProtocol
+			ep_maxPacket,	// bMaxPacketSize0
+			0x01,			// bNumConfigurations
+			0x00,			// bReserved
 	};
 
 

@@ -1,7 +1,10 @@
+#pragma once
+
 #include "initialisation.h"
 #include <string>
 #include <sstream>
 #include <iomanip>
+
 
 class UARTHandler {
 public:

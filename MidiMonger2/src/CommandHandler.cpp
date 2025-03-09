@@ -309,6 +309,11 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 	} else if (cmd.starts_with("disableusb")) {					// Disable USB device
 		usb.Disable();
 
+#if (USB_DEBUG)
+	} else if (cmd.starts_with("usbdebug")) {					// Disable USB device
+		usb.OutputDebug();
+
+#endif
 
 	} else {
 		printf("Unrecognised command. Type 'help' for supported commands\r\n");
