@@ -164,6 +164,7 @@ private:
 		float dacScale = dacScaleDefault;
 	} cfg;
 
+	uint8_t lastVoice;			// for round robin assignment of notes to voices
 
 	float dacScaleCalc;							// dac scaling adjusted for 16 bit output
 	float portamentoCalc;						// Calculated speed of portamento effect
