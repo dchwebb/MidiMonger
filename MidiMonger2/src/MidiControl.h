@@ -16,14 +16,14 @@ public:
 	enum class CvType { channelPitch = 1, controller = 2, pitchBend = 3, afterTouch = 4 };
 	enum class ConfigSetting { type = 1, specificNote = 2, channel = 3, controller = 4 };
 	enum class OutputType { gate, cv };
-
+	enum class LightShowType {startup, connection};
 	MidiControl();
 	void MidiEvent(const uint32_t data);
 	void SerialHandler(uint32_t data);
 	static void SetConfig();
 	void GateTimer();
 	void CalcPortamento();
-	void LightShow();
+	void LightShow(LightShowType);
 
 	// Commands allowing external classes (eg USB HID) to output data
 	void SendCV(uint16_t dacOutput, uint8_t channel, uint32_t ledTimoutMS);

@@ -1,6 +1,7 @@
 #include "USBHost.h"
 #include "MidiHostClass.h"
 #include "HidHostClass.h"
+#include "MidiControl.h"
 
 USBHost usbHost;
 
@@ -61,7 +62,7 @@ void USBHost::Start()
 {
 	USB_HPRT0 |= USB_OTG_HPRT_PPWR;							// Enable port power - not sure why as this should be done via external power supply
 	USB_OTG_FS->GAHBCFG |= USB_OTG_GAHBCFG_GINT;			// Enable global interrupt
-	PowerEnable.SetHigh();									// Pin PG6 on Nucleo which connects an external 5V output to VBUS - FIXME
+	//PowerEnable.SetHigh();									// Pin PG6 on Nucleo which connects an external 5V output to VBUS - FIXME
 }
 
 
@@ -103,7 +104,7 @@ void USBHost::Process()
 	switch (gState) {
 	case HostState::Idle:
 		if (device.isConnected) {
-			USBH_UsrLog("USB Device Connected");
+			printf("USB Device Connected\n");
 			gState = HostState::DevWaitForAttachment;
 			DelayMS(200);
 			ResetPort();
@@ -114,12 +115,12 @@ void USBHost::Process()
 
 	case HostState::DevWaitForAttachment:					 // Wait for Port Enabled
 		if (device.portEnabled) {
-			USBH_UsrLog("USB Device Reset Completed");
+			printf("USB Device Reset Completed\n");
 			device.resetCount = 0;
 			gState = HostState::DevAttached;
 		} else if (timeout > devResetTimeout) {
 			if (++device.resetCount > 3) {					// Buggy Device can't complete reset
-				USBH_UsrLog("USB Reset Failed: Unplug the Device");
+				printf("USB Reset Failed: Unplug the Device\n");
 				gState = HostState::Abort;
 			} else {
 				gState = HostState::Idle;
@@ -133,7 +134,7 @@ void USBHost::Process()
 	case HostState::DevAttached:
 		DelayMS(100);		// Wait for 100 ms after Reset
 		device.speed = GetHostSpeed();
-		USBH_UsrLog("Device Attached. Speed: %s", device.speed == 2 ? "LS" : "FS");
+		printf("Device Attached. Speed: %s", device.speed == 2 ? "LS\n" : "FS\n");
 		gState = HostState::Enumeration;
 		control.pipeOut = AllocPipe(0x00);
 		control.pipeIn  = AllocPipe(0x80);
@@ -148,7 +149,7 @@ void USBHost::Process()
 		status = DoEnumeration();
 		if (status == HostStatus::OK) {
 			device.currentInterface = 0;
-			USBH_UsrLog("Enumeration done. Device has %d configuration(s)", device.devDesc.bNumConfigurations);
+			printf("Enumeration done. Device has %d configuration(s)\n", device.devDesc.bNumConfigurations);
 			gState = HostState::SetConfiguration;
 		}
 		break;
@@ -156,7 +157,7 @@ void USBHost::Process()
 	case HostState::SetConfiguration:
 		if (ControlCommand(RequestSetConfiguration, (uint16_t)device.cfgDesc.bConfigurationValue, 0) == HostStatus::OK) {
 			gState = HostState::SetWakeupFeature;
-			USBH_UsrLog("Default configuration set");
+			printf("Default configuration set\n");
 		}
 		break;
 
@@ -165,10 +166,10 @@ void USBHost::Process()
 			status = ControlCommand(RequestSetFeature, FeatureSelectorRemoteWakeup, 0);
 
 			if (status == HostStatus::OK) {
-				USBH_UsrLog("Device remote wakeup enabled");
+				printf("Device remote wakeup enabled\n");
 				gState = HostState::CheckClass;
 			} else if (status == HostStatus::NotSupported) {
-				USBH_UsrLog("Remote wakeup not supported by the device");
+				printf("Remote wakeup not supported by the device\n");
 				gState = HostState::CheckClass;
 			}
 		} else {
@@ -179,7 +180,7 @@ void USBHost::Process()
 	case HostState::CheckClass:
 
 		if (classNumber == 0) {
-			USBH_UsrLog("No Class has been registered");
+			printf("No Class has been registered\n");
 		} else {
 			activeClass = nullptr;
 			for (uint32_t i = 0; i < maxNumSupportedClass; i++) {
@@ -192,14 +193,14 @@ void USBHost::Process()
 			if (activeClass != nullptr) {
 				if (activeClass->InterfaceInit() == HostStatus::OK) {
 					gState = HostState::Class;
-					USBH_UsrLog("%s class started", activeClass->name);
+					printf("%s class started\n", activeClass->name);
 				} else {
 					gState = HostState::Abort;
-					USBH_UsrLog("Device not supporting %s class", activeClass->name);
+					printf("Device does not support %s class\n", activeClass->name);
 				}
 			} else {
 				gState = HostState::Abort;
-				USBH_UsrLog("No registered class for this device");
+				printf("No registered class for this device\n");
 			}
 		}
 		break;
@@ -220,7 +221,7 @@ void USBHost::Process()
 		if (device.isReEnumerated) {
 			device.isReEnumerated = false;
 		}
-		USBH_UsrLog("USB Device disconnected");
+		printf("USB Device disconnected\n");
 
 		Start();										// Start the host and re-enable Vbus
 		break;
@@ -244,7 +245,7 @@ HostStatus USBHost::DoEnumeration()
 		reqStatus = GetDevDesc(8);		// Get Device Desc for 1st 8 bytes to get EP0 MaxPacketSize
 		if (reqStatus == HostStatus::OK) {
 			control.pipeSize = device.devDesc.bMaxPacketSize;
-			USBH_UsrLog("Enumeration: Got max packet size: %d", control.pipeSize);
+			printf("Enumeration: Got max packet size: %d\n", control.pipeSize);
 			enumState = EnumState::GetFullDevDesc;
 
 			// Modify control channels configuration for MaxPacket size
@@ -258,9 +259,9 @@ HostStatus USBHost::DoEnumeration()
 	case EnumState::GetFullDevDesc:
 		reqStatus = GetDevDesc(deviceDescriptorSize);
 		if (reqStatus == HostStatus::OK) {
-			USBH_UsrLog("Enumeration: Get full device descriptor");
-			USBH_UsrLog(" - PID: 0x%x", device.devDesc.idProduct);
-			USBH_UsrLog(" - VID: 0x%x", device.devDesc.idVendor);
+			printf("Enumeration: Get full device descriptor\n");
+			printf(" - PID: 0x%x\n", device.devDesc.idProduct);
+			printf(" - VID: 0x%x\n", device.devDesc.idVendor);
 			enumState = EnumState::SetAddr;
 		} else if (reqStatus == HostStatus::NotSupported) {
 			EnumerationError();
@@ -273,7 +274,7 @@ HostStatus USBHost::DoEnumeration()
 			DelayMS(2);
 			device.address = deviceAddress;
 
-			USBH_UsrLog("Enumeration: Address %d assigned", device.address);
+			printf("Enumeration: Address %d assigned\n", device.address);
 			enumState = EnumState::GetCfgDesc;
 
 			// modify control channels to update device address
@@ -281,7 +282,7 @@ HostStatus USBHost::DoEnumeration()
 			HostChannelInit(control.pipeOut, 0x00U, device.address, device.speed, ControlEP, control.pipeSize);
 
 		} else if (reqStatus == HostStatus::NotSupported) {
-			USBH_ErrLog("Control error: Device Set Address request failed");
+			printf("Control error: Device Set Address request failed\n");
 			gState = HostState::Abort;
 			enumState = EnumState::Idle;
 		}
@@ -290,7 +291,7 @@ HostStatus USBHost::DoEnumeration()
 	case EnumState::GetCfgDesc:
 		reqStatus = GetConfigDesc(configurationDescriptorSize);
 		if (reqStatus == HostStatus::OK) {
-			USBH_UsrLog("Enumeration: Get configuration descriptor size");
+			printf("Enumeration: Get configuration descriptor size\n");
 			enumState = EnumState::GetFullCfgDesc;
 		} else if (reqStatus == HostStatus::NotSupported) {
 			EnumerationError();
@@ -300,7 +301,7 @@ HostStatus USBHost::DoEnumeration()
 	case EnumState::GetFullCfgDesc:
 		reqStatus = GetConfigDesc(device.cfgDesc.wTotalLength);
 		if (reqStatus == HostStatus::OK) {
-			USBH_UsrLog("Enumeration: Got full configuration descriptor");
+			printf("Enumeration: Got full configuration descriptor\n");
 			enumState = EnumState::GetMfcStringDesc;
 		} else if (reqStatus == HostStatus::NotSupported) {
 			EnumerationError();
@@ -311,15 +312,15 @@ HostStatus USBHost::DoEnumeration()
 		if (device.devDesc.iManufacturer != 0) {
 			reqStatus = GetStringDesc(device.devDesc.iManufacturer, device.data, 0xFF);
 			if (reqStatus == HostStatus::OK) {
-				USBH_UsrLog("Enumeration: Manufacturer %s", (char*)device.data);
+				printf("Enumeration: Manufacturer %s\n", (char*)device.data);
 				enumState = EnumState::GetProductStringDesc;
 
 			} else if (reqStatus == HostStatus::NotSupported) {
-				USBH_UsrLog("Enumeration: Manufacturer N/A");
+				printf("Enumeration: Manufacturer N/A\n");
 				enumState = EnumState::GetProductStringDesc;
 			}
 		} else {
-			USBH_UsrLog("Enumeration: Manufacturer N/A");
+			printf("Enumeration: Manufacturer N/A\n");
 			enumState = EnumState::GetProductStringDesc;
 		}
 		break;
@@ -328,15 +329,15 @@ HostStatus USBHost::DoEnumeration()
 		if (device.devDesc.iProduct != 0) {
 			reqStatus = GetStringDesc(device.devDesc.iProduct, device.data, 0xFF);
 			if (reqStatus == HostStatus::OK) {
-				USBH_UsrLog("Enumeration: Product %s", (char*)device.data);
+				printf("Enumeration: Product %s\n", (char*)device.data);
 				enumState = EnumState::GetSerialStringDesc;
 
 			} else if (reqStatus == HostStatus::NotSupported) {
-				USBH_UsrLog("Enumeration: Product N/A");
+				printf("Enumeration: Product N/A\n");
 				enumState = EnumState::GetSerialStringDesc;
 			}
 		} else {
-			USBH_UsrLog("Enumeration: Product N/A");
+			printf("Enumeration: Product N/A\n");
 			enumState = EnumState::GetSerialStringDesc;
 		}
 		break;
@@ -345,14 +346,14 @@ HostStatus USBHost::DoEnumeration()
 		if (device.devDesc.iSerialNumber != 0) {
 			reqStatus = GetStringDesc(device.devDesc.iSerialNumber, device.data, 0xFF);
 			if (reqStatus == HostStatus::OK) {
-				USBH_UsrLog("Enumeration: Serial Number %s", (char*)device.data);
+				printf("Enumeration: Serial Number %s\n", (char*)device.data);
 				status = HostStatus::OK;
 			} else if (reqStatus == HostStatus::NotSupported) {
-				USBH_UsrLog("Enumeration: Serial Number N/A");
+				printf("Enumeration: Serial Number N/A\n");
 				status = HostStatus::OK;
 			}
 		} else {
-			USBH_UsrLog("Enumeration: Serial Number N/A");
+			printf("Enumeration: Serial Number N/A\n");
 			status = HostStatus::OK;
 		}
 		break;
@@ -366,9 +367,9 @@ HostStatus USBHost::DoEnumeration()
 
 void USBHost::EnumerationError()
 {
-	USBH_ErrLog("Control error: Get Device configuration descriptor request failed");
+	printf("Control error: Get Device configuration descriptor request failed\n");
 	if (++device.enumCount > 3) {
-		USBH_UsrLog("Control error, Device not Responding Please unplug the Device");
+		printf("Control error, Device not Responding Please unplug the Device\n");
 		gState = HostState::Abort;
 	} else {
 		FreePipe(control.pipeOut);
@@ -386,41 +387,40 @@ void USBHost::HostChannelInit(const uint8_t channel, const uint8_t epNum, const 
 	hc[channel].doPing = 0;
 	hc[channel].maxPacket = mps;
 	hc[channel].epType = epType;
-	hc[channel].epDir = ((epNum & 0x80) == 0x80);
+	hc[channel].epDir = ((epNum & DeviceToHost) == DeviceToHost);
 
 	// Clear old interrupt conditions for this host channel
-	auto USB_HC = USBx_HC(channel);
-	USB_HC->HCINT = 0xFFFFFFFF;
+	auto& USB_HC = USBx_HC(channel);
+	USB_HC.HCINT = 0xFFFFFFFF;
 
 	// Enable channel interrupts required for this transfer
 	switch (epType) {
 	case ControlEP:
 	case Bulk:
-		USB_HC->HCINTMSK = USB_OTG_HCINTMSK_XFRCM |	USB_OTG_HCINTMSK_STALLM | USB_OTG_HCINTMSK_TXERRM | USB_OTG_HCINTMSK_DTERRM |
+		USB_HC.HCINTMSK = USB_OTG_HCINTMSK_XFRCM |	USB_OTG_HCINTMSK_STALLM | USB_OTG_HCINTMSK_TXERRM | USB_OTG_HCINTMSK_DTERRM |
 			USB_OTG_HCINTMSK_AHBERR | USB_OTG_HCINTMSK_NAKM;
 
-		if (epNum & 0x80) {
-			USB_HC->HCINTMSK |= USB_OTG_HCINTMSK_BBERRM;
+		if (epNum & DeviceToHost) {
+			USB_HC.HCINTMSK |= USB_OTG_HCINTMSK_BBERRM;
 		} else if (USB_OTG_FS->CID & (1 << 8)) {
-			USB_HC->HCINTMSK |= USB_OTG_HCINTMSK_NYET | USB_OTG_HCINTMSK_ACKM;
+			USB_HC.HCINTMSK |= USB_OTG_HCINTMSK_NYET | USB_OTG_HCINTMSK_ACKM;
 		}
 		break;
 
 	case Interrupt:
-		USB_HC->HCINTMSK = USB_OTG_HCINTMSK_XFRCM | USB_OTG_HCINTMSK_STALLM | USB_OTG_HCINTMSK_TXERRM | USB_OTG_HCINTMSK_DTERRM |
+		USB_HC.HCINTMSK = USB_OTG_HCINTMSK_XFRCM | USB_OTG_HCINTMSK_STALLM | USB_OTG_HCINTMSK_TXERRM | USB_OTG_HCINTMSK_DTERRM |
 			USB_OTG_HCINTMSK_NAKM | USB_OTG_HCINTMSK_AHBERR | USB_OTG_HCINTMSK_FRMORM;
 
-		if (epNum & 0x80) {
-			USB_HC->HCINTMSK |= USB_OTG_HCINTMSK_BBERRM;
+		if (epNum & DeviceToHost) {
+			USB_HC.HCINTMSK |= USB_OTG_HCINTMSK_BBERRM;
 		}
-
 		break;
 
 	case Isochronous:
-		USB_HC->HCINTMSK = USB_OTG_HCINTMSK_XFRCM | USB_OTG_HCINTMSK_ACKM | USB_OTG_HCINTMSK_AHBERR | USB_OTG_HCINTMSK_FRMORM;
+		USB_HC.HCINTMSK = USB_OTG_HCINTMSK_XFRCM | USB_OTG_HCINTMSK_ACKM | USB_OTG_HCINTMSK_AHBERR | USB_OTG_HCINTMSK_FRMORM;
 
-		if (epNum & 0x80) {
-			USB_HC->HCINTMSK |= USB_OTG_HCINTMSK_TXERRM | USB_OTG_HCINTMSK_BBERRM;
+		if (epNum & DeviceToHost) {
+			USB_HC.HCINTMSK |= USB_OTG_HCINTMSK_TXERRM | USB_OTG_HCINTMSK_BBERRM;
 		}
 		break;
 
@@ -428,11 +428,11 @@ void USBHost::HostChannelInit(const uint8_t channel, const uint8_t epNum, const 
 		break;
 	}
 
-	USB_HC->HCINTMSK |= USB_OTG_HCINTMSK_CHHM;				// Enable host channel Halt interrupt
+	USB_HC.HCINTMSK |= USB_OTG_HCINTMSK_CHHM;				// Enable host channel Halt interrupt
 	USB_HOST->HAINTMSK |= 1 << (channel & 0xF);				// Enable the top level host channel interrupt.
 	USB_OTG_FS->GINTMSK |= USB_OTG_GINTMSK_HCIM;			// Make sure host channel interrupts are enabled.
 
-	const uint32_t charEpDir = (epNum & 0x80) ? USB_OTG_HCCHAR_EPDIR : 0;
+	const uint32_t charEpDir = (epNum & DeviceToHost) ? USB_OTG_HCCHAR_EPDIR : 0;
 
 	uint32_t charLowSpeed = 0;
 	if (speed == SpeedLow && GetHostSpeed() != SpeedLow) {
@@ -440,15 +440,15 @@ void USBHost::HostChannelInit(const uint8_t channel, const uint8_t epNum, const 
 	}
 
 	// Host channel characteristics
-	USB_HC->HCCHAR = ((devAddress << 22) & USB_OTG_HCCHAR_DAD) |
-			(((epNum & 0x7F) << 11) & USB_OTG_HCCHAR_EPNUM) |
-			((epType << 18) & USB_OTG_HCCHAR_EPTYP) |
+	USB_HC.HCCHAR = ((devAddress << USB_OTG_HCCHAR_DAD_Pos) & USB_OTG_HCCHAR_DAD) |
+			(((epNum & 0x7F) << USB_OTG_HCCHAR_EPNUM_Pos) & USB_OTG_HCCHAR_EPNUM) |
+			((epType << USB_OTG_HCCHAR_EPTYP_Pos) & USB_OTG_HCCHAR_EPTYP) |
 			(mps & USB_OTG_HCCHAR_MPSIZ) |
 			charEpDir |
 			charLowSpeed;
 
 	if (epType == Interrupt || epType == Isochronous) {
-		USB_HC->HCCHAR |= USB_OTG_HCCHAR_ODDFRM;
+		USB_HC.HCCHAR |= USB_OTG_HCCHAR_ODDFRM;
 	}
 }
 
@@ -516,7 +516,7 @@ HostStatus USBHost::GetConfigDesc(const uint16_t length)
 		// Parse configuration descriptor
 		device.cfgDesc.bLength             = *(buf + 0);
 		device.cfgDesc.bDescriptorType     = *(buf + 1);
-		device.cfgDesc.wTotalLength        = std::min(((uint16_t) LE16(buf + 2)), (uint16_t)maxSizeConfiguration);
+		device.cfgDesc.wTotalLength        = std::min(*(uint16_t*)(buf + 2), (uint16_t)maxSizeConfiguration);
 		device.cfgDesc.bNumInterfaces      = *(buf + 4);
 		device.cfgDesc.bConfigurationValue = *(buf + 5);
 		device.cfgDesc.iConfiguration      = *(buf + 6);
@@ -583,7 +583,7 @@ void USBHost::ParseDevDesc(DeviceDescriptor& devDesc, uint8_t* buf, const uint16
 {
 	devDesc.bLength            = *(buf + 0);
 	devDesc.bDescriptorType    = *(buf + 1);
-	devDesc.bcdUSB             = LE16(buf + 2);
+	devDesc.bcdUSB             = *(uint16_t*)(buf + 2);
 	devDesc.bDeviceClass       = *(buf + 4);
 	devDesc.bDeviceSubClass    = *(buf + 5);
 	devDesc.bDeviceProtocol    = *(buf + 6);
@@ -596,9 +596,9 @@ void USBHost::ParseDevDesc(DeviceDescriptor& devDesc, uint8_t* buf, const uint16
 
 	if (length > 8) {
 		// For 1st time after device connection, Host may issue only 8 bytes for Device Descriptor Length
-		devDesc.idVendor           = LE16(buf +  8);
-		devDesc.idProduct          = LE16(buf + 10);
-		devDesc.bcdDevice          = LE16(buf + 12);
+		devDesc.idVendor           = *(uint16_t*)(buf +  8);
+		devDesc.idProduct          = *(uint16_t*)(buf + 10);
+		devDesc.bcdDevice          = *(uint16_t*)(buf + 12);
 		devDesc.iManufacturer      = *(buf + 14);
 		devDesc.iProduct           = *(buf + 15);
 		devDesc.iSerialNumber      = *(buf + 16);
@@ -628,7 +628,7 @@ HostStatus USBHost::ParseEPDesc(EndpointDescriptor& epDesc, uint8_t* buf)
 	epDesc.bDescriptorType  = *(buf + 1);
 	epDesc.bEndpointAddress = *(buf + 2);
 	epDesc.bmAttributes     = *(buf + 3);
-	epDesc.wMaxPacketSize   = LE16(buf + 4);
+	epDesc.wMaxPacketSize   = *(uint16_t*)(buf + 4);
 	epDesc.bInterval        = *(buf + 6);
 
 	// Make sure that wMaxPacketSize is not 0
@@ -638,12 +638,12 @@ HostStatus USBHost::ParseEPDesc(EndpointDescriptor& epDesc, uint8_t* buf)
 	} else if (maxEpPacketSize < (uint16_t)maxDataBuffer) {
 		// Make sure that maximum packet size (bits 0-10) does not exceed the max endpoint packet size
 		epDesc.wMaxPacketSize &= ~0x7FF;
-		epDesc.wMaxPacketSize |= std::min((uint16_t)(LE16(buf + 4) & 0x7FF), (uint16_t)maxEpPacketSize);
+		epDesc.wMaxPacketSize |= std::min((uint16_t)(*(uint16_t*)(buf + 4) & 0x7FF), (uint16_t)maxEpPacketSize);
 
 	} else if (maxDataBuffer < maxEpPacketSize) {
 		// Make sure that maximum packet size (bits 0-10) does not exceed the total buffer length
 		epDesc.wMaxPacketSize &= ~0x7FF;
-		epDesc.wMaxPacketSize |= std::min((uint16_t)(LE16(buf + 4) & 0x7FF), (uint16_t)maxDataBuffer);
+		epDesc.wMaxPacketSize |= std::min((uint16_t)(*(uint16_t*)(buf + 4) & 0x7FF), (uint16_t)maxDataBuffer);
 	}
 
 	if ((epDesc.bmAttributes & epTypeMask) == Isochronous && (epDesc.bInterval == 0 || epDesc.bInterval > 0x10)) {
@@ -838,7 +838,7 @@ HostStatus USBHost::HandleControl()
 		} else {
 
 			control.errorCount = 0;
-			USBH_ErrLog("Control error: Device not responding");
+			printf("Control error: Device not responding\n");
 
 			FreePipe(control.pipeOut);
 			FreePipe(control.pipeIn);
@@ -882,13 +882,13 @@ USBHost::InterfaceDescriptor* USBHost::SelectInterface(const uint8_t ifClass, co
 	for (uint32_t i = 0; i < maxNumInterfaces; ++i) {
 		if (device.cfgDesc.ifDesc[i].bInterfaceClass == ifClass && device.cfgDesc.ifDesc[i].bInterfaceSubClass == subClass) {
 			device.currentInterface = i;
-			USBH_UsrLog("Switching to Interface %lu", i);
-			USBH_UsrLog("Class    : %xh", device.cfgDesc.ifDesc[i].bInterfaceClass);
-			USBH_UsrLog("SubClass : %xh", device.cfgDesc.ifDesc[i].bInterfaceSubClass);
+			printf("Switching to Interface %lu\n", i);
+			printf("Class    : %xh\n", device.cfgDesc.ifDesc[i].bInterfaceClass);
+			printf("SubClass : %xh\n", device.cfgDesc.ifDesc[i].bInterfaceSubClass);
 			return &device.cfgDesc.ifDesc[i];
 		}
 	}
-	USBH_ErrLog("Cannot Select This Interface");
+	printf("Error: Cannot Select This Interface\n");
 	return nullptr;
 }
 
@@ -952,6 +952,7 @@ void USBHost::IRQHandler()
 			return;
 		}
 
+
 		// Clear interrupts
 		USB_OTG_FS->GINTSTS = USB_OTG_GINTSTS_PXFR_INCOMPISOOUT | USB_OTG_GINTSTS_IISOIXFR | USB_OTG_GINTSTS_PTXFE | USB_OTG_GINTSTS_MMIS;
 
@@ -967,7 +968,7 @@ void USBHost::IRQHandler()
 		}
 
 		if (TestClearInterrupt(USB_OTG_GINTSTS_SOF)) {			// Handle Host SOF Interrupt
-			SofIrqHandler();
+			SofIrqHandler();									// Increments timer
 		}
 
 		if (TestInterrupt(USB_OTG_GINTSTS_RXFLVL)) {			// Handle Rx Queue Level Interrupts
@@ -981,7 +982,7 @@ void USBHost::IRQHandler()
 
 			for (uint32_t i = 0; i < hostChannels; ++i) {
 				if ((interrupt & (1UL << (i & 0xF))) != 0) {
-					if (USBx_HC(i)->HCCHAR & USB_OTG_HCCHAR_EPDIR) {
+					if (USBx_HC(i).HCCHAR & USB_OTG_HCCHAR_EPDIR) {
 						InIrqHandler(i);
 					} else {
 						OutIrqHandler(i);
@@ -1018,53 +1019,53 @@ void USBHost::DisconnectHandler()
 void USBHost::InIrqHandler(const uint8_t channel)
 {
 	// Handle Host Channel IN interrupt requests.
-	auto USB_HC = USBx_HC(channel);
+	auto& USB_HC = USBx_HC(channel);
 
-	if (USB_HC->HCINT & USB_OTG_HCINT_BBERR) {			// Babble error
-		USB_HC->HCINT = USB_OTG_HCINT_BBERR;
+	if (USB_HC.HCINT & USB_OTG_HCINT_BBERR) {			// Babble error
+		USB_HC.HCINT = USB_OTG_HCINT_BBERR;
 		hc[channel].state = HostChannel::BabbleError;
 		HaltChannel(channel);
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_ACK) {
-		USB_HC->HCINT = USB_OTG_HCINT_ACK;
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_ACK) {
+		USB_HC.HCINT = USB_OTG_HCINT_ACK;
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_STALL) {
-		USB_HC->HCINT = USB_OTG_HCINT_STALL;
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_STALL) {
+		USB_HC.HCINT = USB_OTG_HCINT_STALL;
 		hc[channel].state = HostChannel::Stall;
 		HaltChannel(channel);
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_DTERR) {	// DTERR: Data toggle error
-		USB_HC->HCINT = USB_OTG_HCINT_DTERR;
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_DTERR) {	// DTERR: Data toggle error
+		USB_HC.HCINT = USB_OTG_HCINT_DTERR;
 		hc[channel].state = HostChannel::DataToggleError;
 		HaltChannel(channel);
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_TXERR) {	// Transaction error ie: CRC check failure, Timeout, Bit stuff error or False EOP
-		USB_HC->HCINT = USB_OTG_HCINT_TXERR;
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_TXERR) {	// Transaction error ie: CRC check failure, Timeout, Bit stuff error or False EOP
+		USB_HC.HCINT = USB_OTG_HCINT_TXERR;
 		hc[channel].state = HostChannel::TransactionError;
 		HaltChannel(channel);
 	}
 
-	if (USB_HC->HCINT & USB_OTG_HCINT_FRMOR) {			// Frame overrun
+	if (USB_HC.HCINT & USB_OTG_HCINT_FRMOR) {			// Frame overrun
 		HaltChannel(channel);
-		USB_HC->HCINT = USB_OTG_HCINT_FRMOR;
+		USB_HC.HCINT = USB_OTG_HCINT_FRMOR;
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_XFRC) {
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_XFRC) {
 		hc[channel].state = HostChannel::TransferCompleted;
 		hc[channel].errCnt = 0;
-		USB_HC->HCINT = USB_OTG_HCINT_XFRC;
+		USB_HC.HCINT = USB_OTG_HCINT_XFRC;
 
 		if (hc[channel].epType == ControlEP || hc[channel].epType == Bulk) {
 			HaltChannel(channel);
-			USB_HC->HCINT = USB_OTG_HCINT_NAK;
+			USB_HC.HCINT = USB_OTG_HCINT_NAK;
 
 		} else if (hc[channel].epType == Interrupt || hc[channel].epType == Isochronous) {
-			USB_HC->HCCHAR |= USB_OTG_HCCHAR_ODDFRM;
+			USB_HC.HCCHAR |= USB_OTG_HCCHAR_ODDFRM;
 			hc[channel].urbState = URBState::Done;
 		}
 
 		hc[channel].toggleIn ^= 1;
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_CHH) {		// Channel halted
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_CHH) {		// Channel halted
 		if (hc[channel].state == HostChannel::TransferCompleted) {
 			hc[channel].urbState = URBState::Done;
 
@@ -1077,21 +1078,21 @@ void USBHost::InIrqHandler(const uint8_t channel)
 				hc[channel].urbState = URBState::Error;
 			} else {
 				hc[channel].urbState = URBState::NotReady;
-				USB_HC->HCCHAR = (USB_HC->HCCHAR & ~USB_OTG_HCCHAR_CHDIS) | USB_OTG_HCCHAR_CHENA;		// re-activate the channel
+				USB_HC.HCCHAR = (USB_HC.HCCHAR & ~USB_OTG_HCCHAR_CHDIS) | USB_OTG_HCCHAR_CHENA;		// re-activate the channel
 			}
 
 		} else if (hc[channel].state == HostChannel::NAK) {
 			hc[channel].urbState  = URBState::NotReady;
-			USB_HC->HCCHAR = (USB_HC->HCCHAR & ~USB_OTG_HCCHAR_CHDIS) | USB_OTG_HCCHAR_CHENA;		// re-activate the channel
+			USB_HC.HCCHAR = (USB_HC.HCCHAR & ~USB_OTG_HCCHAR_CHDIS) | USB_OTG_HCCHAR_CHENA;		// re-activate the channel
 
 		} else if (hc[channel].state == HostChannel::BabbleError) {
 			hc[channel].errCnt++;
 			hc[channel].urbState = URBState::Error;
 		}
 
-		USB_HC->HCINT = USB_OTG_HCINT_CHH;
+		USB_HC.HCINT = USB_OTG_HCINT_CHH;
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_NAK) {
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_NAK) {
 		if (hc[channel].epType == Interrupt) {
 			hc[channel].errCnt = 0;
 			HaltChannel(channel);
@@ -1101,7 +1102,7 @@ void USBHost::InIrqHandler(const uint8_t channel)
 			hc[channel].state = HostChannel::NAK;
 			HaltChannel(channel);
 		}
-		USB_HC->HCINT = USB_OTG_HCINT_NAK;
+		USB_HC.HCINT = USB_OTG_HCINT_NAK;
 	}
 }
 
@@ -1109,59 +1110,59 @@ void USBHost::InIrqHandler(const uint8_t channel)
 void USBHost::OutIrqHandler(const uint8_t channel)
 {
 	// Handle Host Channel OUT interrupt requests.
-	auto USB_HC = USBx_HC(channel);
+	auto& USB_HC = USBx_HC(channel);
 
-	if ((USB_HC->HCINT & USB_OTG_HCINT_ACK) == USB_OTG_HCINT_ACK) {
-		USB_HC->HCINT = USB_OTG_HCINT_ACK;
+	if ((USB_HC.HCINT & USB_OTG_HCINT_ACK) == USB_OTG_HCINT_ACK) {
+		USB_HC.HCINT = USB_OTG_HCINT_ACK;
 		if (hc[channel].doPing) {
 			hc[channel].doPing = 0;
 			hc[channel].urbState = URBState::NotReady;
 			HaltChannel(channel);
 		}
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_FRMOR) {
-		USB_HC->HCINT = USB_OTG_HCINT_FRMOR;
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_FRMOR) {
+		USB_HC.HCINT = USB_OTG_HCINT_FRMOR;
 		HaltChannel(channel);
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_XFRC) {
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_XFRC) {
 		hc[channel].errCnt = 0;
-		if (USB_HC->HCINT & USB_OTG_HCINT_NYET) {		// transaction completed with NYET state, update do ping state
+		if (USB_HC.HCINT & USB_OTG_HCINT_NYET) {		// transaction completed with NYET state, update do ping state
 			hc[channel].doPing = 1;
-			USB_HC->HCINT = USB_OTG_HCINT_NYET;
+			USB_HC.HCINT = USB_OTG_HCINT_NYET;
 		}
-		USB_HC->HCINT = USB_OTG_HCINT_XFRC;
+		USB_HC.HCINT = USB_OTG_HCINT_XFRC;
 		hc[channel].state = HostChannel::TransferCompleted;
 		HaltChannel(channel);
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_NYET) {
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_NYET) {
 		hc[channel].state = HostChannel::NYet;
 		hc[channel].doPing = 1;
 		hc[channel].errCnt = 0;
 		HaltChannel(channel);
-		USB_HC->HCINT = USB_OTG_HCINT_NYET;
+		USB_HC.HCINT = USB_OTG_HCINT_NYET;
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_STALL) {
-		USB_HC->HCINT = USB_OTG_HCINT_STALL;
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_STALL) {
+		USB_HC.HCINT = USB_OTG_HCINT_STALL;
 		hc[channel].state = HostChannel::Stall;
 		HaltChannel(channel);
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_NAK) {
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_NAK) {
 		hc[channel].errCnt = 0;
 		hc[channel].state = HostChannel::NAK;
 		HaltChannel(channel);
-		USB_HC->HCINT = USB_OTG_HCINT_NAK;
+		USB_HC.HCINT = USB_OTG_HCINT_NAK;
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_TXERR) {
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_TXERR) {
 		hc[channel].state = HostChannel::TransactionError;
 		HaltChannel(channel);
-		USB_HC->HCINT = USB_OTG_HCINT_TXERR;
+		USB_HC.HCINT = USB_OTG_HCINT_TXERR;
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_DTERR) {
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_DTERR) {
 		hc[channel].state = HostChannel::DataToggleError;
 		HaltChannel(channel);
-		USB_HC->HCINT = USB_OTG_HCINT_DTERR;
+		USB_HC.HCINT = USB_OTG_HCINT_DTERR;
 
-	} else if (USB_HC->HCINT & USB_OTG_HCINT_CHH) {
+	} else if (USB_HC.HCINT & USB_OTG_HCINT_CHH) {
 		if (hc[channel].state == HostChannel::TransferCompleted) {
 			hc[channel].urbState  = URBState::Done;
 			if (hc[channel].epType == Bulk || hc[channel].epType == Interrupt) {
@@ -1183,11 +1184,11 @@ void USBHost::OutIrqHandler(const uint8_t channel)
 				hc[channel].urbState = URBState::Error;
 			} else {
 				hc[channel].urbState = URBState::NotReady;
-				USB_HC->HCCHAR = (USB_HC->HCCHAR & ~USB_OTG_HCCHAR_CHDIS) | USB_OTG_HCCHAR_CHENA;		// re-activate the channel
+				USB_HC.HCCHAR = (USB_HC.HCCHAR & ~USB_OTG_HCCHAR_CHDIS) | USB_OTG_HCCHAR_CHENA;		// re-activate the channel
 			}
 		}
 
-		USB_HC->HCINT = USB_OTG_HCINT_CHH;
+		USB_HC.HCINT = USB_OTG_HCINT_CHH;
 	}
 }
 
@@ -1200,7 +1201,7 @@ void USBHost::RxqLvlIrqHandler()
 	const uint32_t pktStatus = (gRxStspReg & USB_OTG_GRXSTSP_PKTSTS) >> USB_OTG_GRXSTSP_PKTSTS_Pos;
 	const uint32_t pktCount = (gRxStspReg & USB_OTG_GRXSTSP_BCNT) >> USB_OTG_GRXSTSP_BCNT_Pos;
 
-	auto USB_HC = USBx_HC(channel);
+	auto& USB_HC = USBx_HC(channel);
 
 	enum ReceivePacketStatus { PacketStatusIn = 2, PacketStatusInTransferComplete = 3, PacketStatusDataToggleError = 5, PacketStatusChannelHalted = 7};
 
@@ -1215,10 +1216,10 @@ void USBHost::RxqLvlIrqHandler()
 				hc[channel].xferCount += pktCount;
 
 				// get transfer size packet count
-				const uint32_t xferSizePktCnt = (USB_HC->HCTSIZ & USB_OTG_HCTSIZ_PKTCNT) >> USB_OTG_HCTSIZ_PKTCNT_Pos;
+				const uint32_t xferSizePktCnt = (USB_HC.HCTSIZ & USB_OTG_HCTSIZ_PKTCNT) >> USB_OTG_HCTSIZ_PKTCNT_Pos;
 
 				if (hc[channel].maxPacket == pktCount && xferSizePktCnt > 0) {
-					USB_HC->HCCHAR = (USB_HC->HCCHAR & ~USB_OTG_HCCHAR_CHDIS) | USB_OTG_HCCHAR_CHENA;		// re-activate the channel when more packets are expected
+					USB_HC.HCCHAR = (USB_HC.HCCHAR & ~USB_OTG_HCCHAR_CHDIS) | USB_OTG_HCCHAR_CHENA;		// re-activate the channel when more packets are expected
 					hc[channel].toggleIn ^= 1;
 				}
 			} else {
@@ -1325,17 +1326,18 @@ void USBHost::StartTransfer(const uint8_t channel, const pidToken token, uint8_t
 	hc[channel].XferSize = (hc[channel].epDir == DirIn) ? numPackets * hc[channel].maxPacket : length;
 	hc[channel].xferLen = length;
 
-	auto USB_HC = USBx_HC(channel);
-	USB_HC->HCTSIZ = (hc[channel].XferSize & USB_OTG_HCTSIZ_XFRSIZ) |
+	auto& USB_HC = USBx_HC(channel);
+
+	USB_HC.HCTSIZ = (hc[channel].XferSize & USB_OTG_HCTSIZ_XFRSIZ) |
 			((numPackets << USB_OTG_HCTSIZ_PKTCNT_Pos) & USB_OTG_HCTSIZ_PKTCNT) |
 			((dataPid << USB_OTG_HCTSIZ_DPID_Pos) & USB_OTG_HCTSIZ_DPID);
 
 	// Set host channel enable
-	uint32_t tmpReg = USB_HC->HCCHAR & ~(USB_OTG_HCCHAR_CHDIS | USB_OTG_HCCHAR_EPDIR | USB_OTG_HCCHAR_ODDFRM);
+	uint32_t tmpReg = USB_HC.HCCHAR & ~(USB_OTG_HCCHAR_CHDIS | USB_OTG_HCCHAR_EPDIR | USB_OTG_HCCHAR_ODDFRM);
 	tmpReg |= ((hc[channel].epDir == DirIn) ? USB_OTG_HCCHAR_EPDIR : 0) |			// Endpoint direction
 			  ((USB_HOST->HFNUM & 1) == 0 ? USB_OTG_HCCHAR_ODDFRM : 0) |			// Odd frame toggle
 			  USB_OTG_HCCHAR_CHENA;													// Channel Enable
-	USB_HC->HCCHAR = tmpReg;
+	USB_HC.HCCHAR = tmpReg;
 
 	if (hc[channel].epDir == DirOut && hc[channel].xferLen > 0) {
 		if (hc[channel].epType == ControlEP || hc[channel].epType == Bulk) {		// Non periodic transfer
@@ -1377,7 +1379,6 @@ void USBHost::ReadPacket(const uint32_t* dest, const uint16_t len, const uint32_
 
 
 
-
 void USBHost::SetPhyClockSpeed(const UsbSpeed freq)
 {
 	// Initializes the FSLSPClkSel field of the HCFG register on the PHY type and set the right frame interval
@@ -1399,8 +1400,8 @@ void USBHost::ResetPort()
 	uint32_t hprt0 = USB_HPRT0;
 	hprt0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |	USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG);
 
-	USB_HPRT0 = (USB_OTG_HPRT_PRST | hprt0);
-	DelayMS(100);
+	USB_HPRT0 = (USB_OTG_HPRT_PRST | hprt0);			// Drive the D+ and D- lines low for at least 10ms to indicate reset to the device
+	DelayMS(20);
 	USB_HPRT0 = ((~USB_OTG_HPRT_PRST) & hprt0);
 	DelayMS(10);
 }
@@ -1408,45 +1409,35 @@ void USBHost::ResetPort()
 
 void USBHost::HaltChannel(const uint8_t channel)
 {
-	auto USB_HC = USBx_HC(channel);
+	auto& USB_HC = USBx_HC(channel);
 
 	// Halt a host channel
-	volatile  uint32_t count = 0;
-	const uint32_t hcEpType = (USB_HC->HCCHAR & USB_OTG_HCCHAR_EPTYP) >> USB_OTG_HCCHAR_EPTYP_Pos;
-	const uint32_t channelEna = (USB_HC->HCCHAR & USB_OTG_HCCHAR_CHENA) >> USB_OTG_HCCHAR_CHENA_Pos;
+	volatile uint32_t count = 0;
+	const uint32_t hcEpType = (USB_HC.HCCHAR & USB_OTG_HCCHAR_EPTYP) >> USB_OTG_HCCHAR_EPTYP_Pos;
+	const uint32_t channelEna = (USB_HC.HCCHAR & USB_OTG_HCCHAR_CHENA) >> USB_OTG_HCCHAR_CHENA_Pos;
 
 	if ((USB_OTG_FS->GAHBCFG & USB_OTG_GAHBCFG_DMAEN) && !channelEna) {
 		return;
 	}
 
 	// Check for space in the request queue to issue the halt
-	USB_HC->HCCHAR |= USB_OTG_HCCHAR_CHDIS;
+	USB_HC.HCCHAR |= USB_OTG_HCCHAR_CHDIS;										// Channel disable
 
-	if (hcEpType == ControlEP || hcEpType == Bulk) {
-		if ((USB_OTG_FS->GAHBCFG & USB_OTG_GAHBCFG_DMAEN) == 0) {
-			if ((USB_OTG_FS->HNPTXSTS & USB_OTG_HPTXSTS_PTXQSAV_Msk) == 0) {
-				USB_HC->HCCHAR &= ~USB_OTG_HCCHAR_CHENA;
-				USB_HC->HCCHAR |= USB_OTG_HCCHAR_CHENA;
-				do {
-					if (count++ > 1000) {
-						break;
-					}
-				} while (USB_HC->HCCHAR & USB_OTG_HCCHAR_CHENA);
-			} else {
-				USB_HC->HCCHAR |= USB_OTG_HCCHAR_CHENA;
-			}
+	if ((hcEpType == ControlEP || hcEpType == Bulk) && ((USB_OTG_FS->GAHBCFG & USB_OTG_GAHBCFG_DMAEN) == 0)) {
+		if ((USB_OTG_FS->HNPTXSTS & USB_OTG_HPTXSTS_PTXQSAV_Msk) == 0) {		// Non-Periodic transmit request queue space not available
+			USB_HC.HCCHAR &= ~USB_OTG_HCCHAR_CHENA;
+			USB_HC.HCCHAR |= USB_OTG_HCCHAR_CHENA;
+			while (++count < 1000 && (USB_HC.HCCHAR & USB_OTG_HCCHAR_CHENA));	// Copied from HAL - logic seems backwards??
+		} else {
+			USB_HC.HCCHAR |= USB_OTG_HCCHAR_CHENA;								// Channel enable
 		}
 	} else {
-		if ((USB_HOST->HPTXSTS & USB_OTG_HPTXSTS_PTXQSAV_Msk) == 0) {
-			USB_HC->HCCHAR &= ~USB_OTG_HCCHAR_CHENA;
-			USB_HC->HCCHAR |= USB_OTG_HCCHAR_CHENA;
-			do {
-				if (count++ > 1000) {
-					break;
-				}
-			} while (USB_HC->HCCHAR & USB_OTG_HCCHAR_CHENA);
+		if ((USB_HOST->HPTXSTS & USB_OTG_HPTXSTS_PTXQSAV_Msk) == 0) {			// Periodic transmit request queue space not available
+			USB_HC.HCCHAR &= ~USB_OTG_HCCHAR_CHENA;
+			USB_HC.HCCHAR |= USB_OTG_HCCHAR_CHENA;
+			while (++count < 1000 && (USB_HC.HCCHAR & USB_OTG_HCCHAR_CHENA));	// Copied from HAL - logic seems backwards??
 		} else {
-			USB_HC->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+			USB_HC.HCCHAR |= USB_OTG_HCCHAR_CHENA;
 		}
 	}
 }
@@ -1463,23 +1454,23 @@ void USBHost::StopHost()
 
 	// Flush out any leftover queued requests.
 	for (uint8_t i = 0; i <= 15; ++i) {
-		uint32_t value = USBx_HC(i)->HCCHAR;
+		uint32_t value = USBx_HC(i).HCCHAR;
 		value |=  USB_OTG_HCCHAR_CHDIS;
 		value &= ~USB_OTG_HCCHAR_CHENA;
 		value &= ~USB_OTG_HCCHAR_EPDIR;
-		USBx_HC(i)->HCCHAR = value;
+		USBx_HC(i).HCCHAR = value;
 	}
 
 	// Halt all channels to put them into a known state.
 	for (uint8_t i = 0; i <= 15; ++i) {
-		uint32_t value = USBx_HC(i)->HCCHAR;
+		uint32_t value = USBx_HC(i).HCCHAR;
 		value |= USB_OTG_HCCHAR_CHDIS;
 		value |= USB_OTG_HCCHAR_CHENA;
 		value &= ~USB_OTG_HCCHAR_EPDIR;
-		USBx_HC(i)->HCCHAR = value;
+		USBx_HC(i).HCCHAR = value;
 
 		volatile uint32_t count = 0;
-		while (++count <  1000 && (USBx_HC(i)->HCCHAR & USB_OTG_HCCHAR_CHENA));
+		while (++count <  1000 && (USBx_HC(i).HCCHAR & USB_OTG_HCCHAR_CHENA));
 	}
 
 	USB_HOST->HAINT = 0xFFFFFFFF;			// Clear any pending Host interrupts

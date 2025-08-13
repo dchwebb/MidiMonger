@@ -4,6 +4,7 @@
 #include "MidiControl.h"
 #include "HidDescriptor.h"
 #include "HidHostClass.h"
+#include "USBHost.h"
 
 CommandHandler commandHandler;
 
@@ -64,6 +65,7 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				"mbB:N       -  Configure mouse button B (1-8) Gate output N (1-8) \r\n"
 				"               Eg mb2:7 to output mouse button 2 to Gate 7\r\n"
 		);
+
 
 
 	} else 	if (cmd.starts_with("dacoffset:")) {			// Configure DAC offset
@@ -267,7 +269,7 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 
 
 	} else if (cmd.starts_with("lights")) {
-		midiControl.LightShow();
+		midiControl.LightShow(MidiControl::LightShowType::connection);
 
 
 	} else if (cmd.starts_with("kill")) {
@@ -310,8 +312,11 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		usb.Disable();
 
 #if (USB_DEBUG)
-	} else if (cmd.starts_with("usbdebug")) {					// Disable USB device
-		usb.OutputDebug();
+	} else if (cmd.starts_with("usbdebug")) {					// Debug USB
+		if (!hostMode) {
+			usb.OutputDebug();
+		}
+
 
 #endif
 

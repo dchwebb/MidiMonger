@@ -4,12 +4,10 @@
 #include <stdio.h>
 #include "USBClass.h"
 
-#define LE16(addr)	 (((uint16_t)(addr)[0]) | ((uint16_t)(((uint32_t)(addr)[1]) << 8)))
-
 #define USB_HOST	((USB_OTG_HostTypeDef*)((uint32_t)USB_OTG_FS + USB_OTG_HOST_BASE))
 #define USB_HPRT0	*(volatile uint32_t*)((uint32_t)USB_OTG_FS + USB_OTG_HOST_PORT_BASE)
 #define USB_FIFO(i)	*(volatile uint32_t*)((uint32_t)USB_OTG_FS + USB_OTG_FIFO_BASE + ((i) * USB_OTG_FIFO_SIZE))
-#define USBx_HC(i)	((USB_OTG_HostChannelTypeDef *)((uint32_t)USB_OTG_FS + USB_OTG_HOST_CHANNEL_BASE + ((i) * USB_OTG_HOST_CHANNEL_SIZE)))
+#define USBx_HC(i)	(*(USB_OTG_HostChannelTypeDef*)((uint32_t)USB_OTG_FS + USB_OTG_HOST_CHANNEL_BASE + ((i) * USB_OTG_HOST_CHANNEL_SIZE)))
 
 
 
@@ -274,7 +272,7 @@ private:
 	enum class EnumState { Idle, GetFullDevDesc, SetAddr, GetCfgDesc, GetFullCfgDesc, GetMfcStringDesc, GetProductStringDesc, GetSerialStringDesc
 	} enumState;
 
-	GpioPin PowerEnable {GPIOG, 6, GpioPin::Type::Output};
+	//GpioPin PowerEnable {GPIOG, 6, GpioPin::Type::Output};
 };
 
 

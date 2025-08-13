@@ -33,7 +33,7 @@ int main(void)
 	}
 
 	printf("\r\n\r\nStarting ...\r\n");
-	midiControl.LightShow();
+	midiControl.LightShow(MidiControl::LightShowType::startup);
 
 	while (1) {
 		midiControl.GateTimer();			// Switches off any pending gates/leds

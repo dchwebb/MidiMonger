@@ -449,13 +449,30 @@ void MidiControl::CalcPortamento()
 }
 
 
-void MidiControl::LightShow()
+void MidiControl::LightShow(LightShowType type)
 {
-	for (uint8_t c = 0; c < 8; ++c) {
-		midiControl.cvOutputs[c > 3 ? 3 - c % 4 : c].LedOn(60);
-		uint32_t delay = SysTickVal + 110;
-		while (delay > SysTickVal) {
-			midiControl.GateTimer();
+	uint32_t delay;
+
+	switch (type) {
+	case LightShowType::startup:
+		for (uint8_t c = 0; c < 8; ++c) {
+			midiControl.cvOutputs[c > 3 ? 3 - c % 4 : c].LedOn(60);
+			delay = SysTickVal + 110;
+			while (delay > SysTickVal) {
+				midiControl.GateTimer();
+			}
 		}
+		break;
+
+	case LightShowType::connection:
+		for (uint8_t c = 0; c < 4; ++c) {
+			midiControl.cvOutputs[c & 1 ? 0 : 1].LedOn(60);
+			midiControl.cvOutputs[c & 1 ? 2 : 3].LedOn(60);
+			delay = SysTickVal + 210;
+			while (delay > SysTickVal) {
+				midiControl.GateTimer();
+			}
+		}
+		break;
 	}
 }

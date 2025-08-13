@@ -7,11 +7,11 @@ HidHostClass hidHostClass(&usbHost, HidHostClass::name, HidHostClass::classCode)
 
 HostStatus HidHostClass::InterfaceInit()
 {
-	USBH_DbgLog("HID Class Init");
+	printf("HID Class Init\n");
 
 	auto interfaceDesc = usbHost->SelectInterface(classCode, usbBootSubclass);
 	if (interfaceDesc == nullptr) {
-		USBH_DbgLog("Cannot Find the interface for %s class.", name);
+		printf("Cannot Find the interface for %s class\n", name);
 		return HostStatus::Fail;
 	}
 
@@ -52,7 +52,7 @@ HostStatus HidHostClass::InterfaceInit()
 
 void HidHostClass::InterfaceDeInit()
 {
-	USBH_DbgLog("MIDI Class DeInit");
+	printf("HID Class DeInit\n");
 
 	if (inPipe != 0) {
 		usbHost->HaltChannel(inPipe);
@@ -76,7 +76,7 @@ HostStatus HidHostClass::Process()
 	switch (state) {
 	case HidState::Init:
 		if (usbHost->timer & 1) {			// Sync with start of Even Frame
-			USBH_DbgLog("HID Class Process: Init");
+			printf("HID Class Process: Init\n");
 			state = HidState::GetReportDesc;
 		}
 		break;
@@ -86,7 +86,7 @@ HostStatus HidHostClass::Process()
 			hidDescriptor.ParseReportDesc();
 			hidDescriptor.PrintReportDesc();
 			state = HidState::GetData;
-			USBH_DbgLog("HID Report Descriptor Parsed");
+			printf("HID Report Descriptor Parsed\n");
 		}
 		break;
 

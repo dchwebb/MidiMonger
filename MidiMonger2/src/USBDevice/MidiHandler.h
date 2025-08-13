@@ -25,7 +25,6 @@ public:
 	static constexpr uint8_t MidiClassDescSize = 50;		// size of just the MIDI class definition (excluding interface descriptors)
 
 private:
-	void midiEvent(const uint32_t data);
 	uint32_t xfer_buff[64];									// OUT Data filled in RxLevel Interrupt
 
 	uint8_t sysEx[32];

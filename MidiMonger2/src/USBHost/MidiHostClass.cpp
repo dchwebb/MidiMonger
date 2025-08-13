@@ -6,11 +6,11 @@ MidiHostClass midiHostClass(&usbHost, MidiHostClass::name, MidiHostClass::classC
 
 HostStatus MidiHostClass::InterfaceInit()
 {
-	USBH_DbgLog("MIDI Class Init");
+	printf("MIDI Class Init\n");
 
 	auto interfaceDesc = usbHost->SelectInterface(classCode, usbMidiStreamingSubclass);
 	if (interfaceDesc == nullptr) {
-		USBH_DbgLog("Cannot Find the interface for %s class.", name);
+		printf("Cannot Find the interface for %s class\n", name);
 		return HostStatus::Fail;
 	}
 
@@ -28,7 +28,7 @@ HostStatus MidiHostClass::InterfaceInit()
 
 	// Decode endpoint IN and OUT address from interface descriptor
 	for (uint8_t i = 0; i < endpoints; ++i) {
-		if (interfaceDesc->epDesc[i].bEndpointAddress & 0x80) {
+		if (interfaceDesc->epDesc[i].bEndpointAddress & USBHost::DeviceToHost) {
 			inEp = interfaceDesc->epDesc[i].bEndpointAddress;
 			inPipe = usbHost->AllocPipe(inEp);
 
@@ -37,7 +37,7 @@ HostStatus MidiHostClass::InterfaceInit()
 			usbHost->SetToggle(inPipe, 0);
 		} else {
 			outEp = interfaceDesc->epDesc[i].bEndpointAddress;
-			outPipe  = usbHost->AllocPipe(outEp);
+			outPipe = usbHost->AllocPipe(outEp);
 
 			// Open pipe for OUT endpoint
 			usbHost->HostChannelInit(outPipe, outEp, usbHost->device.address, usbHost->device.speed, USBHost::Bulk, packetSize);
@@ -51,7 +51,7 @@ HostStatus MidiHostClass::InterfaceInit()
 
 void MidiHostClass::InterfaceDeInit()
 {
-	USBH_DbgLog("MIDI Class DeInit");
+	printf("MIDI Class DeInit\n");
 
 	if (inPipe != 0) {
 		usbHost->HaltChannel(inPipe);
@@ -75,7 +75,8 @@ HostStatus MidiHostClass::Process()
 	switch (state) {
 	case MidiState::Init:
 		if (usbHost->timer & 1) {		// Sync with start of Even Frame
-			USBH_DbgLog("MIDI Class Process: Init");
+			midiControl.LightShow(MidiControl::LightShowType::connection);
+			printf("MIDI Class Process: Init\n");
 			state = MidiState::GetData;
 		}
 		break;
