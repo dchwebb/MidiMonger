@@ -182,7 +182,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 
 					if (noteToAssign > 0) {
 						for (uint8_t ch = 0; ch < 4; ++ch) {
-							uint8_t c = (ch + lastVoice) & 3;			// Round robin loop: start from next channel after the last one played
+							uint8_t c = (ch + channelNotes[gate.channel].lastVoice) & 3;			// Round robin loop: start from next channel after the last one played
 
 							if (cvOutputs[c].nextNote == 0 && cvOutputs[c].channel == gate.channel && cvOutputs[c].type == CvType::channelPitch) {
 								cvOutputs[c].nextNote = noteToAssign;
@@ -203,7 +203,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 								cvOutputs[c].SendNote();
 								gateOutputs[c].output.SetHigh();
 							}
-							lastVoice = c + 1;
+							channelNotes[gate.channel].lastVoice = c + 1;			// Round robin loop: set up next start channel
 						}
 						cvOutputs[c].nextNote = 0;
 					}

@@ -49,8 +49,8 @@ int main(void)
 			if (modeSwitch.IsHigh()) {
 				printf("Switching to device mode\r\n");
 				usbHost.Disable();
-				DelayMS(10);
 				hostMode = false;
+				DelayMS(10);
 				usb.Init(false);
 			} else {
 				printf("Switching to host mode\r\n");

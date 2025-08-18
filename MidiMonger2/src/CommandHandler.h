@@ -13,6 +13,7 @@ public:
 
 	static constexpr uint32_t bufSize = 1024;
 	char buf[bufSize];
+
 };
 
 

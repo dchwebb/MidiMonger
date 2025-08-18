@@ -58,6 +58,7 @@ void InitClocks()
 					  (((saiPLL.P >> 1) - 1) << RCC_PLLSAICFGR_PLLSAIP_Pos);
 
 	RCC->CR |= RCC_CR_PLLSAION;					// Enable the SAI PLL for USB
+	while ((RCC->CR & RCC_CR_PLLSAIRDY) == 0);	// Wait till the SAI PLL is ready
 
 	// Configure Flash prefetch, Instruction cache, Data cache and wait state
 	FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS;
@@ -128,7 +129,7 @@ void DisableUSB()
 //	Setup Timer 3 on an interrupt to trigger portamento calculations
 void InitTimer()
 {
-	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;				// Enable Timer 3
+	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;				// Enable Timer
 	TIM3->PSC = 0;									// Set prescaler: 90MHz (APB1 Timer Clock) / 1 (PSC + 1) = 90 MHz
 	TIM3->ARR = 7000; 								// Set auto reload register (90 MHz / 7000 = 12 kHz)
 

@@ -69,6 +69,7 @@ private:
 	struct ChannelNote {
 		activeNote activeNotes;
 		uint8_t voiceCount;
+		uint8_t lastVoice;					// for round robin assignment of notes to voices
 		float pitchbend;
 	};
 	ChannelNote channelNotes[16];			// For managing pitch bends and polyphony - stores voice count and active notes for each channel
@@ -164,7 +165,6 @@ private:
 		float dacScale = dacScaleDefault;
 	} cfg;
 
-	uint8_t lastVoice;			// for round robin assignment of notes to voices
 
 	float dacScaleCalc;							// dac scaling adjusted for 16 bit output
 	float portamentoCalc;						// Calculated speed of portamento effect

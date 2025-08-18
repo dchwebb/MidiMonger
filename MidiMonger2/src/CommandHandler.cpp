@@ -8,10 +8,20 @@
 
 CommandHandler commandHandler;
 
+// Capture buffer for printing USB host logging over USB device connection
+static constexpr uint32_t logBufSize = 60000;
+uint32_t logBufPos = 0;
+char logBuf[logBufSize];
+
 extern "C" {
 size_t _write(int handle, const unsigned char* buf, size_t len)
 {
 	uart.SendString(buf, len);									// Logging via UART
+	if (hostMode && logBufPos < logBufSize && (char*)buf != logBuf) {					// Capture host mode logging for later printing out over device mode
+		uint32_t copyLen = logBufPos + len > logBufSize ? logBufSize - logBufPos : len;
+		memcpy(&logBuf[logBufPos], buf, copyLen);
+		logBufPos += copyLen;
+	}
 
 	if (usb.devState == USB::DeviceState::Configured) {			// Logging via USB
 		usb.SendString(buf, len);
@@ -306,6 +316,12 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		config.EraseConfig();
 		DelayMS(10);
 		Reboot();
+
+
+
+	} else if (cmd.starts_with("hostlog")) {					// Output host log
+		_write(0, (const unsigned char*)logBuf, logBufPos);
+
 
 
 	} else if (cmd.starts_with("disableusb")) {					// Disable USB device

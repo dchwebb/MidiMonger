@@ -326,8 +326,8 @@ void USB::Init(bool softReset)
 
 	if (!softReset) {
 		GpioPin::Init(GPIOA, 9, GpioPin::Type::Input);						// PA9: USB_OTG_HS_VBUS
-		GpioPin::Init(GPIOA, 11, GpioPin::Type::AlternateFunction, 10);		// PA11: USB_OTG_HS_DM
-		GpioPin::Init(GPIOA, 12, GpioPin::Type::AlternateFunction, 10);		// PA12: USB_OTG_HS_DP
+		GpioPin::Init(GPIOA, 11, GpioPin::Type::AlternateFunction, 10, GpioPin::DriveStrength::VeryHigh);		// PA11: USB_OTG_HS_DM
+		GpioPin::Init(GPIOA, 12, GpioPin::Type::AlternateFunction, 10, GpioPin::DriveStrength::VeryHigh);		// PA12: USB_OTG_HS_DP
 
 		RCC->DCKCFGR2 |= RCC_DCKCFGR2_CK48MSEL;			// 0 = PLLQ Clock; 1 = PLLSAI_P
 		RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;			// USB OTG FS clock enable
@@ -664,6 +664,9 @@ void USB::StdDevReq()
 		switch (static_cast<Request>(req.Request))
 		{
 		case Request::GetDescriptor:
+			if (devState == DeviceState::Addressed) {
+				volatile int susp [[maybe_unused]] = 1;
+			}
 			GetDescriptor();
 			break;
 

@@ -1484,6 +1484,11 @@ void USBHost::Disable()
 	DisconnectHandler();
 	DeInitStateMachine();									// Restore default states and prepare EP0
 
+	// Reset USB Core
+	while ((USB_OTG_FS->GRSTCTL & USB_OTG_GRSTCTL_AHBIDL) == 0) {};
+	USB_OTG_FS->GRSTCTL |= USB_OTG_GRSTCTL_CSRST;
+	while ((USB_OTG_FS->GRSTCTL & USB_OTG_GRSTCTL_CSRST) == USB_OTG_GRSTCTL_CSRST);
+
 	USB_OTG_FS->GUSBCFG &= ~USB_OTG_GUSBCFG_FHMOD;			// Disable host mode
 	USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_PWRDWN;				// Deactivate Transceiver
 
