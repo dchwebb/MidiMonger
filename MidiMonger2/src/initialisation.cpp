@@ -23,7 +23,7 @@ struct PLLDividers {
 	uint32_t P;
 	uint32_t Q;
 };
-const PLLDividers mainPLL {4, 180, 2, 7};		// Clock: 8MHz / 4(M) * 168(N) / 2(P) = 180MHz
+const PLLDividers mainPLL {4, 120, 2, 7};		// Clock: 8MHz / 4(M) * 120(N) / 2(P) = 120MHz
 const PLLDividers saiPLL {6, 144, 4, 0};		// USB:   8MHz / 6(M) * 144(N) / 4(P) = 48MHz
 
 void InitClocks()
@@ -32,7 +32,7 @@ void InitClocks()
 	[[maybe_unused]] volatile uint32_t dummy = RCC->APB2ENR & RCC_APB2ENR_SYSCFGEN;		// delay
 
 	RCC->APB1ENR |= RCC_APB1ENR_PWREN;			// Enable Power Control clock
-	PWR->CR |= PWR_CR_VOS_0;					// Enable VOS voltage scaling - allows maximum clock speed
+	PWR->CR &= ~PWR_CR_VOS_1;					// Voltage scaling - 01: Scale 3 mode (120MHz max); 10: Scale 2 mode (144MHz max); 11: Scale 1 mode (168-180MHz)
 
 	SCB->CPACR |= ((3 << 10 * 2) | (3 << 11 * 2));	// CPACR register: set full access privileges for coprocessors
 
@@ -61,7 +61,7 @@ void InitClocks()
 	while ((RCC->CR & RCC_CR_PLLSAIRDY) == 0);	// Wait till the SAI PLL is ready
 
 	// Configure Flash prefetch, Instruction cache, Data cache and wait state
-	FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS;
+	FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_LATENCY_4WS;
 
 	// Select the main PLL as system clock source
 	RCC->CFGR &= ~RCC_CFGR_SW;

@@ -121,6 +121,7 @@ private:
 		uint32_t offTime;
 		uint8_t controller;
 		uint8_t currentNote;
+		uint8_t prevNote;
 		uint8_t nextNote;
 
 		// Portamento settings

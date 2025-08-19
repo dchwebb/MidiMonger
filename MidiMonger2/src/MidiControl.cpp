@@ -200,6 +200,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 								cvOutputs[c].currentNote = 0;
 							} else {
 								cvOutputs[c].currentNote = cvOutputs[c].nextNote;
+								cvOutputs[c].prevNote = cvOutputs[c].nextNote;		// Store previous note so that pitchbend still works after note off received
 								cvOutputs[c].SendNote();
 								gateOutputs[c].output.SetHigh();
 							}
@@ -428,7 +429,7 @@ void MidiControl::SendCV(uint16_t dacOutput, uint8_t channel, uint32_t ledTimout
 
 void MidiControl::CV::SendNote()
 {
-	targetOutput = std::clamp((midiControl.channelNotes[channel - 1].pitchbend + currentNote - midiControl.cfg.dacOffset) * midiControl.dacScaleCalc, 0.0f, 65535.0f);		// limit C1 to C7
+	targetOutput = std::clamp((midiControl.channelNotes[channel - 1].pitchbend + prevNote - midiControl.cfg.dacOffset) * midiControl.dacScaleCalc, 0.0f, 65535.0f);		// limit C1 to C7
 	if (!portamento) {
 		uint16_t dacOutput = (uint16_t)std::round(targetOutput);
 		dacHandler.SendData(DACHandler::WriteChannel | dacChannel, dacOutput);		// Send pitch to DAC
