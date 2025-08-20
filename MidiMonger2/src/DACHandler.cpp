@@ -22,7 +22,8 @@ void DACHandler::Init()
 {
 	RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
 
-	SPI3->CR1 |= SPI_CR1_BR_0;						// Baud rate control prescaler: 0b001: fPCLK/4; 0b100: fPCLK/32
+	// Clock at 120Mhz: APB1: 30 MHz; SPI: 15MHz
+	//SPI3->CR1 |= SPI_CR1_BR_0;					// Baud rate control prescaler: 0b000: fPCLK/2; 0b001: fPCLK/4
 	SPI3->CR1 |= SPI_CR1_MSTR;						// Master selection
 	SPI3->CR1 |= SPI_CR1_SSM;						// Software slave management: When SSM bit is set, NSS pin input is replaced with the value from the SSI bit
 	SPI3->CR1 |= SPI_CR1_SSI;						// Internal slave select

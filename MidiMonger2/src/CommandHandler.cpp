@@ -9,7 +9,7 @@
 CommandHandler commandHandler;
 
 // Capture buffer for printing USB host logging over USB device connection
-static constexpr uint32_t logBufSize = 60000;
+static constexpr uint32_t logBufSize = 20000;
 uint32_t logBufPos = 0;
 char logBuf[logBufSize];
 

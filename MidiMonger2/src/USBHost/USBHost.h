@@ -1,8 +1,9 @@
 #pragma once
 
 #include "initialisation.h"
-#include <stdio.h>
 #include "USBClass.h"
+#include <stdio.h>
+
 
 #define USB_HOST	((USB_OTG_HostTypeDef*)((uint32_t)USB_OTG_FS + USB_OTG_HOST_BASE))
 #define USB_HPRT0	*(volatile uint32_t*)((uint32_t)USB_OTG_FS + USB_OTG_HOST_PORT_BASE)
@@ -158,9 +159,8 @@ public:
 	void Disable();
 	HostStatus ClassRequest(const uint8_t reqType, const uint8_t request, const uint16_t value, const uint16_t index, uint8_t* buff, const uint16_t length);
 
+
 private:
-
-
 
 	struct DescHeader {
 		uint8_t  bLength;

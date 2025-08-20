@@ -62,7 +62,6 @@ void USBHost::Start()
 {
 	USB_HPRT0 |= USB_OTG_HPRT_PPWR;							// Enable port power - not sure why as this should be done via external power supply
 	USB_OTG_FS->GAHBCFG |= USB_OTG_GAHBCFG_GINT;			// Enable global interrupt
-	//PowerEnable.SetHigh();									// Pin PG6 on Nucleo which connects an external 5V output to VBUS - FIXME
 }
 
 
@@ -369,13 +368,12 @@ void USBHost::EnumerationError()
 {
 	printf("Control error: Get Device configuration descriptor request failed\n");
 	if (++device.enumCount > 3) {
-		printf("Control error, Device not Responding Please unplug the Device\n");
+		printf("Control error: Device not Responding. Please unplug the Device\n");
 		gState = HostState::Abort;
 	} else {
 		FreePipe(control.pipeOut);
 		FreePipe(control.pipeIn);
 
-		// Reset the USB Device
 		enumState = EnumState::Idle;
 		gState = HostState::Idle;
 	}
@@ -389,9 +387,9 @@ void USBHost::HostChannelInit(const uint8_t channel, const uint8_t epNum, const 
 	hc[channel].epType = epType;
 	hc[channel].epDir = ((epNum & DeviceToHost) == DeviceToHost);
 
-	// Clear old interrupt conditions for this host channel
+
 	auto& USB_HC = USBx_HC(channel);
-	USB_HC.HCINT = 0xFFFFFFFF;
+	USB_HC.HCINT = 0xFFFFFFFF;			// Clear interrupts for host channel
 
 	// Enable channel interrupts required for this transfer
 	switch (epType) {
@@ -878,7 +876,6 @@ void USBHost::FreePipe(uint8_t idx)
 
 USBHost::InterfaceDescriptor* USBHost::SelectInterface(const uint8_t ifClass, const uint8_t subClass)
 {
-	//device.cfgDesc.bNumInterfaces
 	for (uint32_t i = 0; i < maxNumInterfaces; ++i) {
 		if (device.cfgDesc.ifDesc[i].bInterfaceClass == ifClass && device.cfgDesc.ifDesc[i].bInterfaceSubClass == subClass) {
 			device.currentInterface = i;
@@ -929,8 +926,7 @@ uint32_t USBHost::GetMode()
 
 bool USBHost::TestInterrupt(uint32_t interrupt)
 {
-	// Test for specific interrupt type
-	return ((USB_OTG_FS->GINTSTS & USB_OTG_FS->GINTMSK) & interrupt);
+	return ((USB_OTG_FS->GINTSTS & USB_OTG_FS->GINTMSK) & interrupt);		// Test for specific interrupt type
 }
 
 
@@ -1196,7 +1192,7 @@ void USBHost::OutIrqHandler(const uint8_t channel)
 void USBHost::RxqLvlIrqHandler()
 {
 	// Handle Rx Queue Level interrupt requests.
-	const uint32_t gRxStspReg = USB_OTG_FS->GRXSTSP;
+	const uint32_t gRxStspReg = USB_OTG_FS->GRXSTSP;			// OTG status read and pop register
 	const uint32_t channel = gRxStspReg & USB_OTG_GRXSTSP_EPNUM;
 	const uint32_t pktStatus = (gRxStspReg & USB_OTG_GRXSTSP_PKTSTS) >> USB_OTG_GRXSTSP_PKTSTS_Pos;
 	const uint32_t pktCount = (gRxStspReg & USB_OTG_GRXSTSP_BCNT) >> USB_OTG_GRXSTSP_BCNT_Pos;
@@ -1378,7 +1374,6 @@ void USBHost::ReadPacket(const uint32_t* dest, const uint16_t len, const uint32_
 }
 
 
-
 void USBHost::SetPhyClockSpeed(const UsbSpeed freq)
 {
 	// Initializes the FSLSPClkSel field of the HCFG register on the PHY type and set the right frame interval
@@ -1391,7 +1386,6 @@ void USBHost::SetPhyClockSpeed(const UsbSpeed freq)
 		USB_HOST->HFIR = 6000;
 	}
 }
-
 
 
 void USBHost::ResetPort()
