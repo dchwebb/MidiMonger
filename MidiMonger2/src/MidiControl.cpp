@@ -15,6 +15,11 @@ void MidiControl::MidiEvent(const uint32_t data)
 {
 	auto midiEvent = MidiData(data);
 
+	// Capture debug
+	if (midiDebugCount < midiDebugSize) {
+		debugEvents[midiDebugCount++] = midiEvent;
+	}
+
 	// Editor communication
 	if (midiEvent.db0 == 0xF2) {
 		// Request for information from editor. Format is: Code = 0x03; db0 = 0xF2; db1 = 0xnn (output number)

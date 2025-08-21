@@ -59,6 +59,10 @@ public:
 		};
 	};
 
+	static constexpr uint32_t midiDebugSize = 200;
+	MidiData debugEvents[midiDebugSize];
+	uint32_t midiDebugCount = 0;
+
 private:
 	void GatesOff();
 	void QueueInc();
