@@ -324,16 +324,20 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		}
 
 	} else if (cmd.starts_with("eventlist")) {					// Output MIDI events debug
-		printf("CIN cable chn msg  db1 db2\r\n");
+
+		printf("CIN cable chn msg  db1 db2 Raw\r\n");
 		for (uint32_t i = 0; i < midiControl.midiDebugCount; ++i) {
-			printf("%3d %5d %3d %#04lx %3d %3d \r\n",
+			printf("%3d %5d %3d %#04lx %3d %3d %#010lx\r\n",
 					midiControl.debugEvents[i].CIN,
 					midiControl.debugEvents[i].cable,
 					midiControl.debugEvents[i].chn,
 					(uint32_t)midiControl.debugEvents[i].msg,
 					midiControl.debugEvents[i].db1,
-					midiControl.debugEvents[i].db2);
+					midiControl.debugEvents[i].db2,
+					midiControl.debugEvents[i].data);
 		}
+		extern uint32_t debugMIDImultiEvents;
+		printf("Filtered events: %lu; Multi data events: %lu\r\n", midiControl.midiDebugFilterCount, debugMIDImultiEvents);
 
 
 	} else if (cmd.starts_with("hostlog")) {					// Output host log

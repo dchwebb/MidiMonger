@@ -118,7 +118,7 @@ void MidiHostClass::MidiEvent(uint32_t* buff, uint16_t len)
 		++debugMIDImultiEvents;
 	}
 
-	uint32_t events = len / 4;
+	uint32_t events = len / 4;				// len is in bytes
 	for (uint32_t i = 0; i < events; ++i) {
 		midiControl.MidiEvent(*buff);
 		++buff;

@@ -62,6 +62,7 @@ public:
 	static constexpr uint32_t midiDebugSize = 400;
 	MidiData debugEvents[midiDebugSize];
 	uint32_t midiDebugCount = 0;
+	uint32_t midiDebugFilterCount = 0;
 
 private:
 	void GatesOff();

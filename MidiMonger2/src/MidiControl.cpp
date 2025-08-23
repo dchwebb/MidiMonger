@@ -17,7 +17,11 @@ void MidiControl::MidiEvent(const uint32_t data)
 
 	// Capture debug
 	if (midiDebugCount < midiDebugSize) {
-		debugEvents[midiDebugCount++] = midiEvent;
+		if (midiEvent.data != 0x0000fe0f && midiEvent.data != 0) {		// Filter out active sensing and blank data events
+			debugEvents[midiDebugCount++] = midiEvent;
+		} else {
+			++midiDebugFilterCount;
+		}
 	}
 
 	// Editor communication
