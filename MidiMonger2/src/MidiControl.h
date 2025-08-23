@@ -59,7 +59,7 @@ public:
 		};
 	};
 
-	static constexpr uint32_t midiDebugSize = 200;
+	static constexpr uint32_t midiDebugSize = 400;
 	MidiData debugEvents[midiDebugSize];
 	uint32_t midiDebugCount = 0;
 
