@@ -89,8 +89,9 @@ HostStatus MidiHostClass::Process()
 
 	case MidiState::Poll:
 		if (usbHost->GetURBState(inPipe) == USBHost::URBState::Done) {
-			if (usbHost->GetTransferCount(inPipe) > 0) {
-				MidiEvent((uint32_t*)midiBuffer, packetSize);
+			const uint32_t xferCount = usbHost->GetTransferCount(inPipe);
+			if (xferCount > 0) {
+				MidiEvent((uint32_t*)midiBuffer, xferCount);
 			}
 			state = MidiState::GetData;
 
@@ -111,7 +112,13 @@ HostStatus MidiHostClass::Process()
 
 void MidiHostClass::MidiEvent(uint32_t* buff, uint16_t len)
 {
-	midiControl.MidiEvent(*buff);
+	uint32_t events = len / 4;
+	for (uint32_t i = 0; i < events; ++i) {
+		midiControl.MidiEvent(*buff);
+		buff += 4;
+	}
+
+
 //	static uint32_t clkCnt = 0;
 //
 //	uint32_t midiData = *(uint32_t*)buff;
