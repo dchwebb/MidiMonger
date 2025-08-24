@@ -336,8 +336,8 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 					midiControl.debugEvents[i].db2,
 					midiControl.debugEvents[i].data);
 		}
-		extern uint32_t debugMIDImultiEvents;
-		printf("Filtered events: %lu; Multi data events: %lu\r\n", midiControl.midiDebugFilterCount, debugMIDImultiEvents);
+		extern uint32_t debugMIDImultiEvents, debugMIDIsplitEvents;
+		printf("Filtered events: %lu; Multi data events: %lu; Split events: %lu\r\n", midiControl.midiDebugFilterCount, debugMIDImultiEvents, debugMIDIsplitEvents);
 
 
 	} else if (cmd.starts_with("hostlog")) {					// Output host log

@@ -111,14 +111,20 @@ HostStatus MidiHostClass::Process()
 
 
 uint32_t debugMIDImultiEvents = 0;
+uint32_t debugMIDIsplitEvents = 0;
 
 void MidiHostClass::MidiEvent(uint32_t* buff, uint16_t len)
 {
+	uint32_t events = (len + 3) / 4;				// len is in bytes
+
 	if (len != 4) {
 		++debugMIDImultiEvents;
 	}
+	if (events != len / 4) {
+		++debugMIDIsplitEvents;
+	}
 
-	uint32_t events = len / 4;				// len is in bytes
+
 	for (uint32_t i = 0; i < events; ++i) {
 		midiControl.MidiEvent(*buff);
 		++buff;
