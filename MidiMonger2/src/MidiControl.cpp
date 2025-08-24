@@ -141,7 +141,11 @@ void MidiControl::MidiEvent(const uint32_t data)
 
 	//	Note on/note off
 	if (midiEvent.msg == NoteOn || midiEvent.msg == NoteOff) {
-		//printf("Note: %d\r\n", midiEvent.db1);
+
+		// The midi standard says a NoteOn event with velocity 0 is a NoteOff
+		if (midiEvent.msg == NoteOn && midiEvent.db2 == 0) {
+			midiEvent.msg = NoteOff;
+		}
 
 		for (auto& gate : gateOutputs) {
 

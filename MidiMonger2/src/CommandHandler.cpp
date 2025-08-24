@@ -318,23 +318,18 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		Reboot();
 
 
-	} else if (cmd.starts_with("eventlistraw")) {					// Output MIDI events debug
-		for (uint32_t i = 0; i < midiControl.midiDebugCount; ++i) {
-			printf("%#010lx\r\n", midiControl.debugEvents[i].data);
-		}
-
 	} else if (cmd.starts_with("eventlist")) {					// Output MIDI events debug
 
-		printf("CIN cable chn msg  db1 db2 Raw\r\n");
+		printf("Raw        CIN cable chn msg  db1 db2\r\n");
 		for (uint32_t i = 0; i < midiControl.midiDebugCount; ++i) {
-			printf("%3d %5d %3d %#04lx %3d %3d %#010lx\r\n",
+			printf("%#010lx %3d %5d %3d %#04lx %3d %3d\r\n",
+					midiControl.debugEvents[i].data,
 					midiControl.debugEvents[i].CIN,
 					midiControl.debugEvents[i].cable,
 					midiControl.debugEvents[i].chn,
 					(uint32_t)midiControl.debugEvents[i].msg,
 					midiControl.debugEvents[i].db1,
-					midiControl.debugEvents[i].db2,
-					midiControl.debugEvents[i].data);
+					midiControl.debugEvents[i].db2);
 		}
 		extern uint32_t debugMIDImultiEvents, debugMIDIsplitEvents;
 		printf("Filtered events: %lu; Multi data events: %lu; Split events: %lu\r\n", midiControl.midiDebugFilterCount, debugMIDImultiEvents, debugMIDIsplitEvents);
