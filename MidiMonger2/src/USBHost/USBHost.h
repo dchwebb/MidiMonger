@@ -258,7 +258,7 @@ private:
 
 
 
-	uint32_t classNumber = 0;
+	uint32_t classCount = 0;					// Number of supported USB classes
 	USBClass* classes[maxNumSupportedClass];	// Holds pointers to all supported USB classes
 	USBClass* activeClass = nullptr;			// Holds pointer to currently active USB class
 	uint32_t pipes[16];

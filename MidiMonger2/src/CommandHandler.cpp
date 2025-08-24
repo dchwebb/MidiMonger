@@ -335,6 +335,98 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		printf("Filtered events: %lu; Multi data events: %lu; Split events: %lu\r\n", midiControl.midiDebugFilterCount, debugMIDImultiEvents, debugMIDIsplitEvents);
 
 
+	} else if (cmd.starts_with("descriptor")) {					// Output connected device descriptor
+		printf("Device Descriptor:\r\n"
+				"bLength: %#04x\r\n"
+				"bDescriptorType: %#04x\r\n"
+				"bcdUSB: %#06x\r\n"
+				"bDeviceClass: %#04x\r\n"
+				"bDeviceSubClass: %#04x\r\n"
+				"bDeviceProtocol: %#04x\r\n"
+				"bMaxPacketSize: %#04x\r\n"
+				"idVendor: %#06x\r\n"
+				"idProduct: %#06x\r\n"
+				"bcdDevice: %#06x\r\n"
+				"iManufacturer: %#04x\r\n"
+				"iProduct: %#04x\r\n"
+				"iSerialNumber: %#04x\r\n"
+				"bNumConfigurations: %#04x\r\n\r\n",
+				usbHost.device.devDesc.bLength,
+				usbHost.device.devDesc.bDescriptorType,
+				usbHost.device.devDesc.bcdUSB,
+				usbHost.device.devDesc.bDeviceClass,
+				usbHost.device.devDesc.bDeviceSubClass,
+				usbHost.device.devDesc.bDeviceProtocol,
+				usbHost.device.devDesc.bMaxPacketSize,
+				usbHost.device.devDesc.idVendor,
+				usbHost.device.devDesc.idProduct,
+				usbHost.device.devDesc.bcdDevice,
+				usbHost.device.devDesc.iManufacturer,
+				usbHost.device.devDesc.iProduct,
+				usbHost.device.devDesc.iSerialNumber,
+				usbHost.device.devDesc.bNumConfigurations
+				);
+
+		printf("Config Descriptor:\r\n"
+				"bLength: %#04x\r\n"
+				"bDescriptorType: %#04x\r\n"
+				"wTotalLength: %#06x\r\n"
+				"bNumInterfaces: %#04x\r\n"
+				"bConfigurationValue: %#04x\r\n"
+				"iConfiguration: %#04x\r\n"
+				"bmAttributes: %#04x\r\n"
+				"bMaxPower: %#04x\r\n\r\n",
+				usbHost.device.cfgDesc.bLength,
+				usbHost.device.cfgDesc.bDescriptorType,
+				usbHost.device.cfgDesc.wTotalLength,
+				usbHost.device.cfgDesc.bNumInterfaces,
+				usbHost.device.cfgDesc.bConfigurationValue,
+				usbHost.device.cfgDesc.iConfiguration,
+				usbHost.device.cfgDesc.bmAttributes,
+				usbHost.device.cfgDesc.bMaxPower
+				);
+
+		for (uint32_t i = 0; i < usbHost.device.cfgDesc.bNumInterfaces; ++i) {
+			printf("Interface Descriptor:\r\n"
+					"bLength: %#04x\r\n"
+					"bDescriptorType: %#04x\r\n"
+					"bInterfaceNumber: %#04x\r\n"
+					"bAlternateSetting: %#04x\r\n"
+					"bNumEndpoints: %#04x\r\n"
+					"bInterfaceClass: %#04x\r\n"
+					"bInterfaceSubClass: %#04x\r\n"
+					"bInterfaceProtocol: %#04x\r\n"
+					"iInterface: %#04x\r\n\r\n",
+					usbHost.device.cfgDesc.ifDesc[i].bLength,
+					usbHost.device.cfgDesc.ifDesc[i].bDescriptorType,
+					usbHost.device.cfgDesc.ifDesc[i].bInterfaceNumber,
+					usbHost.device.cfgDesc.ifDesc[i].bAlternateSetting,
+					usbHost.device.cfgDesc.ifDesc[i].bNumEndpoints,
+					usbHost.device.cfgDesc.ifDesc[i].bInterfaceClass,
+					usbHost.device.cfgDesc.ifDesc[i].bInterfaceSubClass,
+					usbHost.device.cfgDesc.ifDesc[i].bInterfaceProtocol,
+					usbHost.device.cfgDesc.ifDesc[i].iInterface
+					);
+
+			for (uint32_t ep = 0; ep < usbHost.device.cfgDesc.ifDesc[i].bNumEndpoints; ++ep) {
+				printf("Endpoint Descriptor:\r\n"
+						"bLength: %#04x\r\n"
+						"bDescriptorType: %#04x\r\n"
+						"bEndpointAddress: %#04x\r\n"
+						"wMaxPacketSize: %#04x\r\n"
+						"bInterval: %#04x\r\n\r\n",
+						usbHost.device.cfgDesc.ifDesc[i].epDesc[ep].bLength,
+						usbHost.device.cfgDesc.ifDesc[i].epDesc[ep].bDescriptorType,
+						usbHost.device.cfgDesc.ifDesc[i].epDesc[ep].bEndpointAddress,
+						usbHost.device.cfgDesc.ifDesc[i].epDesc[ep].bmAttributes,
+						usbHost.device.cfgDesc.ifDesc[i].epDesc[ep].wMaxPacketSize,
+						usbHost.device.cfgDesc.ifDesc[i].epDesc[ep].bInterval
+						);
+
+			}
+
+		}
+
 	} else if (cmd.starts_with("hostlog")) {					// Output host log
 		_write(0, (const unsigned char*)logBuf, logBufPos);
 

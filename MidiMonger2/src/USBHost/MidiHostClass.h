@@ -10,6 +10,7 @@ public:
 	static constexpr uint8_t usbMidiStreamingSubclass = 0x03;
 	static constexpr const char* name = "MIDI";
 	static constexpr uint8_t classCode = usbAudioClass;
+	static constexpr bool supportMiscClass = true;
 
 	MidiHostClass(USBHost* usbHost, const char* name, uint8_t classCode) : USBClass(usbHost, name, classCode) {}
 	HostStatus InterfaceInit() override;

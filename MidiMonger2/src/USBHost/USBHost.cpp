@@ -51,8 +51,8 @@ void USBHost::Init()
 
 	timer = USB_HOST->HFNUM & USB_OTG_HFNUM_FRNUM;			// Host frame number
 
-	classes[classNumber++] = &midiHostClass;				// link the class to the USB Host handle
-	classes[classNumber++] = &hidHostClass;
+	classes[classCount++] = &midiHostClass;				// link the class to the USB Host handle
+	classes[classCount++] = &hidHostClass;
 
 	Start();
 }
@@ -178,28 +178,23 @@ void USBHost::Process()
 
 	case HostState::CheckClass:
 
-		if (classNumber == 0) {
+		if (classCount == 0) {
 			printf("No Class has been registered\n");
 		} else {
 			activeClass = nullptr;
 			for (uint32_t i = 0; i < maxNumSupportedClass; i++) {
-				if (classes[i]->classCode == device.cfgDesc.ifDesc[0].bInterfaceClass) {
-					activeClass = classes[i];
-					break;
+				if (classes[i]->classCode == device.cfgDesc.ifDesc[0].bInterfaceClass || classes[i]->supportMiscClass) {
+					if (classes[i]->InterfaceInit() == HostStatus::OK) {
+						activeClass = classes[i];
+						gState = HostState::Class;
+						printf("%s class started\n", activeClass->name);
+					}
 				}
 			}
 
-			if (activeClass != nullptr) {
-				if (activeClass->InterfaceInit() == HostStatus::OK) {
-					gState = HostState::Class;
-					printf("%s class started\n", activeClass->name);
-				} else {
-					gState = HostState::Abort;
-					printf("Device does not support %s class\n", activeClass->name);
-				}
-			} else {
+			if (activeClass == nullptr) {
 				gState = HostState::Abort;
-				printf("No registered class for this device\n");
+				printf("No registered class for this device %#04x\n", device.cfgDesc.ifDesc[0].bInterfaceClass);
 			}
 		}
 		break;
@@ -876,7 +871,7 @@ void USBHost::FreePipe(uint8_t idx)
 
 USBHost::InterfaceDescriptor* USBHost::SelectInterface(const uint8_t ifClass, const uint8_t subClass)
 {
-	for (uint32_t i = 0; i < maxNumInterfaces; ++i) {
+	for (uint32_t i = 0; i < device.cfgDesc.bNumInterfaces; ++i) {
 		if (device.cfgDesc.ifDesc[i].bInterfaceClass == ifClass && device.cfgDesc.ifDesc[i].bInterfaceSubClass == subClass) {
 			device.currentInterface = i;
 			printf("Switching to Interface %lu\n", i);

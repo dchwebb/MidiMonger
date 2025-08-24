@@ -13,6 +13,7 @@ public:
 
 	const char* name;
 	uint8_t classCode;
+	bool supportMiscClass;		// Set to true if implemented class supports the USB class code 0xEF 'Miscellaneous'
 
 	virtual HostStatus InterfaceInit() = 0;
 	virtual void InterfaceDeInit() = 0;
