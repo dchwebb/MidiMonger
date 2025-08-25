@@ -67,8 +67,8 @@ public:
 
 	static constexpr uint32_t maxDataBuffer	= 1024;
 	static constexpr uint32_t maxEpPacketSize = 1024;
-	static constexpr uint8_t  maxNumEndpoints = 2;
-	static constexpr uint32_t maxNumInterfaces = 2;
+	static constexpr uint8_t  maxNumEndpoints = 4;
+	static constexpr uint32_t maxNumInterfaces = 6;
 	static constexpr uint32_t maxNumSupportedClass = 2;
 	static constexpr uint32_t maxSizeConfiguration = 256;
 	static constexpr uint32_t maxNumPipes = 16;
@@ -117,7 +117,7 @@ public:
 
 	struct {
 		uint8_t		cfgDescRaw[maxSizeConfiguration];
-		uint8_t		data[maxDataBuffer];
+		uint8_t		data[maxDataBuffer];	// To receive raw descriptor data
 		uint8_t		address;
 		uint8_t		speed;
 		uint8_t		enumCount;

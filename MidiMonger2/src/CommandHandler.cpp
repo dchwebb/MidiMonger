@@ -413,7 +413,8 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 						"bLength: %#04x\r\n"
 						"bDescriptorType: %#04x\r\n"
 						"bEndpointAddress: %#04x\r\n"
-						"wMaxPacketSize: %#04x\r\n"
+						"bmAttributes: %#04x\r\n"
+						"wMaxPacketSize: %#06x\r\n"
 						"bInterval: %#04x\r\n\r\n",
 						usbHost.device.cfgDesc.ifDesc[i].epDesc[ep].bLength,
 						usbHost.device.cfgDesc.ifDesc[i].epDesc[ep].bDescriptorType,

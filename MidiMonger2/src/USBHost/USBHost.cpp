@@ -492,7 +492,7 @@ HostStatus USBHost::GetStringDesc(const uint8_t stringIndex, uint8_t* buff, cons
 	HostStatus status = GetDescriptor(requestRecipientDevice | requestTypeStandard, descriptorString | stringIndex, device.data, length);
 
 	if (status == HostStatus::OK) {
-		ParseStringDesc(device.data, buff, length);
+		ParseStringDesc(device.data, buff, length);		// Replace the contents of device.data with unicode converted to plain string
 	}
 	return status;
 }

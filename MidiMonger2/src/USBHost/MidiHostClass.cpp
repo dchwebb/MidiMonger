@@ -8,6 +8,7 @@ HostStatus MidiHostClass::InterfaceInit()
 {
 	printf("MIDI Class Init\n");
 
+	// Attempt to find the Midi interface to locate the correct endpoints and other settings
 	auto interfaceDesc = usbHost->SelectInterface(classCode, usbMidiStreamingSubclass);
 	if (interfaceDesc == nullptr) {
 		printf("Cannot Find the interface for %s class\n", name);
