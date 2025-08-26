@@ -11,7 +11,7 @@ class USBHost;
 class HidHostClass : public USBClass {
 	friend CommandHandler;
 public:
-	static constexpr uint8_t usbHidClass = 0x03;
+	static constexpr uint8_t usbHidClass = USBClass::HID;
 	static constexpr uint8_t usbBootSubclass = 0x01;
 	static constexpr const char* name = "HID";
 	static constexpr uint8_t classCode = usbHidClass;

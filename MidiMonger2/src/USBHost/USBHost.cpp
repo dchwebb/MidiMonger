@@ -183,11 +183,13 @@ void USBHost::Process()
 		} else {
 			activeClass = nullptr;
 			for (uint32_t i = 0; i < maxNumSupportedClass; i++) {
-				if (classes[i]->classCode == device.cfgDesc.ifDesc[0].bInterfaceClass || classes[i]->supportMiscClass) {
+				if (classes[i]->classCode == device.cfgDesc.ifDesc[0].bInterfaceClass ||
+					device.cfgDesc.ifDesc[0].bInterfaceClass == USBClass::Miscellaneous) {
 					if (classes[i]->InterfaceInit() == HostStatus::OK) {
 						activeClass = classes[i];
 						gState = HostState::Class;
 						printf("%s class started\n", activeClass->name);
+						break;
 					}
 				}
 			}
