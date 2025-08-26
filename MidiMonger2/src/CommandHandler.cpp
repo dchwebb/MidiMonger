@@ -334,6 +334,14 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 		extern uint32_t debugMIDImultiEvents, debugMIDIsplitEvents;
 		printf("Filtered events: %lu; Multi data events: %lu; Split events: %lu\r\n", midiControl.midiDebugFilterCount, debugMIDImultiEvents, debugMIDIsplitEvents);
 
+	} else if (cmd.starts_with("rawconfigdesc")) {					// Output raw configuration descriptor data
+		printf("Raw configuration descriptor data\r\n");
+		for (uint16_t i = 0; i < usbHost.maxSizeConfiguration; i += 8) {
+			printf("%#04x %#04x %#04x %#04x %#04x %#04x %#04x %#04x\r\n",
+				usbHost.device.cfgDescRaw[i], usbHost.device.cfgDescRaw[i + 1], usbHost.device.cfgDescRaw[i + 2], usbHost.device.cfgDescRaw[i + 3],
+				usbHost.device.cfgDescRaw[i + 4], usbHost.device.cfgDescRaw[i + 5], usbHost.device.cfgDescRaw[i + 6], usbHost.device.cfgDescRaw[i + 7]);
+		}
+
 
 	} else if (cmd.starts_with("descriptor")) {					// Output connected device descriptor
 		printf("Device Descriptor:\r\n"

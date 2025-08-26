@@ -503,7 +503,7 @@ HostStatus USBHost::GetStringDesc(const uint8_t stringIndex, uint8_t* buff, cons
 HostStatus USBHost::GetConfigDesc(const uint16_t length)
 {
 	uint8_t* buf = device.cfgDescRaw;
-	HostStatus status = GetDescriptor((requestRecipientDevice | requestTypeStandard), descriptorConfiguration, buf, length);
+	HostStatus status = GetDescriptor((requestRecipientDevice | requestTypeStandard), descriptorConfiguration, buf, std::min(length, maxSizeConfiguration));
 
 	if (status == HostStatus::OK) {
 		DescHeader* pdesc = (DescHeader*)buf;
@@ -511,7 +511,7 @@ HostStatus USBHost::GetConfigDesc(const uint16_t length)
 		// Parse configuration descriptor
 		device.cfgDesc.bLength             = *(buf + 0);
 		device.cfgDesc.bDescriptorType     = *(buf + 1);
-		device.cfgDesc.wTotalLength        = std::min(*(uint16_t*)(buf + 2), (uint16_t)maxSizeConfiguration);
+		device.cfgDesc.wTotalLength        = *(uint16_t*)(buf + 2);
 		device.cfgDesc.bNumInterfaces      = *(buf + 4);
 		device.cfgDesc.bConfigurationValue = *(buf + 5);
 		device.cfgDesc.iConfiguration      = *(buf + 6);
@@ -529,7 +529,7 @@ HostStatus USBHost::GetConfigDesc(const uint16_t length)
 			// DW removed code altering the length of descriptor items (pdesc->bLength) as this was breaking USBH_GetNextDesc
 
 			uint32_t interface = 0;
-			while (interface < maxNumInterfaces && ptr < device.cfgDesc.wTotalLength) {
+			while (interface < maxNumInterfaces && ptr < std::min(device.cfgDesc.wTotalLength, maxSizeConfiguration)) {
 				pdesc = GetNextDesc((uint8_t*)pdesc, &ptr);
 				if (pdesc->bDescriptorType == descriptorTypeInterface) {
 
@@ -548,7 +548,7 @@ HostStatus USBHost::GetConfigDesc(const uint16_t length)
 
 					uint8_t epIdx = 0;
 
-					while (epIdx < pif.bNumEndpoints && ptr < device.cfgDesc.wTotalLength) {
+					while (epIdx < pif.bNumEndpoints && ptr < std::min(device.cfgDesc.wTotalLength, maxSizeConfiguration)) {
 						pdesc = GetNextDesc((uint8_t*)pdesc, &ptr);
 
 						if (pdesc->bDescriptorType == descriptorTypeEndpoint) {
@@ -558,6 +558,7 @@ HostStatus USBHost::GetConfigDesc(const uint16_t length)
 					}
 
 					if (epIdx < pif.bNumEndpoints) {					// Check if the required endpoint(s) data are parsed
+						printf("Error: Not all endpoints parsed\n");
 						status = HostStatus::NotSupported;
 					}
 					interface++;
@@ -566,6 +567,7 @@ HostStatus USBHost::GetConfigDesc(const uint16_t length)
 
 			// Check if the required interface(s) data are parsed
 			if (interface < std::min(device.cfgDesc.bNumInterfaces, (uint8_t)maxNumInterfaces)) {
+				printf("Error: Not all interfaces parsed\n");
 				status = HostStatus::NotSupported;
 			}
 		}
