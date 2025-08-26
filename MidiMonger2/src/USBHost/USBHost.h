@@ -70,7 +70,7 @@ public:
 	static constexpr uint8_t  maxNumEndpoints = 4;
 	static constexpr uint32_t maxNumInterfaces = 6;
 	static constexpr uint32_t maxNumSupportedClass = 2;
-	static constexpr uint32_t maxSizeConfiguration = 256;
+	static constexpr uint32_t maxSizeConfiguration = 512;
 	static constexpr uint32_t maxNumPipes = 16;
 	static constexpr uint32_t maxErrorCount = 2;
 	static constexpr uint32_t maxPacketSizeDefault = 64;

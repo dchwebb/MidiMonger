@@ -287,7 +287,7 @@ HostStatus USBHost::DoEnumeration()
 	case EnumState::GetCfgDesc:
 		reqStatus = GetConfigDesc(configurationDescriptorSize);
 		if (reqStatus == HostStatus::OK) {
-			printf("Enumeration: Get configuration descriptor size\n");
+			printf("Enumeration: Got configuration descriptor size\n");
 			enumState = EnumState::GetFullCfgDesc;
 		} else if (reqStatus == HostStatus::NotSupported) {
 			EnumerationError();
