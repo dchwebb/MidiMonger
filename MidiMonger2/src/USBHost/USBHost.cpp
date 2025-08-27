@@ -2,8 +2,75 @@
 #include "MidiHostClass.h"
 #include "HidHostClass.h"
 #include "MidiControl.h"
-
+#include "cstring"
 USBHost usbHost;
+
+uint8_t dummyDescr[] = {
+		0x09, 0x02, 0x48, 0x01, 0x05, 0x01, 0x04, 0xc0,
+		0000, 0x09, 0x04, 0000, 0000, 0000, 0x01, 0x01,
+		0000, 0x03, 0x0b, 0x24, 0x01, 0000, 0x01, 0x49,
+		0000, 0x03, 0x01, 0x02, 0x03, 0x0c, 0x24, 0x02,
+		0x01, 0x01, 0x01, 0x02, 0x02, 0x03, 0000, 0000,
+		0000, 0x09, 0x24, 0x03, 0x02, 0x01, 0x03, 0x01,
+		0x06, 0000, 0x0c, 0x24, 0x02, 0x03, 0x01, 0x02,
+		0x04, 0x02, 0x03, 0000, 0000, 0000, 0x09, 0x24,
+		0x03, 0x04, 0x01, 0x01, 0x03, 0x05, 0000, 0x0a,
+		0x24, 0x06, 0x05, 0x03, 0x01, 0x01, 0000, 0000,
+		0000, 0x0a, 0x24, 0x06, 0x06, 0x01, 0x01, 0x01,
+		0x02, 0x02, 0000, 0x09, 0x04, 0x01, 0000, 0000,
+		0x01, 0x02, 0000, 0000, 0x09, 0x04, 0x01, 0x01,
+		0x02, 0x01, 0x02, 0000, 0000, 0x07, 0x24, 0x01,
+		0x01, 0x02, 0x01, 0000, 0x0b, 0x24, 0x02, 0x01,
+		0x02, 0x03, 0x18, 0x01, 0x44, 0xac, 0000, 0x09,
+		0x05, 0x02, 0x05, 0x3e, 0x01, 0x01, 0000, 0x86,
+		0x07, 0x25, 0x01, 0x01, 0000, 0000, 0000, 0x09,
+		0x05, 0x86, 0x01, 0x10, 0000, 0x01, 0x06, 0000,
+		0x09, 0x04, 0x02, 0000, 0000, 0x01, 0x02, 0000,
+		0000, 0x09, 0x04, 0x02, 0x01, 0x01, 0x01, 0x02,
+		0000, 0000, 0x07, 0x24, 0x01, 0x04, 0x01, 0x01,
+		0000, 0x0b, 0x24, 0x02, 0x01, 0x02, 0x03, 0x18,
+		0x01, 0x44, 0xac, 0000, 0x09, 0x05, 0x84, 0x05,
+		0x3e, 0x01, 0x01, 0000, 0000, 0x07, 0x25, 0x01,
+		0x01, 0000, 0000, 0000, 0x09, 0x04, 0x03, 0000,
+		0x02, 0x01, 0x03, 0000, 0x03, 0x07, 0x24, 0x01,
+		0000, 0x01, 0x61, 0000, 0x06, 0x24, 0x02, 0x01,
+		0x01, 0x05, 0x06, 0x24, 0x02, 0x01, 0x02, 0x06,
+		0x06, 0x24, 0x02, 0x02, 0x03, 0x07, 0x06, 0x24,
+		0x02, 0x02, 0x04, 0x08, 0x09, 0x24, 0x03, 0x01,
+		0x05, 0x01, 0x03, 0x01, 0x07, 0x09, 0x24, 0x03,
+		0x01, 0x06, 0x01, 0x04, 0x02, 0x08, 0x09, 0x24,
+		0x03, 0x02, 0x07, 0x01, 0x01, 0x01, 0x05, 0x09,
+		0x24, 0x03, 0x02, 0x08, 0x01, 0x02, 0x02, 0x06,
+		0x09, 0x05, 0x0d, 0x02, 0x40, 0000, 0000, 0000,
+		0000, 0x06, 0x25, 0x01, 0x02, 0x01, 0x02, 0x09,
+		0x05, 0x8e, 0x02, 0x40, 0000, 0000, 0000, 0000,
+		0x06, 0x25, 0x01, 0x02, 0x05, 0x06, 0x09, 0x04,
+		0x04, 0000, 0000, 0xfe, 0x01, 0x01, 0x09, 0x09,
+		0x21, 0x01, 0xd0, 0x07, 0x0c, 0x20, 0x01, 0x01,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+		0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000
+};
 
 void USBHost::Init()
 {
@@ -503,7 +570,11 @@ HostStatus USBHost::GetStringDesc(const uint8_t stringIndex, uint8_t* buff, cons
 HostStatus USBHost::GetConfigDesc(const uint16_t length)
 {
 	uint8_t* buf = device.cfgDescRaw;
-	HostStatus status = GetDescriptor((requestRecipientDevice | requestTypeStandard), descriptorConfiguration, buf, std::min(length, maxSizeConfiguration));
+	//HostStatus status = GetDescriptor((requestRecipientDevice | requestTypeStandard), descriptorConfiguration, buf, std::min(length, maxSizeConfiguration));
+
+	// Debug
+	HostStatus status = HostStatus::OK;
+	memcpy(buf, dummyDescr, maxSizeConfiguration);
 
 	if (status == HostStatus::OK) {
 		DescHeader* pdesc = (DescHeader*)buf;
@@ -875,13 +946,16 @@ void USBHost::FreePipe(uint8_t idx)
 
 USBHost::InterfaceDescriptor* USBHost::SelectInterface(const uint8_t ifClass, const uint8_t subClass)
 {
-	for (uint32_t i = 0; i < device.cfgDesc.bNumInterfaces; ++i) {
-		if (device.cfgDesc.ifDesc[i].bInterfaceClass == ifClass && device.cfgDesc.ifDesc[i].bInterfaceSubClass == subClass) {
-			device.currentInterface = i;
-			printf("Switching to Interface %lu\n", i);
-			printf("Class    : %xh\n", device.cfgDesc.ifDesc[i].bInterfaceClass);
-			printf("SubClass : %xh\n", device.cfgDesc.ifDesc[i].bInterfaceSubClass);
-			return &device.cfgDesc.ifDesc[i];
+	// Note there can be more interfaces than device.cfgDesc.bNumInterfaces as some can have alternate settings
+	for (uint32_t i = 0; i < usbHost.maxNumInterfaces; ++i) {
+		if (usbHost.device.cfgDesc.ifDesc[i].bDescriptorType == usbHost.descriptorTypeInterface) {
+			if (device.cfgDesc.ifDesc[i].bInterfaceClass == ifClass && device.cfgDesc.ifDesc[i].bInterfaceSubClass == subClass) {
+				device.currentInterface = i;
+				printf("Switching to Interface %lu\n", i);
+				printf("Class    : %xh\n", device.cfgDesc.ifDesc[i].bInterfaceClass);
+				printf("SubClass : %xh\n", device.cfgDesc.ifDesc[i].bInterfaceSubClass);
+				return &device.cfgDesc.ifDesc[i];
+			}
 		}
 	}
 	printf("Error: Cannot Select This Interface\n");

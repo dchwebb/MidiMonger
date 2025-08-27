@@ -394,27 +394,30 @@ void CommandHandler::ProcessCommand(std::string_view cmd)
 				usbHost.device.cfgDesc.bMaxPower
 				);
 
-		for (uint32_t i = 0; i < usbHost.device.cfgDesc.bNumInterfaces; ++i) {
-			printf("Interface Descriptor:\r\n"
-					"bLength: %#04x\r\n"
-					"bDescriptorType: %#04x\r\n"
-					"bInterfaceNumber: %#04x\r\n"
-					"bAlternateSetting: %#04x\r\n"
-					"bNumEndpoints: %#04x\r\n"
-					"bInterfaceClass: %#04x\r\n"
-					"bInterfaceSubClass: %#04x\r\n"
-					"bInterfaceProtocol: %#04x\r\n"
-					"iInterface: %#04x\r\n\r\n",
-					usbHost.device.cfgDesc.ifDesc[i].bLength,
-					usbHost.device.cfgDesc.ifDesc[i].bDescriptorType,
-					usbHost.device.cfgDesc.ifDesc[i].bInterfaceNumber,
-					usbHost.device.cfgDesc.ifDesc[i].bAlternateSetting,
-					usbHost.device.cfgDesc.ifDesc[i].bNumEndpoints,
-					usbHost.device.cfgDesc.ifDesc[i].bInterfaceClass,
-					usbHost.device.cfgDesc.ifDesc[i].bInterfaceSubClass,
-					usbHost.device.cfgDesc.ifDesc[i].bInterfaceProtocol,
-					usbHost.device.cfgDesc.ifDesc[i].iInterface
-					);
+		// Note there can be more virtual interfaces as some interfaces can have alternate settings
+		for (uint32_t i = 0; i < usbHost.maxNumInterfaces; ++i) {
+			if (usbHost.device.cfgDesc.ifDesc[i].bDescriptorType == usbHost.descriptorTypeInterface) {
+				printf("Interface Descriptor:\r\n"
+						"bLength: %#04x\r\n"
+						"bDescriptorType: %#04x\r\n"
+						"bInterfaceNumber: %#04x\r\n"
+						"bAlternateSetting: %#04x\r\n"
+						"bNumEndpoints: %#04x\r\n"
+						"bInterfaceClass: %#04x\r\n"
+						"bInterfaceSubClass: %#04x\r\n"
+						"bInterfaceProtocol: %#04x\r\n"
+						"iInterface: %#04x\r\n\r\n",
+						usbHost.device.cfgDesc.ifDesc[i].bLength,
+						usbHost.device.cfgDesc.ifDesc[i].bDescriptorType,
+						usbHost.device.cfgDesc.ifDesc[i].bInterfaceNumber,
+						usbHost.device.cfgDesc.ifDesc[i].bAlternateSetting,
+						usbHost.device.cfgDesc.ifDesc[i].bNumEndpoints,
+						usbHost.device.cfgDesc.ifDesc[i].bInterfaceClass,
+						usbHost.device.cfgDesc.ifDesc[i].bInterfaceSubClass,
+						usbHost.device.cfgDesc.ifDesc[i].bInterfaceProtocol,
+						usbHost.device.cfgDesc.ifDesc[i].iInterface
+						);
+				}
 
 			for (uint32_t ep = 0; ep < usbHost.device.cfgDesc.ifDesc[i].bNumEndpoints; ++ep) {
 				printf("Endpoint Descriptor:\r\n"
