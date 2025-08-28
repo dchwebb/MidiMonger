@@ -163,24 +163,36 @@ void MidiControl::MidiEvent(const uint32_t data)
 				// Channel notes
 				} else if (gate.type == GateType::channelNote) {
 
-					// Remove note from list (if already playing) and add to latest position in list
-					activeNote& noteList = channelNotes[gate.channel - 1].activeNotes;
-					noteList.remove(midiEvent.db1);
-					if (midiEvent.msg == NoteOn) {
-						noteList.push_back(midiEvent.db1);
+					uint8_t* playing = channelNotes[gate.channel - 1].playingNotes;
+
+					uint8_t oldNotes[chNoteCount];
+					*(uint32_t*)oldNotes = *(uint32_t*)playing;		// Convert to 4x8bit array to 32bit int for copying and clearing
+					*(uint32_t*)playing = 0;
+
+					uint8_t newNote = 0;
+					uint8_t oldNote = 0;
+
+					if (midiEvent.msg == NoteOn) {				// Add new note to start of array
+						playing[newNote++] = midiEvent.db1;
 					}
 
-					// work back through the active note list checking which voice to assign note to
+					// Add remaining old notes to array
+					while (newNote < chNoteCount && oldNote < chNoteCount) {
+						if (oldNotes[oldNote] != midiEvent.db1 && oldNotes[oldNote]) {
+							playing[newNote++] = oldNotes[oldNote];
+						}
+						++oldNote;
+					}
+
 					bool notePlaying;
 					uint8_t noteToAssign = 0;			// stores note not currently assigned to a voice for allocation later
-					auto currNote = noteList.cend();
-					for (int8_t n = std::min((uint8_t)noteList.size(), channelNotes[gate.channel - 1].voiceCount); n > 0; n--) {
-						currNote--;
 
+					// work back through the active note list checking which voice to assign note to
+					for (int8_t n = 0; n < channelNotes[gate.channel - 1].voiceCount; ++n) {
 						// check if any voice is currently playing note
 						notePlaying = false;
-						for (uint8_t c = 0; c < 4; ++c) {
-							if (cvOutputs[c].currentNote == *currNote && cvOutputs[c].channel == gate.channel) {
+						for (uint8_t c = 0; c < chNoteCount; ++c) {
+							if (cvOutputs[c].currentNote == playing[n] && cvOutputs[c].channel == gate.channel) {
 								cvOutputs[c].nextNote = cvOutputs[c].currentNote;
 								notePlaying = true;
 								break;
@@ -188,12 +200,14 @@ void MidiControl::MidiEvent(const uint32_t data)
 						}
 
 						// if no voice is currently playing note it will be assigned after all playing notes are identified
-						if (!notePlaying && midiEvent.db1 == *currNote) {		// Added condition midiEvent.db1 == *currNote to prevent replaying notes that have been voice stolen
-							noteToAssign = *currNote;
+						if (!notePlaying && midiEvent.db1 == playing[n]) {		// Added condition midiEvent.db1 == playing[n] to prevent replaying notes that have been voice stolen
+							noteToAssign = playing[n];
 						}
 					}
 
-					if (noteToAssign > 0) {
+
+
+					if (noteToAssign) {
 						for (uint8_t ch = 0; ch < 4; ++ch) {
 							uint8_t c = (ch + channelNotes[gate.channel].lastVoice) & 3;			// Round robin loop: start from next channel after the last one played
 

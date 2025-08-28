@@ -69,10 +69,10 @@ private:
 	void QueueInc();
 	void MatchChannelSetting(OutputType isGate, uint8_t num);
 
-	typedef std::list<uint8_t> activeNote;
+	static constexpr uint8_t chNoteCount = 4;
 
 	struct ChannelNote {
-		activeNote activeNotes;
+		uint8_t playingNotes[chNoteCount];
 		uint8_t voiceCount;
 		uint8_t lastVoice;					// for round robin assignment of notes to voices
 		float pitchbend;
