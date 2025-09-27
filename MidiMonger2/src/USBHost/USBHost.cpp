@@ -167,14 +167,11 @@ void USBHost::Process()
 
 			if (status == HostStatus::OK) {
 				printf("Device remote wakeup enabled\n");
-				gState = HostState::CheckClass;
 			} else if (status == HostStatus::NotSupported) {
 				printf("Remote wakeup not supported by the device\n");
-				gState = HostState::CheckClass;
 			}
-		} else {
-			gState = HostState::CheckClass;
 		}
+		gState = HostState::CheckClass;
 		break;
 
 	case HostState::CheckClass:
@@ -239,7 +236,7 @@ HostStatus USBHost::DoEnumeration()
 
 	switch (enumState) {
 	case EnumState::Idle:
-		reqStatus = GetDevDesc(8);		// Get Device Desc for 1st 8 bytes to get EP0 MaxPacketSize
+		reqStatus = GetDevDesc(8);		// Get first 8 bytes of Device Desc to get EP0 MaxPacketSize
 		if (reqStatus == HostStatus::OK) {
 			control.pipeSize = device.devDesc.bMaxPacketSize;
 			printf("Enumeration: Got max packet size: %d\n", control.pipeSize);

@@ -124,6 +124,7 @@ void MidiControl::MidiEvent(const uint32_t data)
 			} else if (cv.type == CvType::pitchBend && cv.channel == midiEvent.chn + 1) {
 				uint16_t dacOutput = (midiEvent.db1 + (midiEvent.db2 << 7)) << 2;		// convert 14 to 16 bit value
 				dacHandler.SendData(DACHandler::WriteChannel | cv.dacChannel, dacOutput);
+				cv.LedOn(200);
 			}
 		}
 	}
@@ -489,7 +490,7 @@ void MidiControl::LightShow(LightShowType type)
 	case LightShowType::startup:
 		for (uint8_t c = 0; c < 8; ++c) {
 			midiControl.cvOutputs[c > 3 ? 3 - c % 4 : c].LedOn(60);
-			delay = SysTickVal + 110;
+			delay = SysTickVal + 100;
 			while (delay > SysTickVal) {
 				midiControl.GateTimer();
 			}
@@ -497,10 +498,10 @@ void MidiControl::LightShow(LightShowType type)
 		break;
 
 	case LightShowType::connection:
-		for (uint8_t c = 0; c < 4; ++c) {
+		for (uint8_t c = 0; c < 2; ++c) {
 			midiControl.cvOutputs[c & 1 ? 0 : 1].LedOn(60);
 			midiControl.cvOutputs[c & 1 ? 2 : 3].LedOn(60);
-			delay = SysTickVal + 210;
+			delay = SysTickVal + 200;
 			while (delay > SysTickVal) {
 				midiControl.GateTimer();
 			}

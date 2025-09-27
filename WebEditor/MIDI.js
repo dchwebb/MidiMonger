@@ -205,6 +205,10 @@ function testOutput(outputType, outputNo) {
             break;
 
         case cvEnum.pitchbend:
+            var channel = document.getElementById("cChannel" + outputNo).value;
+            for (var o = 0; o < 128; o++) {
+                output.send([0xE0 + parseInt(channel - 1), 0, o], window.performance.now() + (o * 5));
+            }
             break;
 
         case cvEnum.aftertouch:
