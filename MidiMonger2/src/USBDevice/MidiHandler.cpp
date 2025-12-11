@@ -14,9 +14,13 @@ void MidiHandler::DataIn()
 
 void MidiHandler::DataOut()
 {
-	// Handle incoming midi command here
-	if (outBuffCount == 4) {
-		midiControl.MidiEvent(*outBuff);
+	// Handle incoming MIDI commands here
+	if (outBuffCount >= 4 && outBuff[1] != 0xF0) {
+		// One or more standard USB‑MIDI event packets: process all 32‑bit words
+		const uint32_t eventCount = outBuffCount / 4;
+		for (uint32_t i = 0; i < eventCount; ++i) {
+			midiControl.MidiEvent(outBuff[i]);
+		}
 
 	} else if (outBuff[1] == 0xF0 && outBuffCount > 3) {		// Sysex - Doesn't do anything at present
 		// sysEx will be padded when supplied by usb - add only actual sysEx message bytes to array
